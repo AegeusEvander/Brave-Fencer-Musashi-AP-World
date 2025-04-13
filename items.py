@@ -18,6 +18,9 @@ item_table: Dict[str, BFMItemData] = {
     "Hawker": BFMItemData(IC.progression, 1, 0x42, "NPC"),
     "MusicianB": BFMItemData(IC.progression, 1, 0x44, "NPC"),
     "SoldierA": BFMItemData(IC.progression, 1, 0x45, "NPC"),
+    "MercenC": BFMItemData(IC.progression, 1, 0x46, "NPC"),
+    "KnightB": BFMItemData(IC.progression, 1, 0x48, "NPC"),
+    "Shepherd": BFMItemData(IC.progression, 1, 0x49, "NPC"),
     "Acrobat": BFMItemData(IC.progression, 1, 0x51, "NPC"),
 }
 

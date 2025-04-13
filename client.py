@@ -111,7 +111,7 @@ class BFMClient(BizHawkClient):
                 for i in range(len(new_bincho_checks)):
                     if(new_bincho_checks[i]):
                         locations_to_send_to_server.append(location_base_id + i)
-                logger.info("What was read in 0ae671 %s",save_data)
+                #logger.info("What was read in 0ae671 %s",save_data)
                 logger.info("Trying to send %s",locations_to_send_to_server)
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
@@ -130,9 +130,9 @@ class BFMClient(BizHawkClient):
             if(curr_location == 4112):
                 #logger.info("in Town")
                 if(self.received_count < len(ctx.items_received)):
-                    logger.info("list %s",ctx.items_received[self.received_count])
+                    #logger.info("list %s",ctx.items_received[self.received_count])
                     item_id = ctx.items_received[self.received_count][0]
-                    logger.info("list %s",item_id)
+                    #logger.info("list %s",item_id)
                     if(item_id>0x0ba1f7 and item_id<0x0ba21b):
                         npc_state: bytes = (await bizhawk.read(
                             ctx.bizhawk_ctx,
@@ -150,7 +150,7 @@ class BFMClient(BizHawkClient):
                         logger.info("unhandled item receieved %s",item_id)
                     self.received_count += 1
 
-            if not ctx.finished_game and len(ctx.items_received) == 6:
+            if not ctx.finished_game and len(ctx.items_received) == 9:
                 await ctx.send_msgs([{
                     "cmd": "StatusUpdate",
                     "status": ClientStatus.CLIENT_GOAL

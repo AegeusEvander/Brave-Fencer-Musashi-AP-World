@@ -6,4 +6,4 @@ if TYPE_CHECKING:
     from . import BFMWorld
 
 def saved_everyone(state: CollectionState, world: "BFMWorld") -> bool:
-    return state.has_all({"Guard", "Seer", "Hawker", "MusicianB", "SoldierA", "Acrobat"}, world.player)
+    return state.has_all({"Guard", "Seer", "Hawker", "MusicianB", "SoldierA", "Acrobat", "MercenC", "KnightB", "Shepherd"}, world.player)

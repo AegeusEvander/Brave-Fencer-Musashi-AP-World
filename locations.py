@@ -14,6 +14,9 @@ location_table: Dict[str, BFMLocationData] = {
     "Hawker Bincho - Somnolent Forest Deadend": BFMLocationData("Somnolent Forest Deadend"),
     "MusicianB Bincho - Steamwood Forest": BFMLocationData("Steamwood Forest"),
     "SoldierA Bincho - Twinpeak Entrance": BFMLocationData("Twinpeak Entrance"),
+    "MercenC Bincho - Twinpeak Around the Bend": BFMLocationData("Twinpeak Around the Bend"),
+    "KnightB Bincho - Twinpeak Second Peak": BFMLocationData("Twinpeak Second Peak"),
+    "Shepherd Bincho - Twinpeak Rope Bridge": BFMLocationData("Twinpeak Rope Bridge"),
     "Acrobat Bincho - Steamwood Forest": BFMLocationData("Steamwood Forest"),
 }
 
@@ -31,7 +34,10 @@ standard_location_name_to_id: Dict[str, int] = {name: location_base_id + index f
 #bandaid fix please remove
 standard_location_name_to_id["MusicianB Bincho - Steamwood Forest"] += 1
 standard_location_name_to_id["SoldierA Bincho - Twinpeak Entrance"] += 1
-standard_location_name_to_id["Acrobat Bincho - Steamwood Forest"] += 12
+standard_location_name_to_id["MercenC Bincho - Twinpeak Around the Bend"] += 1
+standard_location_name_to_id["KnightB Bincho - Twinpeak Second Peak"] += 2
+standard_location_name_to_id["Shepherd Bincho - Twinpeak Rope Bridge"] += 2
+standard_location_name_to_id["Acrobat Bincho - Steamwood Forest"] += 9
 
 all_locations = location_table.copy()
 
