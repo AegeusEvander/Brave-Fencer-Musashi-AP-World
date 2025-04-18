@@ -16,12 +16,20 @@ item_table: Dict[str, BFMItemData] = {
     "Guard": BFMItemData(IC.progression, 1, 0x40, "NPC"),
     "Seer": BFMItemData(IC.progression, 1, 0x41, "NPC"),
     "Hawker": BFMItemData(IC.progression, 1, 0x42, "NPC"),
+    "Maid": BFMItemData(IC.progression, 1, 0x43, "NPC"),
     "MusicianB": BFMItemData(IC.progression, 1, 0x44, "NPC"),
     "SoldierA": BFMItemData(IC.progression, 1, 0x45, "NPC"),
     "MercenC": BFMItemData(IC.progression, 1, 0x46, "NPC"),
+    "CarpentA": BFMItemData(IC.progression, 1, 0x47, "NPC"),
     "KnightB": BFMItemData(IC.progression, 1, 0x48, "NPC"),
     "Shepherd": BFMItemData(IC.progression, 1, 0x49, "NPC"),
+    "KnightA": BFMItemData(IC.progression, 1, 0x4F, "NPC"),
+    "CookA": BFMItemData(IC.progression, 1, 0x50, "NPC"),
     "Acrobat": BFMItemData(IC.progression, 1, 0x51, "NPC"),
+    "CarpentC": BFMItemData(IC.progression, 1, 0x55, "NPC"),
+    "Knitter": BFMItemData(IC.progression, 1, 0x57, "NPC"),
+    "Chief": BFMItemData(IC.progression, 1, 0x5a, "NPC"),
+    "Doctor": BFMItemData(IC.progression, 1, 0x5f, "NPC"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

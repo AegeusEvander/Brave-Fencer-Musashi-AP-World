@@ -58,7 +58,25 @@ class BFMClient(BizHawkClient):
                 bfm_identifier_ram_address, len(bytes_expected), MAIN_RAM
             )]))[0]
             if bytes_actual != bytes_expected:
-                return False
+                bytes_actual = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                    0x009f9a, len(bytes_expected), MAIN_RAM
+                )]))[0]
+                if bytes_actual != bytes_expected:
+                    #SLUS_007.26;1 in ASCII
+                    bytes_expected = bytes.fromhex("534C55535F3030372E32363B31")
+                    bytes_actual = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                        0x0093c4, len(bytes_expected), MAIN_RAM
+                    )]))[0]
+                    if bytes_actual != bytes_expected:
+                        bytes_actual = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                            0x009e19, len(bytes_expected), MAIN_RAM
+                        )]))[0]
+                        if bytes_actual != bytes_expected:
+                            bytes_actual = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                0x00b8b7, len(bytes_expected), MAIN_RAM
+                            )]))[0]
+                            if bytes_actual != bytes_expected:
+                                return False
         except Exception:
             return False
 
@@ -93,6 +111,12 @@ class BFMClient(BizHawkClient):
         if ctx.server is None or ctx.server.socket.closed or ctx.slot_data is None:
             return
         try:
+            check_game_state: bytes = bytes.fromhex("0b")
+            game_state: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                0x0b99de, 1, MAIN_RAM
+            )]))[0]
+            if check_game_state != game_state:
+                return
             global bincho_checks
             from CommonClient import logger
             save_data: bytes = (await bizhawk.read(
@@ -127,7 +151,9 @@ class BFMClient(BizHawkClient):
             ))[0]
             curr_location = int.from_bytes(curr_location_data,byteorder='little')
             #logger.info("curr_location %s",curr_location)
-            if(curr_location == 4112):
+            #if(curr_location == 4112 or curr_location == 4178):
+            #not save menu
+            if(curr_location != 12296):
                 #logger.info("in Town")
                 if(self.received_count < len(ctx.items_received)):
                     #logger.info("list %s",ctx.items_received[self.received_count])
@@ -150,7 +176,7 @@ class BFMClient(BizHawkClient):
                         logger.info("unhandled item receieved %s",item_id)
                     self.received_count += 1
 
-            if not ctx.finished_game and len(ctx.items_received) == 9:
+            if not ctx.finished_game and len(ctx.items_received) == 17:
                 await ctx.send_msgs([{
                     "cmd": "StatusUpdate",
                     "status": ClientStatus.CLIENT_GOAL
