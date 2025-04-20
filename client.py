@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, Any, ClassVar, List
 
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch as launch_component
 
-from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, location_base_id
+from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, location_base_id, table_ids_to_hint
+from .dialog_locations import dialog_location_table
 #if TYPE_CHECKING:
 #    from .context import BizHawkClientContext
 from .utils import Constants
@@ -39,6 +40,10 @@ class BFMClient(BizHawkClient):
     """The file extension(s) this client is meant to open and patch (e.g. ".apz3")"""
     bincho_checks = [False] * 35
     received_count = 0
+    old_location = 0
+    old_step_count = 0
+    level_transition = 0
+    request_hints = 0
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         """Should return whether the currently loaded ROM should be handled by this client. You might read the game name
@@ -83,7 +88,8 @@ class BFMClient(BizHawkClient):
         ctx.game = self.game
         ctx.items_handling = 0b011
         ctx.want_slot_data = True
-        ctx.watcher_timeout = 0.125  # value taken from Forbiden Memories, taken from Pokemon Emerald's client
+        #ctx.watcher_timeout = 0.125  # value taken from Forbiden Memories, taken from Pokemon Emerald's client
+        ctx.watcher_timeout = 0.25  
         #self.random = Random()  # used for silly random deathlink messages
         logger.info(f"Brave Fencer Musashi Client v{__version__}. For updates:")
         logger.info("https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases")
@@ -151,35 +157,126 @@ class BFMClient(BizHawkClient):
             ))[0]
             curr_location = int.from_bytes(curr_location_data,byteorder='little')
             #logger.info("curr_location %s",curr_location)
+            #logger.info("in Town")
             #if(curr_location == 4112 or curr_location == 4178):
             #not save menu
             if(curr_location != 12296):
-                #logger.info("in Town")
-                if(self.received_count < len(ctx.items_received)):
-                    #logger.info("list %s",ctx.items_received[self.received_count])
-                    item_id = ctx.items_received[self.received_count][0]
-                    #logger.info("list %s",item_id)
-                    if(item_id>0x0ba1f7 and item_id<0x0ba21b):
-                        npc_state: bytes = (await bizhawk.read(
-                            ctx.bizhawk_ctx,
-                            [(item_id, 1, MAIN_RAM)]
-                        ))[0]
-                        if(npc_state[0] == 0b0):
+                if(self.old_step_count != 0 and self.level_transition != 1):
+                    if(self.received_count < len(ctx.items_received)):
+                        #logger.info("list %s",ctx.items_received[self.received_count])
+                        item_id = ctx.items_received[self.received_count][0]
+                        #logger.info("list %s",item_id)
+                        if(item_id>0x0ba1f7 and item_id<0x0ba21b):
+                            npc_state: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(item_id, 1, MAIN_RAM)]
+                            ))[0]
+                            if(npc_state[0] == 0b0):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(item_id, [0b1], MAIN_RAM)]
+                                )
+                                logger.info("sent id to rescue list %s",item_id)
+                            else:
+                                logger.info("id already in rescue list %s",item_id)
+                        else:
+                            logger.info("unhandled item receieved %s",item_id)
+                        self.received_count += 1
+            
+            if(curr_location != self.old_location):
+                steps_bytes: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                    0x078F08, 4, MAIN_RAM
+                )]))[0]
+                step_count = int.from_bytes(steps_bytes,byteorder='little')
+                if(self.level_transition == 0):
+                    self.old_step_count = step_count
+                    self.level_transition = 1
+                if(self.old_step_count != step_count):
+                    self.old_location = curr_location
+                    self.level_transition = 0
+                    if(curr_location in dialog_location_table):
+                        for loc_id, dialog_id in dialog_location_table[curr_location].items():
+                            if(loc_id in ctx.locations_info):
+                                s = "<"+ctx.username+">"
+                                barray = bytearray(s,"utf-8")
+                                barray.append(0x0a)
+                                s = "Found "
+                                barray.extend(s.encode("utf-8"))
+                                barray.append(0x01)
+                                barray.append(0x02)
+                                s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+                                logger.info("found scout item")# %s",s)
+                                barray.extend(s.encode("utf-8"))
+                                barray.append(0x01)
+                                barray.append(0x01)
+                                s = " for "
+                                barray.extend(s.encode("utf-8"))
+                                s = ctx.player_names[ctx.locations_info[loc_id].player]
+                                barray.extend(s.encode("utf-8"))
+                                barray.append(0x00)
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(dialog_id+4, barray, MAIN_RAM)]
+                                )
+                            else:
+                                logger.info("no scout information found try reentering area (and taking a couple steps)")
+                                await ctx.send_msgs([{
+                                    "cmd": "LocationScouts",
+                                    "locations": table_ids_to_hint,
+                                    "create_as_hint": 0
+                                }])
+                                break
+                self.old_step_count = step_count
+                """if(curr_location == 0x3014):
+                    #Hawker
+                    dialog: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                        0x191cbc, 20, MAIN_RAM
+                    )]))[0]
+                    logger.info("read hawker dialog %s",dialog)
+                    await ctx.send_msgs([{
+                        "cmd": "LocationScouts",
+                        "locations": [standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]],
+                        "create_as_hint": 0
+                    }])
+                    #logger.info("scout info %s",ctx.locations_info.items()[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]])
+                    if(ctx.locations_info):
+                        if(standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"] in ctx.locations_info):
+                            s = "<"+ctx.username+">"
+                            barray = bytearray(s,"utf-8")
+                            barray.append(0x0a)
+                            s = "Found "
+                            barray.extend(s.encode("utf-8"))
+                            barray.append(0x01)
+                            barray.append(0x02)
+                            s = ctx.item_names.lookup_in_slot(ctx.locations_info[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]].item, ctx.locations_info[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]].player)
+                            logger.info("scout item name %s",s)
+                            barray.extend(s.encode("utf-8"))
+                            barray.append(0x01)
+                            barray.append(0x01)
+                            s = " for "
+                            barray.extend(s.encode("utf-8"))
+                            s = ctx.player_names[ctx.locations_info[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]].player]
+                            barray.extend(s.encode("utf-8"))
+                            barray.append(0x00)
                             await bizhawk.write(
                                 ctx.bizhawk_ctx,
-                                [(item_id, [0b1], MAIN_RAM)]
+                                [(0x191cc0, barray, MAIN_RAM)]
                             )
-                            logger.info("sent id to rescue list %s",item_id)
                         else:
-                            logger.info("id already in rescue list %s",item_id)
-                    else:
-                        logger.info("unhandled item receieved %s",item_id)
-                    self.received_count += 1
+                            logger.info("no hawker found")"""
 
-            if not ctx.finished_game and len(ctx.items_received) == 17:
+            if not ctx.finished_game and len(ctx.items_received) == 25:
                 await ctx.send_msgs([{
                     "cmd": "StatusUpdate",
                     "status": ClientStatus.CLIENT_GOAL
+                }])
+            
+            if (self.request_hints == 0):
+                self.request_hints = 1
+                await ctx.send_msgs([{
+                    "cmd": "LocationScouts",
+                    "locations": table_ids_to_hint,
+                    "create_as_hint": 0
                 }])
 
         except bizhawk.RequestFailedError:

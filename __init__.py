@@ -3,7 +3,7 @@ from logging import warning
 from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState
 from .items import item_name_to_id, item_table, item_name_groups, slot_data_item_names
 from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one
-from .rules import saved_everyone, set_region_rules
+from .rules import saved_everyone, set_region_rules, set_location_rules
 from .regions import bfm_regions
 from .options import BFMOptions, LuminaRandomized
 from worlds.AutoWorld import WebWorld, World
@@ -82,7 +82,7 @@ class BFMWorld(World):
             location = BFMLocation(self.player, location_name, location_id, region)
             region.locations.append(location)
 
-        self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "Acrobat", "MercenC", "CarpentA", "KnightA", "CookA", "KnightB", "Shepherd", "CarpentC", "Knitter", "Chief", "Doctor"}, self.player)
+        self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "CarpentC", "Knitter", "MercenA", "Chief", "KnightC", "Doctor", "Librarian"}, self.player)
 
     def fill_slot_data(self) -> Dict[str, Any]:
         return {
@@ -115,6 +115,7 @@ class BFMWorld(World):
     
     def set_rules(self) -> None:
         set_region_rules(self)
+        set_location_rules(self)
 
 
         
