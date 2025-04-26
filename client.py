@@ -142,7 +142,7 @@ class BFMClient(BizHawkClient):
                     if(new_bincho_checks[i]):
                         locations_to_send_to_server.append(location_base_id + i)
                 #logger.info("What was read in 0ae671 %s",save_data)
-                logger.info("Trying to send %s",locations_to_send_to_server)
+                #logger.info("Trying to send %s",locations_to_send_to_server)
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -176,7 +176,7 @@ class BFMClient(BizHawkClient):
                                     ctx.bizhawk_ctx,
                                     [(item_id, [0b1], MAIN_RAM)]
                                 )
-                                logger.info("sent id to rescue list %s",item_id)
+                                #logger.info("sent id to rescue list %s",item_id)
                             else:
                                 logger.info("id already in rescue list %s",item_id)
                         else:
@@ -205,7 +205,7 @@ class BFMClient(BizHawkClient):
                                 barray.append(0x01)
                                 barray.append(0x02)
                                 s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
-                                logger.info("found scout item")# %s",s)
+                                #logger.info("found scout item")# %s",s)
                                 barray.extend(s.encode("utf-8"))
                                 barray.append(0x01)
                                 barray.append(0x01)
@@ -219,7 +219,7 @@ class BFMClient(BizHawkClient):
                                     [(dialog_id+4, barray, MAIN_RAM)]
                                 )
                             else:
-                                logger.info("no scout information found try reentering area (and taking a couple steps)")
+                                logger.info("no scout information found try reentering area (after taking a couple steps)")
                                 await ctx.send_msgs([{
                                     "cmd": "LocationScouts",
                                     "locations": table_ids_to_hint,
@@ -265,7 +265,7 @@ class BFMClient(BizHawkClient):
                         else:
                             logger.info("no hawker found")"""
 
-            if not ctx.finished_game and len(ctx.items_received) == 25:
+            if not ctx.finished_game and len(ctx.items_received) == 35:
                 await ctx.send_msgs([{
                     "cmd": "StatusUpdate",
                     "status": ClientStatus.CLIENT_GOAL

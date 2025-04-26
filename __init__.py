@@ -82,7 +82,8 @@ class BFMWorld(World):
             location = BFMLocation(self.player, location_name, location_id, region)
             region.locations.append(location)
 
-        self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "CarpentC", "Knitter", "MercenA", "Chief", "KnightC", "Doctor", "Librarian"}, self.player)
+        self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "Taster", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "Janitor", "Artisan", "CarpentC", "MusicianC", "Knitter", "Chef", "MercenA", "Chief", "CookB", "Conductor", "Butcher", "KnightC", "Doctor", "KnightD", "Alchemist", "Librarian"}, self.player)
+        #self.multiworld.completion_condition[self.player] = lambda state: saved_everyone(state, self.world)
 
     def fill_slot_data(self) -> Dict[str, Any]:
         return {
