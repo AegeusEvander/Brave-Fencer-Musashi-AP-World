@@ -11,4 +11,5 @@ class Constants:
     GAME_OPTIONS_KEY: str = "o"
     GENERATED_WITH_KEY: str = "v"
     DEATHLINK_OPTION_KEY: str = "X"
+    HAIRCOLOR_KEY: str = "h"
 

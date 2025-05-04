@@ -27,6 +27,12 @@ def set_region_rules(world: "BFMWorld") -> None:
         lambda state: can_fight_skullpion(state, world)
     world.get_entrance("Grillin Village -> Restaurant Basement").access_rule = \
         lambda state: can_fight_skullpion(state, world)
+    world.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena").access_rule = \
+        lambda state: can_fight_skullpion(state, world)
+    world.get_entrance("Somnolent Forest -> Island of Dragons").access_rule = \
+        lambda state: can_identify_gondola_gizmo(state, world) and can_fight_skullpion(state, world)
+    world.get_entrance("Grillin Reservoir -> Wind Scroll").access_rule = \
+        lambda state: can_enter_frozen_palace(state, world) and can_identify_gondola_gizmo(state, world) and can_fight_skullpion(state, world)
     world.get_entrance("Meandering Forest -> Frozen Palace Entrance").access_rule = \
         lambda state: can_enter_frozen_palace(state, world) and can_identify_gondola_gizmo(state, world) and can_fight_skullpion(state, world)
     world.get_entrance("Upper Grillin Village -> Upper Mines").access_rule = \
@@ -35,5 +41,12 @@ def set_region_rules(world: "BFMWorld") -> None:
 def set_location_rules(world: "BFMWorld") -> None:
     player = world.player
 
-    set_rule(world.get_location("Knitter Bincho - Twinpeak Path to Skullpion"),
+    set_rule(world.get_location("Weaver Bincho - Twinpeak Second Peak"),
              lambda state: can_fight_skullpion(state, world))
+    set_rule(world.get_location("Minku - Twinpeak End of Stream"),
+             lambda state: can_fight_skullpion(state, world))
+    set_rule(world.get_location("Minku - Steamwood Forest"),
+             lambda state: can_fight_skullpion(state, world))
+    set_rule(world.get_location("Minku - Somnolent Forest"),
+             lambda state: can_fight_skullpion(state, world))
+             

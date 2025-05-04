@@ -15,7 +15,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Maid Bincho - Somnolent Forest Behind Steam": BFMLocationData("Somnolent Forest Behind Steam"),
     "MusicianB Bincho - Steamwood Forest": BFMLocationData("Steamwood Forest"),
     "SoldierA Bincho - Twinpeak Entrance": BFMLocationData("Twinpeak Entrance"),
-    "MercenC Bincho - Twinpeak Around the Bend": BFMLocationData("Twinpeak Around the Bend",),
+    "MercenC Bincho - Twinpeak Around the Bend": BFMLocationData("Twinpeak Around the Bend"),
     "CarpentA Bincho - Twinpeak Second Peak": BFMLocationData("Twinpeak Second Peak"),
     "KnightB Bincho - Twinpeak Second Peak": BFMLocationData("Twinpeak Second Peak"),
     "Shepherd Bincho - Twinpeak Rope Bridge": BFMLocationData("Twinpeak Rope Bridge"),
@@ -44,6 +44,19 @@ location_table: Dict[str, BFMLocationData] = {
     "KnightD Bincho - Upper Mines Before Digging": BFMLocationData("Upper Mines Before Digging"),
     "Alchemist Bincho - Frozen Palace Red Eye Maze": BFMLocationData("Frozen Palace Red Eye Maze"),
     "Librarian Bincho - Restaurant Basement Near Rotating Platforms": BFMLocationData("Restaurant Basement Near Rotating Platforms"),
+    "Minku - Grillin Village Near Twinpeak": BFMLocationData("Upper Grillin Village",location_group = "Minku"),
+    "Minku - Somnolent Forest Hidden Path": BFMLocationData("Somnolent Forest",location_group = "Minku"),
+    "Minku - Twinpeak Around the Bend": BFMLocationData("Twinpeak Around the Bend",location_group = "Minku"), 
+    "Minku - Grillin Village Above Gondola": BFMLocationData("Upper Grillin Village",location_group = "Minku"),
+    "Minku - Skullpion Arena": BFMLocationData("Skullpion Arena",location_group = "Minku"),
+    "Minku - Steamwood Forest": BFMLocationData("Steamwood Forest",location_group = "Minku"),
+    "Minku - Somnolent Forest": BFMLocationData("Somnolent Forest",location_group = "Minku"),
+    "Minku - Twinpeak End of Stream": BFMLocationData("Twinpeak Around the Bend",location_group = "Minku"),
+    "Minku - Misteria Underground Lake": BFMLocationData("Misteria Underground Lake",location_group = "Minku"),
+    "Minku - Grillin Reservoir": BFMLocationData("Grillin Reservoir",location_group = "Minku"),
+    "Minku - Upper Mines Below Big Fan": BFMLocationData("Upper Mines Big Fan Room",location_group = "Minku"),
+    "Minku - Upper Mines": BFMLocationData("Upper Mines",location_group = "Minku"),
+    "Minku - Near Wind Scroll": BFMLocationData("Wind Scroll",location_group = "Minku"),
 }
 
 sphere_one: List[str] = [

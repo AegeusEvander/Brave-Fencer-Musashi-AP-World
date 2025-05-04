@@ -5,14 +5,16 @@ from .items import item_name_to_id, item_table, item_name_groups, slot_data_item
 from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one
 from .rules import saved_everyone, set_region_rules, set_location_rules
 from .regions import bfm_regions
-from .options import BFMOptions, LuminaRandomized
+from .options import BFMOptions
 from worlds.AutoWorld import WebWorld, World
 from Options import PlandoConnection, OptionError
 from settings import Group, Bool
+from .hair_color import hair_color_options, new_hair_color
 from .utils import Constants
 # This registers the client. The comment ignores "unused import" linter messages
 from .client import BFMClient  # type: ignore  # noqa
 from .version import __version__
+import string
 
 class BFMWeb(WebWorld):
     theme = "grass"
@@ -43,7 +45,7 @@ class BFMWorld(World):
     options: BFMOptions
     required_client_version = (0, 0, 1)
     web = BFMWeb()
-
+    hair_selection: str = hair_color_options[1]
 
     item_name_groups = item_name_groups
     location_name_groups = location_name_groups
@@ -67,6 +69,14 @@ class BFMWorld(World):
     def generate_early(self) -> None:
         self.player_location_table = standard_location_name_to_id.copy()
 
+        if self.options.hair_color_selection == 4:
+            if len(self.options.custom_hair_color_selection.value) == 6:
+                if(all(s in string.hexdigits for s in self.options.custom_hair_color_selection.value)):
+                    self.hair_selection = self.options.custom_hair_color_selection.value.upper()
+        else:
+            self.hair_selection = hair_color_options[self.options.hair_color_selection]
+
+
     def create_regions(self) -> None:
         
         for region_name in bfm_regions:
@@ -89,7 +99,8 @@ class BFMWorld(World):
         return {
             Constants.GENERATED_WITH_KEY: __version__,
             #Constants.GAME_OPTIONS_KEY: self.options.serialize(),
-            Constants.DEATHLINK_OPTION_KEY: self.options.death_link.value
+            Constants.DEATHLINK_OPTION_KEY: self.options.death_link.value,
+            Constants.HAIRCOLOR_KEY: self.hair_selection
         }
 
     def create_item(self, name: str, classification: ItemClassification = None) -> BFMItem:

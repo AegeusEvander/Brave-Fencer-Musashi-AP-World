@@ -48,6 +48,7 @@ item_table: Dict[str, BFMItemData] = {
     "KnightD": BFMItemData(IC.progression, 1, 0x60, "NPC"),
     "Alchemist": BFMItemData(IC.progression, 1, 0x61, "NPC"),
     "Librarian": BFMItemData(IC.progression, 1, 0x62, "NPC"),
+    "Longevity Berry": BFMItemData(IC.useful, 13, 0x63, "Stat Up"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints
@@ -62,8 +63,11 @@ slot_data_item_names = [
 
 item_name_to_id: Dict[str, int] = {name: item_base_id + data.item_id_offset for name, data in item_table.items()}
 
+item_id_to_name: Dict[int, str] = {(item_base_id + data.item_id_offset): name for name, data in item_table.items()}
+
 filler_items: List[str] = [name for name, data in item_table.items() if data.classification == IC.filler and name != "Grass"]
 
+npc_ids: List[int] = [item_base_id + data.item_id_offset for name, data in item_table.items() if data.item_group == "NPC"]
 
 def get_item_group(item_name: str) -> str:
     return item_table[item_name].item_group
