@@ -43,7 +43,7 @@ class BFMWorld(World):
     game: str = Constants.GAME_NAME
     options_dataclass =  BFMOptions
     options: BFMOptions
-    required_client_version = (0, 0, 1)
+    required_client_version = (0, 0, 7)
     web = BFMWeb()
     hair_selection: str = hair_color_options[1]
 
@@ -73,6 +73,10 @@ class BFMWorld(World):
             if len(self.options.custom_hair_color_selection.value) == 6:
                 if(all(s in string.hexdigits for s in self.options.custom_hair_color_selection.value)):
                     self.hair_selection = self.options.custom_hair_color_selection.value.upper()
+                else:
+                    self.hair_selection = hair_color_options[1]
+            else:
+                self.hair_selection = hair_color_options[1]
         else:
             self.hair_selection = hair_color_options[self.options.hair_color_selection]
 

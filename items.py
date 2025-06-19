@@ -48,7 +48,35 @@ item_table: Dict[str, BFMItemData] = {
     "KnightD": BFMItemData(IC.progression, 1, 0x60, "NPC"),
     "Alchemist": BFMItemData(IC.progression, 1, 0x61, "NPC"),
     "Librarian": BFMItemData(IC.progression, 1, 0x62, "NPC"),
-    "Longevity Berry": BFMItemData(IC.useful, 13, 0x63, "Stat Up"),
+    "Longevity Berry": BFMItemData(IC.useful, 13, 0x63 + item_base_id, "Stat Up"),
+    "Rock": BFMItemData(IC.useful, 1, 0x13, "Chest Reward"),
+    "Old Sword": BFMItemData(IC.filler, 1, 0x15, "Chest Reward"),
+    "Shield": BFMItemData(IC.filler, 1, 0x17, "Chest Reward"),
+    "Old Book": BFMItemData(IC.filler, 1, 0x19, "Chest Reward"),
+    "Aged Coin": BFMItemData(IC.filler, 1, 0x1b, "Chest Reward"),
+    "Old Crown": BFMItemData(IC.filler, 1, 0x1d, "Chest Reward"),
+    "Old Pipe": BFMItemData(IC.filler, 1, 0x1f, "Chest Reward"),
+    "Odd Hat": BFMItemData(IC.filler, 1, 0x21, "Chest Reward"),
+    "Dagger": BFMItemData(IC.filler, 1, 0x23, "Chest Reward"),
+    "Powder": BFMItemData(IC.filler, 1, 0x25, "Chest Reward"),
+    "Cloth": BFMItemData(IC.useful, 1, 0x27, "Chest Reward"),
+    "Helmet": BFMItemData(IC.filler, 1, 0x29, "Chest Reward"),
+    "Used Boot": BFMItemData(IC.filler, 1, 0x2b, "Chest Reward"),
+    "Old Glove": BFMItemData(IC.filler, 1, 0x2d, "Chest Reward"),
+    "Armor": BFMItemData(IC.filler, 1, 0x2f, "Chest Reward"),
+    "Long Tube": BFMItemData(IC.useful, 1, 0x31, "Chest Reward"),
+    "Red Cloth": BFMItemData(IC.filler, 1, 0x33, "Chest Reward"),
+    "White Cloth": BFMItemData(IC.filler, 1, 0x35, "Chest Reward"),
+    "Black Cloth": BFMItemData(IC.filler, 1, 0x37, "Chest Reward"),
+    "Large Tool": BFMItemData(IC.filler, 1, 0x39, "Chest Reward"),
+    "Odd Bone": BFMItemData(IC.filler, 1, 0x3b, "Chest Reward"),
+    "Bracelet": BFMItemData(IC.progression, 1, 0x49, "Chest Reward"),
+    "Old Shirt": BFMItemData(IC.useful, 1, 0x4a, "Chest Reward"),
+    "Red Shoes": BFMItemData(IC.progression, 1, 0x4b, "Chest Reward"),
+    "Red Eye": BFMItemData(IC.progression, 1, 0x60, "Chest Reward"),
+    "Blue Eye": BFMItemData(IC.progression, 1, 0x61, "Chest Reward"),
+    "Green Eye": BFMItemData(IC.progression, 1, 0x62, "Chest Reward"),
+    "1000 Drans": BFMItemData(IC.filler, 6, 0x78, "Chest Reward"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints
@@ -61,9 +89,9 @@ slot_data_item_names = [
     "Acrobat",
 ]
 
-item_name_to_id: Dict[str, int] = {name: item_base_id + data.item_id_offset for name, data in item_table.items()}
+item_name_to_id: Dict[str, int] = {name: item_base_id * (data.item_group == "NPC") + data.item_id_offset for name, data in item_table.items()}
 
-item_id_to_name: Dict[int, str] = {(item_base_id + data.item_id_offset): name for name, data in item_table.items()}
+item_id_to_name: Dict[int, str] = {(item_base_id * (data.item_group == "NPC") + data.item_id_offset): name for name, data in item_table.items()}
 
 filler_items: List[str] = [name for name, data in item_table.items() if data.classification == IC.filler and name != "Grass"]
 

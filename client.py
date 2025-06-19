@@ -42,6 +42,9 @@ class BFMClient(BizHawkClient):
     """The file extension(s) this client is meant to open and patch (e.g. ".apz3")"""
     bincho_checks = [False] * 35
     minku_checks = [False] * 13
+    chest_checks = [False] * 33
+    chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
+    bakery_inventory = [0x53,0xd,0xe,0xf,0x10]
     received_count = 0
     old_location = 0
     old_step_count = 0
@@ -51,6 +54,8 @@ class BFMClient(BizHawkClient):
     has_died = 0
     death_link_timer = 240
     previous_death_link: float = 0
+    legendary_armor = [False] * 7
+    curr_inventory = [0] * 12
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         """Should return whether the currently loaded ROM should be handled by this client. You might read the game name
@@ -63,7 +68,7 @@ class BFMClient(BizHawkClient):
         logger.info("Attempting to validate rom")
         bfm_identifier_ram_address: int = 0x00ba94
 
-        # = SLUS-00726MUSASHI in ASCII, code taken from AP Forbiden Memories
+        # = SLUS-00726MUSASHI in ASCII, code taken from AP Forbidden Memories
         bytes_expected: bytes = bytes.fromhex("534C55532D30303732364D555341534849")
         try:
             bytes_actual: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
@@ -153,6 +158,16 @@ class BFMClient(BizHawkClient):
             holdint = [save_data[0],save_data[1]]
             new_minku_checks = self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 13)
             
+            save_data: bytes = (await bizhawk.read(
+                ctx.bizhawk_ctx,
+                [(0x0ae651, 5, MAIN_RAM)]
+            ))[0]
+            holdint = [save_data[0],save_data[1],save_data[2],save_data[3]]
+            new_chest_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 32, self.chest_indices_to_skip)
+            #logger.info("What was read 0 in 0aae671 %s",self.bincho_checks)
+            holdint = [save_data[4]]
+            new_chest_checks.extend(self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 7))
+
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
             if(new_bincho_checks != self.bincho_checks):
@@ -174,15 +189,21 @@ class BFMClient(BizHawkClient):
                         locations_to_send_to_server.append(location_base_id + i + 35)
                 #logger.info("What was read in 0ae671 %s",save_data)
                 #logger.info("Trying to send %s",locations_to_send_to_server)
+
+            if(new_chest_checks != self.chest_checks):
+                for i in range(len(new_chest_checks)):
+                    if(new_chest_checks[i]):
+                        locations_to_send_to_server.append(location_base_id + i + 48)
             
 
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks):
+            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
                 }])
                 self.bincho_checks = new_bincho_checks
                 self.minku_checks = new_minku_checks
+                self.chest_checks = new_chest_checks
 
             
             curr_location_data: bytes = (await bizhawk.read(
@@ -260,6 +281,37 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
                             )#current hp
+                    elif(item_id < 0x78):
+                        if(not item_id in self.bakery_inventory):
+                            self.bakery_inventory.append(item_id)
+                    elif(item_id == 0x78):
+                        curr_money_bytes: bytes = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            [(0x078e8C, 4, MAIN_RAM)]
+                        ))[0]
+                        curr_money: int = int.from_bytes(curr_money_bytes, byteorder='little')
+                        new_money = curr_money
+                        num_boons_byte: bytes = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            [(0x0ba238, 1, MAIN_RAM)]
+                        ))[0]
+                        num_boons: int = int.from_bytes(num_boons_byte, byteorder='little')
+                        boon_count = 0
+                        for i in range(self.received_count+1):
+                            if(ctx.items_received[i][0] == 0x78):
+                                boon_count += 1
+                                if(boon_count > num_boons):
+                                    new_money += 100
+                        if(curr_money < new_money):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x078e8C, new_money.to_bytes(4, 'little'), MAIN_RAM)]
+                            )
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba238, boon_count.to_bytes(1, 'little'), MAIN_RAM)]
+                            )
+                            logger.info("added 1000 Drans to wallet")
                     else:
                         logger.info("unhandled item receieved %s",item_id)
                     self.received_count += 1
@@ -286,7 +338,7 @@ class BFMClient(BizHawkClient):
                 if(self.level_transition == 0 or curr_location == 0x3005):
                     self.old_step_count = step_count
                     self.level_transition = 1
-                if(self.old_step_count != step_count):
+                elif(self.old_step_count != step_count):
                     self.old_location = curr_location
                     self.level_transition = 0
                     if(curr_location in dialog_location_table):
@@ -321,6 +373,155 @@ class BFMClient(BizHawkClient):
                                     "create_as_hint": 0
                                 }])
                                 break
+                    if(curr_location == 0x2015): #chapter 2 Jam, also changes to 0x2056 chapter 3
+                        await self.remove_extra_legendary_armor_from_bakery(ctx)
+                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
+                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x1fab10, self.bakery_inventory, MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189aa0, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189ab0, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189ab4, [0x20, 0x80], MAIN_RAM)] #somehow coresponds to 0x801f
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189ab8, [0x10, 0xab], MAIN_RAM)]
+                        )
+                    elif(curr_location == 0x2056): #chapter 3 Jam
+                        await self.remove_extra_legendary_armor_from_bakery(ctx)
+                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
+                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x1fab10, self.bakery_inventory, MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186718, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186708, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x18671c, [0x20, 0x80], MAIN_RAM)] #somehow coresponds to 0x801f
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186720, [0x10, 0xab], MAIN_RAM)]
+                        )
+                    elif(curr_location == 0x207b): #chapter 4 Jam
+                        await self.remove_extra_legendary_armor_from_bakery(ctx)
+                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
+                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
+                        if(not 0x68 in self.bakery_inventory):
+                            self.bakery_inventory = [0x69,0x68] + self.bakery_inventory
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x1fab10, self.bakery_inventory, MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186fe0, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186ff0, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186ff4, [0x20, 0x80], MAIN_RAM)] #somehow coresponds to 0x801f
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186ff8, [0x10, 0xab], MAIN_RAM)]
+                        )
+                    elif(curr_location == 0x2098): #chapter 5 Jam
+                        await self.remove_extra_legendary_armor_from_bakery(ctx)
+                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
+                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
+                        if(not 0x68 in self.bakery_inventory):
+                            self.bakery_inventory = [0x69,0x68] + self.bakery_inventory
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x1fab10, self.bakery_inventory, MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186cf0, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186ce0, [len(self.bakery_inventory)], MAIN_RAM)]
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186cf4, [0x20, 0x80], MAIN_RAM)] #somehow coresponds to 0x801f
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x186cf8, [0x10, 0xab], MAIN_RAM)]
+                        )
+                    elif(curr_location == 0x2018): #chapter 2 Conners
+                        await self.check_if_bracelet_needs_removed(ctx)
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x18c630, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x18c578, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+                    elif(curr_location == 0x2059): #chapter 3 Conners
+                        await self.check_if_bracelet_needs_removed(ctx)
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x1891e0, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189298, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+                    elif(curr_location == 0x207e): #chapter 4 Conners
+                        await self.check_if_bracelet_needs_removed(ctx)
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189ab8, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189b70, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+                    elif(curr_location == 0x209b): #chapter 5 Conners
+                        await self.check_if_bracelet_needs_removed(ctx)
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x1897b8, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x189870, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
+
                 self.old_step_count = step_count
                 """if(curr_location == 0x3014):
                     #Hawker
@@ -412,3 +613,70 @@ class BFMClient(BizHawkClient):
             mask: int = 1 << bit
             result.append((val & mask) == mask)
         return result
+    
+    def decode_booleans_with_exclusions(self, val: int, bits: int, exclude: List[int]):
+        result = []
+        for bit in range(bits):
+            if not bit in exclude:
+                mask: int = 1 << bit
+                result.append((val & mask) == mask)
+        return result
+    
+    async def update_legendary_armor(self, ctx: "BizHawkClientContext"):
+        from CommonClient import logger
+        logger.info("updating legendary armor list")
+        save_data: bytes = (await bizhawk.read(
+            ctx.bizhawk_ctx,
+            [(0x0ae64b, 2, MAIN_RAM)]
+        ))[0]
+        holdint = [save_data[0],save_data[1]]
+        self.legendary_armor = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 10, [0,1,2])
+        logger.info("lengendary armor %s",self.legendary_armor)
+        pass
+    
+    async def update_inventory(self, ctx: "BizHawkClientContext"):
+        #from CommonClient import logger
+        #logger.info("updating inventory list")
+        save_data: bytes = (await bizhawk.read(
+            ctx.bizhawk_ctx,
+            [(0x0ba1e7, 12, MAIN_RAM)]
+        ))[0]
+        self.curr_inventory = list(save_data)
+        #logger.info("inventory list %s", self.curr_inventory)
+        pass
+
+    async def check_if_bracelet_needs_removed(self, ctx: "BizHawkClientContext"):
+        from CommonClient import logger
+        logger.info("checking for extra bracelet")
+        await self.update_legendary_armor(ctx)
+        if(self.legendary_armor[4] == 1):
+            await self.update_inventory(ctx)
+            for i in range(len(self.curr_inventory)):
+                if(self.curr_inventory[i] == 0x49 or self.curr_inventory[i] == 0x47):
+                    await bizhawk.write(
+                        ctx.bizhawk_ctx,
+                        [((0x0ba1e7+i), [0x0], MAIN_RAM)] 
+                    )
+                    logger.info("removing extra bracelet or glasses")
+        pass
+
+    async def remove_extra_legendary_armor_from_bakery(self, ctx: "BizHawkClientContext"):
+        from CommonClient import logger
+        logger.info("checking for extra armor")
+        await self.update_legendary_armor(ctx)
+        if(self.legendary_armor[4] == 1):
+            if(0x49 in self.bakery_inventory):
+                self.bakery_inventory.remove(0x49)
+                logger.info("removing extra bracelet from bakery")
+        if(self.legendary_armor[5] == 1):
+            if(0x4a in self.bakery_inventory):
+                self.bakery_inventory.remove(0x4a)
+                logger.info("removing extra old shirt from bakery")
+        if(self.legendary_armor[6] == 1):
+            if(0x4b in self.bakery_inventory):
+                self.bakery_inventory.remove(0x4b)
+                logger.info("removing extra red shoes from bakery")
+        pass
+
+
+            
