@@ -18,11 +18,14 @@ class HairColor(Choice):
     """
     internal_name = "hair_color_selection"
     display_name = "Hair Color"
-    option_white = 1
-    option_red = 2
-    option_blue = 3
-    option_custom = 4
-    default = 1
+    option_custom = 1
+    option_white = 2
+    option_red = 3
+    option_blue = 4
+    option_green = 5
+    option_orange = 6
+    option_pink = 7
+    default = 2
 
 class CustomHairColor(FreeText):
     """
@@ -30,7 +33,7 @@ class CustomHairColor(FreeText):
     """
     internal_name = "custom_hair_color_selection"
     display_name = "Custom Hair Color"
-    default = "F2779D"
+    default = "B751A7"
 
 @dataclass
 class BFMOptions(PerGameCommonOptions):

@@ -14,6 +14,7 @@ from .utils import Constants
 # This registers the client. The comment ignores "unused import" linter messages
 from .client import BFMClient  # type: ignore  # noqa
 from .version import __version__
+from . import ut_stuff
 import string
 
 class BFMWeb(WebWorld):
@@ -45,7 +46,7 @@ class BFMWorld(World):
     options: BFMOptions
     required_client_version = (0, 0, 7)
     web = BFMWeb()
-    hair_selection: str = hair_color_options[1]
+    hair_selection: str = hair_color_options[2]
 
     item_name_groups = item_name_groups
     location_name_groups = location_name_groups
@@ -66,19 +67,27 @@ class BFMWorld(World):
     item_link_locations: Dict[int, Dict[str, List[Tuple[int, str]]]] = {}
     player_item_link_locations: Dict[str, List[Location]]
 
+    #taken from Tunic for UT
+    using_ut: bool  # so we can check if we're using UT only once
+    passthrough: Dict[str, Any]
+    ut_can_gen_without_yaml = True  # class var that tells it to ignore the player yaml
+    #tracker_world: ClassVar = ut_stuff.tracker_world
+
     def generate_early(self) -> None:
         self.player_location_table = standard_location_name_to_id.copy()
 
-        if self.options.hair_color_selection == 4:
+        if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
                 if(all(s in string.hexdigits for s in self.options.custom_hair_color_selection.value)):
                     self.hair_selection = self.options.custom_hair_color_selection.value.upper()
                 else:
-                    self.hair_selection = hair_color_options[1]
+                    self.hair_selection = hair_color_options[2]
             else:
-                self.hair_selection = hair_color_options[1]
+                self.hair_selection = hair_color_options[2]
         else:
             self.hair_selection = hair_color_options[self.options.hair_color_selection]
+        
+        ut_stuff.setup_options_from_slot_data(self)
 
 
     def create_regions(self) -> None:
@@ -133,5 +142,12 @@ class BFMWorld(World):
         set_region_rules(self)
         set_location_rules(self)
 
-
+    # Taken from Tunic APWorld https://github.com/ArchipelagoMW/Archipelago/blob/main/worlds/tunic/__init__.py#L713
+    # for the universal tracker, doesn't get called in standard gen
+    # docs: https://github.com/FarisTheAncient/Archipelago/blob/tracker/worlds/tracker/docs/re-gen-passthrough.md
+    @staticmethod
+    def interpret_slot_data(slot_data: Dict[str, Any]) -> Dict[str, Any]:
+        # returning slot_data so it regens, giving it back in multiworld.re_gen_passthrough
+        # we are using re_gen_passthrough over modifying the world here due to complexities with ER
+        return slot_data
         

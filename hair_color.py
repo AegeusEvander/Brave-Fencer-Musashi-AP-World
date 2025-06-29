@@ -6,9 +6,12 @@ default_hair_color = 0x403366
 new_hair_color: bytes = bytes.fromhex("BBBBBB")
 
 hair_color_options: Dict[int,str] = {
-    1: "BBBBBB",
-    2: "991A1A",
-    3: "0F45D2"
+    2: "BBBBBB",
+    3: "991A1A",
+    4: "0F45D2",
+    5: "6AA84F",
+    6: "F6B26B",
+    7: "F2779D"
 }
 
 hair_color_addresses: List[int] = [

@@ -10,13 +10,13 @@ from typing import TYPE_CHECKING, Any, ClassVar, List
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch as launch_component
 
 from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, location_base_id, table_ids_to_hint
-from .dialog_locations import dialog_location_table
+from .dialog_locations import dialog_location_table, short_text_boxes
 #if TYPE_CHECKING:
 #    from .context import BizHawkClientContext
 from .utils import Constants
 from .version import __version__
 from .hair_color import hair_color_addresses, default_hair_color, new_hair_color
-from .items import npc_ids, item_id_to_name
+from .items import npc_ids, item_id_to_name, item_name_to_id
 
 
 from NetUtils import ClientStatus
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from NetUtils import JSONMessagePart
 
 MAIN_RAM: typing.Final[str] = "MainRAM"
-PLAYER_LIFE_POINTS_SHORT_OFFSET: typing.Final[int] = 0x078EB4
+PLAYER_CURR_HP_MEMORY: typing.Final[int] = 0x078EB4
 
 class BFMClient(BizHawkClient):
     system: ClassVar[str | tuple[str, ...]] = "PSX"
@@ -45,6 +45,7 @@ class BFMClient(BizHawkClient):
     chest_checks = [False] * 33
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory = [0x53,0xd,0xe,0xf,0x10]
+    progression_state = 0
     received_count = 0
     old_location = 0
     old_step_count = 0
@@ -56,6 +57,9 @@ class BFMClient(BizHawkClient):
     previous_death_link: float = 0
     legendary_armor = [False] * 7
     curr_inventory = [0] * 12
+    counter_for_delayed_check = 0
+    check_for_logs = 0
+    list_of_received_items: List[int] = []
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         """Should return whether the currently loaded ROM should be handled by this client. You might read the game name
@@ -105,15 +109,16 @@ class BFMClient(BizHawkClient):
         #self.random = Random()  # used for silly random deathlink messages
         logger.info(f"Brave Fencer Musashi Client v{__version__}. For updates:")
         logger.info("https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases")
+        #logger.info(f"This Archipelago slot was generated with v{ctx.slot_data[Constants.GENERATED_WITH_KEY]}")
         return True
     
     async def kill_player(self, ctx: "BizHawkClientContext") -> None:
-        """Return True if this method thinks it actually killed the player, False otherwise"""
+        """sets player HP to 0"""
         # # Player HP at 078EB4 2 Bytes MAINRAM
         #     await bizhawk.write
         await bizhawk.write(
             ctx.bizhawk_ctx,
-            [(PLAYER_LIFE_POINTS_SHORT_OFFSET, (0).to_bytes(2, "little"), MAIN_RAM)]
+            [(PLAYER_CURR_HP_MEMORY, (0).to_bytes(2, "little"), MAIN_RAM)]
         )
         return
 
@@ -174,6 +179,24 @@ class BFMClient(BizHawkClient):
                 for i in range(len(new_bincho_checks)):
                     if(new_bincho_checks[i]):
                         locations_to_send_to_server.append(location_base_id + i)
+                #logger.info("Sending Bincho checks")
+                if(new_bincho_checks[0] == True and self.bincho_checks[0] == False):
+                    #logger.info("Sending Guard bincho check")
+                    self.update_list_of_received_items(ctx)
+                    #logger.info("items receieved %s", self.list_of_received_items)
+                    if(not item_name_to_id["Guard"] in self.list_of_received_items):
+                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                            0x0ae666, 1, MAIN_RAM
+                        )]))[0]
+                        guard_state = int.from_bytes(save_data, byteorder='little')
+                        if(guard_state & 0x1 == 0x1):
+                            logger.info("Sending Macho back to Twinpeak")
+                            guard_state = guard_state & 0xfe
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae666, [guard_state], MAIN_RAM)]
+                            )
+
                 #logger.info("What was read in 0ae671 %s",save_data)
                 #logger.info("Trying to send %s",locations_to_send_to_server)
                 #await ctx.send_msgs([{
@@ -230,10 +253,6 @@ class BFMClient(BizHawkClient):
                         ctx.bizhawk_ctx,
                         [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
                     )   
-            if self.death_link_timer > 0 and self.has_died == 0:
-                self.death_link_timer -= 1
-                if self.death_link_timer == 0:
-                    logger.info("death link grace period has ended")
 
             #logger.info("curr_location %s",curr_location)
             #logger.info("in Town")
@@ -262,6 +281,18 @@ class BFMClient(BizHawkClient):
                             #logger.info("IDs of all NPCs %s",set(npc_ids))
                         else:
                             logger.info("already in rescue list: %s",item_id_to_name[item_id])
+                        if(item_id == item_name_to_id["Guard"]):
+                            save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                0x0ae666, 1, MAIN_RAM
+                            )]))[0]
+                            guard_state = int.from_bytes(save_data, byteorder='little')
+                            if(guard_state & 0x1 == 0x0):
+                                logger.info("Sending Guard to Twinpeak")
+                                guard_state = guard_state | 0x1
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae666, [guard_state], MAIN_RAM)]
+                                )
                     elif(item_id==0x0ba21b): #found max health berry
                         curr_max_hp_bytes: bytes = (await bizhawk.read(
                             ctx.bizhawk_ctx,
@@ -341,26 +372,14 @@ class BFMClient(BizHawkClient):
                 elif(self.old_step_count != step_count):
                     self.old_location = curr_location
                     self.level_transition = 0
+                    self.check_for_logs = 0
                     if(curr_location in dialog_location_table):
                         for loc_id, dialog_id in dialog_location_table[curr_location].items():
                             if(loc_id in ctx.locations_info):
-                                s = "<"+ctx.username+">"
-                                barray = bytearray(s,"utf-8")
-                                barray.append(0x0a)
-                                s = "Found "
-                                barray.extend(s.encode("utf-8"))
-                                barray.append(0x01)
-                                barray.append(0x02)
-                                s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
-                                #logger.info("found scout item")# %s",s)
-                                barray.extend(s.encode("utf-8"))
-                                barray.append(0x01)
-                                barray.append(0x01)
-                                s = " for "
-                                barray.extend(s.encode("utf-8"))
-                                s = ctx.player_names[ctx.locations_info[loc_id].player]
-                                barray.extend(s.encode("utf-8"))
-                                barray.append(0x00)
+                                if(loc_id in short_text_boxes):
+                                    barray = await self.assemble_short_binary_array_for_textbox(ctx, loc_id)
+                                else:
+                                    barray = await self.assemble_binary_array_for_textbox(ctx, loc_id)
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
                                     [(dialog_id+4, barray, MAIN_RAM)]
@@ -375,9 +394,9 @@ class BFMClient(BizHawkClient):
                                 break
                     if(curr_location == 0x2015): #chapter 2 Jam, also changes to 0x2056 chapter 3
                         await self.remove_extra_legendary_armor_from_bakery(ctx)
-                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory %s",self.bakery_inventory)
                         #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
-                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len %s",len(self.bakery_inventory))
                         #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -401,9 +420,9 @@ class BFMClient(BizHawkClient):
                         )
                     elif(curr_location == 0x2056): #chapter 3 Jam
                         await self.remove_extra_legendary_armor_from_bakery(ctx)
-                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory %s",self.bakery_inventory)
                         #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
-                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len %s",len(self.bakery_inventory))
                         #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -427,9 +446,9 @@ class BFMClient(BizHawkClient):
                         )
                     elif(curr_location == 0x207b): #chapter 4 Jam
                         await self.remove_extra_legendary_armor_from_bakery(ctx)
-                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory %s",self.bakery_inventory)
                         #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
-                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len %s",len(self.bakery_inventory))
                         #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
                         if(not 0x68 in self.bakery_inventory):
                             self.bakery_inventory = [0x69,0x68] + self.bakery_inventory
@@ -455,9 +474,9 @@ class BFMClient(BizHawkClient):
                         )
                     elif(curr_location == 0x2098): #chapter 5 Jam
                         await self.remove_extra_legendary_armor_from_bakery(ctx)
-                        logger.info("bakery inventory %s",self.bakery_inventory)
+                        #logger.info("bakery inventory %s",self.bakery_inventory)
                         #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
-                        logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                        #logger.info("bakery inventory len %s",len(self.bakery_inventory))
                         #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
                         if(not 0x68 in self.bakery_inventory):
                             self.bakery_inventory = [0x69,0x68] + self.bakery_inventory
@@ -521,45 +540,59 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(0x189870, [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
                         )
+                    elif(curr_location == 0x3029): #twinpeak second peak
+                        await self.update_progression(ctx)
+                        if(self.progression_state > 0x59): #Jon has left the peak
+                            save_data: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae65a, 1, MAIN_RAM)]
+                            ))[0]
+                            raft_state = int.from_bytes(save_data, byteorder='little')
+                            if(raft_state & 0b11000000 != 0b11000000):
+                                logger.info("Raft incomplete, checking for logs")
+                                self.check_for_logs = 1
 
                 self.old_step_count = step_count
-                """if(curr_location == 0x3014):
-                    #Hawker
-                    dialog: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
-                        0x191cbc, 20, MAIN_RAM
-                    )]))[0]
-                    logger.info("read hawker dialog %s",dialog)
-                    await ctx.send_msgs([{
-                        "cmd": "LocationScouts",
-                        "locations": [standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]],
-                        "create_as_hint": 0
-                    }])
-                    #logger.info("scout info %s",ctx.locations_info.items()[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]])
-                    if(ctx.locations_info):
-                        if(standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"] in ctx.locations_info):
-                            s = "<"+ctx.username+">"
-                            barray = bytearray(s,"utf-8")
-                            barray.append(0x0a)
-                            s = "Found "
-                            barray.extend(s.encode("utf-8"))
-                            barray.append(0x01)
-                            barray.append(0x02)
-                            s = ctx.item_names.lookup_in_slot(ctx.locations_info[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]].item, ctx.locations_info[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]].player)
-                            logger.info("scout item name %s",s)
-                            barray.extend(s.encode("utf-8"))
-                            barray.append(0x01)
-                            barray.append(0x01)
-                            s = " for "
-                            barray.extend(s.encode("utf-8"))
-                            s = ctx.player_names[ctx.locations_info[standard_location_name_to_id["Hawker Bincho - Somnolent Forest Deadend"]].player]
-                            barray.extend(s.encode("utf-8"))
-                            barray.append(0x00)
+
+            if(not self.level_transition):
+                if(curr_location == 0x3060 or curr_location == 0x3062 or curr_location == 0x305d or curr_location == 0x305e or curr_location == 0x3063):
+                    self.counter_for_delayed_check += 1
+                    if(self.counter_for_delayed_check>9):
+                        self.counter_for_delayed_check = 0
+                        if(curr_location in dialog_location_table):
+                            for loc_id, dialog_id in dialog_location_table[curr_location].items():
+                                if(loc_id in ctx.locations_info):
+                                    if(loc_id in short_text_boxes):
+                                        barray = await self.assemble_short_binary_array_for_textbox(ctx, loc_id)
+                                    else:
+                                        barray = await self.assemble_binary_array_for_textbox(ctx, loc_id)
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(dialog_id+4, barray, MAIN_RAM)]
+                                    )
+                elif(curr_location == 0x3029 and self.check_for_logs):
+                    self.counter_for_delayed_check += 1
+                    if(self.counter_for_delayed_check>19):
+                        self.counter_for_delayed_check = 0
+                        await self.update_inventory(ctx)
+                        if(0x4e in self.curr_inventory and 0x50 in self.curr_inventory and 0x51 in self.curr_inventory and 0x52 in self.curr_inventory):
+                            logger.info("Raft complete, removing Logs")
+                            self.check_for_logs = 0
+                            save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                0x0ae65a, 1, MAIN_RAM
+                            )]))[0]
+                            raft_state = int.from_bytes(save_data, byteorder='little')
+                            raft_state = raft_state | 0b11000000
                             await bizhawk.write(
                                 ctx.bizhawk_ctx,
-                                [(0x191cc0, barray, MAIN_RAM)]
+                                [(0x0ae65a, [raft_state], MAIN_RAM)]
                             )
-                        else:
-                            logger.info("no hawker found")"""
+                            for i in range(len(self.curr_inventory)):
+                                if(self.curr_inventory[i] in [0x4d,0x4e,0x50,0x51,0x52]): #Jon's key and four logs
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [((0x0ba1e7+i), [0x0], MAIN_RAM)] 
+                                    )
 
             #if not ctx.finished_game and len(ctx.items_received) == 35:
             if not ctx.finished_game and set(received_list).issuperset(set(npc_ids)):
@@ -577,19 +610,27 @@ class BFMClient(BizHawkClient):
                 }])
 
             if(ctx.slot_data["X"]):
+                if self.death_link_timer > 0 and self.has_died == 0:
+                    self.death_link_timer -= 1
+                    if self.death_link_timer == 0:
+                        logger.info("death link grace period has ended")
                 if "DeathLink" not in ctx.tags:
                     await ctx.update_death_link(True)
                     self.previous_death_link = ctx.last_death_link
                 if self.death_link_timer == 0:
                     curr_hp_bytes: bytes = (await bizhawk.read(
                         ctx.bizhawk_ctx,
-                        [(0x078eb4, 2, MAIN_RAM)]
+                        [(PLAYER_CURR_HP_MEMORY, 2, MAIN_RAM)]
                     ))[0]
                     curr_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
                     if curr_hp == 0 and self.has_died == 0:
                         self.has_died = 1
                         logger.info("%s died",ctx.username)
                         await ctx.send_death(f"{ctx.username} had a nightmare about a horrid death!")
+                    if curr_hp > 0 and self.has_died == 1:
+                        self.has_died = 0
+                        logger.info("%s revived",ctx.username)
+                        self.death_link_timer = 240
                     #ctx.handle_deathlink_state(curr_hp>0)
                 if self.previous_death_link != ctx.last_death_link:
                     self.previous_death_link = ctx.last_death_link
@@ -622,16 +663,23 @@ class BFMClient(BizHawkClient):
                 result.append((val & mask) == mask)
         return result
     
+    def update_list_of_received_items(self, ctx: "BizHawkClientContext"):
+        result = []
+        for i in range(len(ctx.items_received)):
+            result.append(ctx.items_received[i][0])
+        self.list_of_received_items = result
+        pass
+
     async def update_legendary_armor(self, ctx: "BizHawkClientContext"):
         from CommonClient import logger
-        logger.info("updating legendary armor list")
+        #logger.info("updating legendary armor list")
         save_data: bytes = (await bizhawk.read(
             ctx.bizhawk_ctx,
             [(0x0ae64b, 2, MAIN_RAM)]
         ))[0]
         holdint = [save_data[0],save_data[1]]
         self.legendary_armor = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 10, [0,1,2])
-        logger.info("lengendary armor %s",self.legendary_armor)
+        #logger.info("lengendary armor %s",self.legendary_armor)
         pass
     
     async def update_inventory(self, ctx: "BizHawkClientContext"):
@@ -645,9 +693,20 @@ class BFMClient(BizHawkClient):
         #logger.info("inventory list %s", self.curr_inventory)
         pass
 
+    async def update_progression(self, ctx: "BizHawkClientContext"):
+        from CommonClient import logger
+        #logger.info("updating inventory list")
+        save_data: bytes = (await bizhawk.read(
+            ctx.bizhawk_ctx,
+            [(0x078e80, 2, MAIN_RAM)]
+        ))[0]
+        self.progression_state = int.from_bytes(save_data, byteorder='little')
+        logger.info("progression state %x", self.progression_state)
+        pass
+
     async def check_if_bracelet_needs_removed(self, ctx: "BizHawkClientContext"):
         from CommonClient import logger
-        logger.info("checking for extra bracelet")
+        #logger.info("checking for extra bracelet")
         await self.update_legendary_armor(ctx)
         if(self.legendary_armor[4] == 1):
             await self.update_inventory(ctx)
@@ -662,7 +721,7 @@ class BFMClient(BizHawkClient):
 
     async def remove_extra_legendary_armor_from_bakery(self, ctx: "BizHawkClientContext"):
         from CommonClient import logger
-        logger.info("checking for extra armor")
+        #logger.info("checking for extra armor")
         await self.update_legendary_armor(ctx)
         if(self.legendary_armor[4] == 1):
             if(0x49 in self.bakery_inventory):
@@ -678,5 +737,51 @@ class BFMClient(BizHawkClient):
                 logger.info("removing extra red shoes from bakery")
         pass
 
+    async def assemble_binary_array_for_textbox(self, ctx: "BizHawkClientContext", loc_id: int):
+        s = "<"+ctx.username+">"
+        result = bytearray(s,"utf-8")
+        result.append(0x0a)
+        s = "Found "
+        result.extend(s.encode("utf-8"))
+        result.append(0x01)
+        result.append(0x02)
+        s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+        result.extend(s.encode("utf-8"))
+        result.append(0x01)
+        result.append(0x01)
+        s = " for "
+        result.extend(s.encode("utf-8"))
+        s = ctx.player_names[ctx.locations_info[loc_id].player]
+        result.extend(s.encode("utf-8"))
+        result.append(0x00)
+        return result
+
+    async def assemble_short_binary_array_for_textbox(self, ctx: "BizHawkClientContext", loc_id: int):
+        result = await self.assemble_binary_array_for_textbox(ctx,loc_id) 
+        
+        if(len(result) < 56):
+            return result
+
+        s = "Found "
+        result = bytearray(s,"utf-8")
+        result.append(0x01)
+        result.append(0x02)
+        s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+        result.extend(s.encode("utf-8"))
+        result.append(0x01)
+        result.append(0x01)
+        s = " for "
+        result.extend(s.encode("utf-8"))
+        s = ctx.player_names[ctx.locations_info[loc_id].player]
+        result.extend(s.encode("utf-8"))
+        result.append(0x00)
+
+        if(len(result) < 56):
+            return result
+        
+        result = result[:54]
+        result.append(0x00)
+
+        return result
 
             
