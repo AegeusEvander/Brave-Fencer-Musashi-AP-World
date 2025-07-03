@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 class LuminaRandomized(Toggle):
     """
-    Not Implemented yet
+    Randomize the sword of legend
     """
     internal_name = "lumina_randomzied"
     display_name = "Lumina Randomzied"
@@ -37,7 +37,7 @@ class CustomHairColor(FreeText):
 
 @dataclass
 class BFMOptions(PerGameCommonOptions):
-    #lumina_randomzied: LuminaRandomized
+    lumina_randomzied: LuminaRandomized
     death_link: DeathLink
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor

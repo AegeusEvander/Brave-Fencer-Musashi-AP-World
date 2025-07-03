@@ -10,7 +10,7 @@ hair_color_options: Dict[int,str] = {
     3: "991A1A",
     4: "0F45D2",
     5: "6AA84F",
-    6: "F6B26B",
+    6: "C94700",
     7: "F2779D"
 }
 

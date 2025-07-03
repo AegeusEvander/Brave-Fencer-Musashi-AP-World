@@ -60,6 +60,8 @@ class BFMClient(BizHawkClient):
     counter_for_delayed_check = 0
     check_for_logs = 0
     list_of_received_items: List[int] = []
+    check_if_lumina_was_found = 1
+    check_if_lumina_needs_removed = 1
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         """Should return whether the currently loaded ROM should be handled by this client. You might read the game name
@@ -109,7 +111,7 @@ class BFMClient(BizHawkClient):
         #self.random = Random()  # used for silly random deathlink messages
         logger.info(f"Brave Fencer Musashi Client v{__version__}. For updates:")
         logger.info("https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases")
-        #logger.info(f"This Archipelago slot was generated with v{ctx.slot_data[Constants.GENERATED_WITH_KEY]}")
+        #logger.info(f"This Archipelago slot was generated with v{ctx.slot_data["version"]}")
         return True
     
     async def kill_player(self, ctx: "BizHawkClientContext") -> None:
@@ -343,6 +345,17 @@ class BFMClient(BizHawkClient):
                                 [(0x0ba238, boon_count.to_bytes(1, 'little'), MAIN_RAM)]
                             )
                             logger.info("added 1000 Drans to wallet")
+                    elif(item_id == 0x79):
+                        logger.info("Returning Lumina")
+                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                            0x0ae658, 1, MAIN_RAM
+                        )]))[0]
+                        lumina_state = int.from_bytes(save_data, byteorder='little')
+                        lumina_state = lumina_state | 0b1
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x0ae658, [lumina_state], MAIN_RAM)]
+                        )
                     else:
                         logger.info("unhandled item receieved %s",item_id)
                     self.received_count += 1
@@ -351,14 +364,14 @@ class BFMClient(BizHawkClient):
                     ctx.bizhawk_ctx,
                     [(hair_color_addresses[0], 3, MAIN_RAM)]
                 ))[0]
-                if(curr_hair_color == bytes.fromhex(ctx.slot_data["h"])):
+                if(curr_hair_color == bytes.fromhex(ctx.slot_data["hair_color"])):
                     self.hair_color_updated = 1
                 else:
                     logger.info("Coloring Hair")
                     for address in hair_color_addresses:
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
-                            [(address, bytes.fromhex(ctx.slot_data["h"]), MAIN_RAM)]
+                            [(address, bytes.fromhex(ctx.slot_data["hair_color"]), MAIN_RAM)]
                         )
         
             if(curr_location != self.old_location):
@@ -570,7 +583,7 @@ class BFMClient(BizHawkClient):
                                         ctx.bizhawk_ctx,
                                         [(dialog_id+4, barray, MAIN_RAM)]
                                     )
-                elif(curr_location == 0x3029 and self.check_for_logs):
+                elif(curr_location == 0x3029 and self.check_for_logs): #Twinpeak second peak check if raft needs updated
                     self.counter_for_delayed_check += 1
                     if(self.counter_for_delayed_check>19):
                         self.counter_for_delayed_check = 0
@@ -593,6 +606,42 @@ class BFMClient(BizHawkClient):
                                         ctx.bizhawk_ctx,
                                         [((0x0ba1e7+i), [0x0], MAIN_RAM)] 
                                     )
+                if(self.check_if_lumina_was_found):
+                    if(ctx.slot_data["lumina_randomzied"] == True):
+                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                            0x0ae658, 1, MAIN_RAM
+                        )]))[0]
+                        lumina_state = int.from_bytes(save_data, byteorder='little')
+                        lumina_state = lumina_state & 0b1
+                        if(lumina_state == 1):
+                            self.check_if_lumina_was_found = 0
+                            await ctx.send_msgs([{
+                                "cmd": "LocationChecks",
+                                "locations": [standard_location_name_to_id["Lumina - Spiral Tower"]]
+                            }])
+                    else:
+                        self.check_if_lumina_was_found = 0
+
+                if(self.check_if_lumina_needs_removed):
+                    if(ctx.slot_data["lumina_randomzied"] == True):
+                        self.update_list_of_received_items(ctx)
+                        if(curr_location < 0x3000 or curr_location > 0x300f): #check if past chapter 1
+                            if(not item_name_to_id["Lumina"] in self.list_of_received_items):
+                                logger.info("Yeeting Lumina")
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x0ae658, 1, MAIN_RAM
+                                )]))[0]
+                                lumina_state = int.from_bytes(save_data, byteorder='little')
+                                lumina_state = lumina_state & 0b11111110
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae658, [lumina_state], MAIN_RAM)]
+                                )
+                                self.check_if_lumina_needs_removed = 0
+                            else:
+                                self.check_if_lumina_needs_removed = 0
+                    else:
+                        self.check_if_lumina_needs_removed = 0
 
             #if not ctx.finished_game and len(ctx.items_received) == 35:
             if not ctx.finished_game and set(received_list).issuperset(set(npc_ids)):
@@ -609,7 +658,7 @@ class BFMClient(BizHawkClient):
                     "create_as_hint": 0
                 }])
 
-            if(ctx.slot_data["X"]):
+            if(ctx.slot_data["deathlink"]):
                 if self.death_link_timer > 0 and self.has_died == 0:
                     self.death_link_timer -= 1
                     if self.death_link_timer == 0:
@@ -701,7 +750,7 @@ class BFMClient(BizHawkClient):
             [(0x078e80, 2, MAIN_RAM)]
         ))[0]
         self.progression_state = int.from_bytes(save_data, byteorder='little')
-        logger.info("progression state %x", self.progression_state)
+        #logger.info("progression state %x", self.progression_state)
         pass
 
     async def check_if_bracelet_needs_removed(self, ctx: "BizHawkClientContext"):

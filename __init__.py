@@ -44,7 +44,7 @@ class BFMWorld(World):
     game: str = Constants.GAME_NAME
     options_dataclass =  BFMOptions
     options: BFMOptions
-    required_client_version = (0, 0, 7)
+    required_client_version = (0, 0, 9)
     web = BFMWeb()
     hair_selection: str = hair_color_options[2]
 
@@ -74,8 +74,12 @@ class BFMWorld(World):
     #tracker_world: ClassVar = ut_stuff.tracker_world
 
     def generate_early(self) -> None:
+        ut_stuff.setup_options_from_slot_data(self)
+
         self.player_location_table = standard_location_name_to_id.copy()
 
+        if(self.options.lumina_randomzied.value == False):
+            del self.player_location_table["Lumina - Spiral Tower"]
         if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
                 if(all(s in string.hexdigits for s in self.options.custom_hair_color_selection.value)):
@@ -87,7 +91,6 @@ class BFMWorld(World):
         else:
             self.hair_selection = hair_color_options[self.options.hair_color_selection]
         
-        ut_stuff.setup_options_from_slot_data(self)
 
 
     def create_regions(self) -> None:
@@ -109,12 +112,13 @@ class BFMWorld(World):
         #self.multiworld.completion_condition[self.player] = lambda state: saved_everyone(state, self.world)
 
     def fill_slot_data(self) -> Dict[str, Any]:
-        return {
-            Constants.GENERATED_WITH_KEY: __version__,
-            #Constants.GAME_OPTIONS_KEY: self.options.serialize(),
-            Constants.DEATHLINK_OPTION_KEY: self.options.death_link.value,
-            Constants.HAIRCOLOR_KEY: self.hair_selection
+        slot_data: Dict[str, Any] = {
+            "version": __version__,
+            "deathlink": self.options.death_link.value,
+            "hair_color": self.hair_selection,
+            "lumina_randomzied": self.options.lumina_randomzied.value
         }
+        return slot_data
 
     def create_item(self, name: str, classification: ItemClassification = None) -> BFMItem:
         item_data = item_table[name]
@@ -128,6 +132,8 @@ class BFMWorld(World):
         self.slot_data_items = []
 
         items_to_create: Dict[str, int] = {item: data.quantity_in_item_pool for item, data in item_table.items()}
+        if(self.options.lumina_randomzied.value == False):
+            del items_to_create["Lumina"]
         for item, quantity in items_to_create.items():
             for _ in range(quantity):
                 bfm_items.append(self.create_item(item))
