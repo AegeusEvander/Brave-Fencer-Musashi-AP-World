@@ -78,6 +78,7 @@ item_table: Dict[str, BFMItemData] = {
     "Green Eye": BFMItemData(IC.progression, 1, 0x62, "Chest Reward"),
     "1000 Drans": BFMItemData(IC.filler, 6, 0x78, "Chest Reward"),
     "Lumina": BFMItemData(IC.progression, 1, 0x79, "Equipment"),
+    "Progressive Bread": BFMItemData(IC.progression, 7, 0x80, "Bakery"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

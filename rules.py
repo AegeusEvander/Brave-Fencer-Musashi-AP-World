@@ -35,6 +35,9 @@ def set_region_rules(world: "BFMWorld") -> None:
         lambda state: can_fight_skullpion(state, world)
     world.get_entrance("Twinpeak Entrance -> Twinpeak Path to Skullpion").access_rule = \
         lambda state: state.has("Bracelet", player)
+    if(options.bakery_sanity.value == True):
+        world.get_entrance("Twinpeak Entrance -> Twinpeak Around the Bend").access_rule = \
+            lambda state: state.has("Progressive Bread", player) or state.has("Bracelet", player)
     world.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena").access_rule = \
         lambda state: can_fight_skullpion(state, world)
     world.get_entrance("Somnolent Forest -> Island of Dragons").access_rule = \
@@ -73,6 +76,10 @@ def set_location_rules(world: "BFMWorld") -> None:
     set_rule(world.get_location("Minku - Steamwood Forest"),
              lambda state: can_fight_skullpion(state, world))
     set_rule(world.get_location("Minku - Somnolent Forest"),
+             lambda state: can_fight_skullpion(state, world))
+    set_rule(world.get_location("Item 6 - Bakery"),
+             lambda state: can_fight_skullpion(state, world))
+    set_rule(world.get_location("Item 7 - Bakery"),
              lambda state: can_fight_skullpion(state, world))
     set_rule(world.get_location("Minku - Grillin Village Above Gondola"),
              lambda state: state.has("Bracelet", player))

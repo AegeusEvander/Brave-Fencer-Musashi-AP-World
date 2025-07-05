@@ -91,6 +91,13 @@ location_table: Dict[str, BFMLocationData] = {
     "Odd Bone Chest - Upper Mines": BFMLocationData("Upper Mines",location_group = "Chest"),
     "Armor Chest - Reservoir Tunnel": BFMLocationData("Reservoir Tunnel",location_group = "Chest"),
     "Lumina - Spiral Tower": BFMLocationData("Spiral Tower",location_group = "Equipment"),
+    "Item 1 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
+    "Item 2 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
+    "Item 3 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
+    "Item 4 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
+    "Item 5 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
+    "Item 6 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
+    "Item 7 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
 }
 
 sphere_one: List[str] = [
@@ -106,9 +113,6 @@ standard_location_name_to_id: Dict[str, int] = {name: location_base_id + index f
 
 all_locations = location_table.copy()
 
-table_ids_to_hint: List[int] = []
-for loc_name, loc_id in standard_location_name_to_id.items():
-    table_ids_to_hint.append(loc_id)
 
 location_name_groups: Dict[str, Set[str]] = {}
 for loc_name, loc_data in location_table.items():
@@ -116,3 +120,12 @@ for loc_name, loc_data in location_table.items():
     location_name_groups.setdefault(loc_group_name, set()).add(loc_name)
     if loc_data.location_group:
         location_name_groups.setdefault(loc_data.location_group, set()).add(loc_name)
+
+
+table_ids_to_hint: List[int] = []
+for loc_name, loc_id in standard_location_name_to_id.items():
+    if(location_table[loc_name].location_group):
+        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku"]):
+            table_ids_to_hint.append(loc_id)
+    else:
+        table_ids_to_hint.append(loc_id)

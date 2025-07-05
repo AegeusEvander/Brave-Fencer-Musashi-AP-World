@@ -80,6 +80,10 @@ class BFMWorld(World):
 
         if(self.options.lumina_randomzied.value == False):
             del self.player_location_table["Lumina - Spiral Tower"]
+        if(self.options.bakery_sanity.value == False):
+            for index, name in enumerate(location_name_groups["Bakery"]):
+                del self.player_location_table[name]
+
         if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
                 if(all(s in string.hexdigits for s in self.options.custom_hair_color_selection.value)):
@@ -116,7 +120,8 @@ class BFMWorld(World):
             "version": __version__,
             "deathlink": self.options.death_link.value,
             "hair_color": self.hair_selection,
-            "lumina_randomzied": self.options.lumina_randomzied.value
+            "lumina_randomzied": self.options.lumina_randomzied.value,
+            "bakery_sanity": self.options.bakery_sanity.value
         }
         return slot_data
 
@@ -134,6 +139,9 @@ class BFMWorld(World):
         items_to_create: Dict[str, int] = {item: data.quantity_in_item_pool for item, data in item_table.items()}
         if(self.options.lumina_randomzied.value == False):
             del items_to_create["Lumina"]
+        if(self.options.bakery_sanity.value == False):
+            del items_to_create["Progressive_Bread"]
+
         for item, quantity in items_to_create.items():
             for _ in range(quantity):
                 bfm_items.append(self.create_item(item))

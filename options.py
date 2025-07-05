@@ -12,6 +12,13 @@ class LuminaRandomized(Toggle):
     internal_name = "lumina_randomzied"
     display_name = "Lumina Randomzied"
 
+class BakerySanity(Toggle):
+    """
+    Randomize the bakery's list of items for sale into the multiworld
+    """
+    internal_name = "bakery_sanity"
+    display_name = "Bakery Sanity"
+
 class HairColor(Choice):
     """
     Pick Hair Color, or choose custom for further customization
@@ -38,6 +45,7 @@ class CustomHairColor(FreeText):
 @dataclass
 class BFMOptions(PerGameCommonOptions):
     lumina_randomzied: LuminaRandomized
+    bakery_sanity: BakerySanity
     death_link: DeathLink
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor

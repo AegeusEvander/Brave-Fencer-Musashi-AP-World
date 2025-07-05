@@ -14,6 +14,7 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.using_ut = True
             world.passthrough = world.multiworld.re_gen_passthrough["Brave Fencer Musashi"]
             world.options.lumina_randomzied.value = world.passthrough["lumina_randomzied"]
+            world.options.bakery_sanity.value = world.passthrough["bakery_sanity"]
             #world.options.start_with_sword.value = world.passthrough["start_with_sword"]
         else:
             world.using_ut = False
