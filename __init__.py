@@ -140,7 +140,7 @@ class BFMWorld(World):
         if(self.options.lumina_randomzied.value == False):
             del items_to_create["Lumina"]
         if(self.options.bakery_sanity.value == False):
-            del items_to_create["Progressive_Bread"]
+            del items_to_create["Progressive Bread"]
 
         for item, quantity in items_to_create.items():
             for _ in range(quantity):

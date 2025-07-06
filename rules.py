@@ -65,6 +65,7 @@ def set_region_rules(world: "BFMWorld") -> None:
 
 def set_location_rules(world: "BFMWorld") -> None:
     player = world.player
+    options = world.options
 
     for index, name in enumerate(location_name_groups["Bincho"]):
         set_rule(world.get_location(name), lambda state: has_lumina(state, world)) 
@@ -77,10 +78,11 @@ def set_location_rules(world: "BFMWorld") -> None:
              lambda state: can_fight_skullpion(state, world))
     set_rule(world.get_location("Minku - Somnolent Forest"),
              lambda state: can_fight_skullpion(state, world))
-    set_rule(world.get_location("Item 6 - Bakery"),
-             lambda state: can_fight_skullpion(state, world))
-    set_rule(world.get_location("Item 7 - Bakery"),
-             lambda state: can_fight_skullpion(state, world))
+    if(options.bakery_sanity.value == True):
+        set_rule(world.get_location("Item 6 - Bakery"),
+                lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Item 7 - Bakery"),
+                lambda state: can_fight_skullpion(state, world))
     set_rule(world.get_location("Minku - Grillin Village Above Gondola"),
              lambda state: state.has("Bracelet", player))
     set_rule(world.get_location("Aged Coin Chest - Steamwood Forest"),
