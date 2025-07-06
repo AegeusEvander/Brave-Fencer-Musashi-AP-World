@@ -168,6 +168,8 @@ class BFMClient(BizHawkClient):
             new_bincho_checks.extend(self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 3))
             if(ctx.slot_data["bakery_sanity"] == True):
                 new_bakery_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 10, [0,1,2])
+            else:
+                new_bakery_checks = self.bakery_checks
             save_data = (await bizhawk.read(
                 ctx.bizhawk_ctx,
                 [(0x0ae650, 2, MAIN_RAM)]
