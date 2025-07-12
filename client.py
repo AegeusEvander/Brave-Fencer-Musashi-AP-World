@@ -17,7 +17,7 @@ from .utils import Constants
 from .version import __version__
 from .hair_color import hair_color_addresses, default_hair_color, new_hair_color
 from .items import npc_ids, item_id_to_name, item_name_to_id
-from .store_info import bakery_locations, store_table
+from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations
 
 
 from NetUtils import ClientStatus
@@ -45,12 +45,17 @@ class BFMClient(BizHawkClient):
     minku_checks = [False] * 13
     chest_checks = [False] * 33
     bakery_checks = [False] * 7
+    restaurant_checks = [False] * 7
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
     bakery_inventory_expansion = []
     bakery_inventory = []
     bakery_dialog: List[str] = [] 
+    restaurant_inventory_default = [0x71,0x72,0x73,0x74,0x75,0x76,0x77]
+    restaurant_inventory_sanity = [0x40,0x40,0x40,0x40,0x40,0x40,0x40]
+    restaurant_inventory = []
+    restaurant_dialog: List[str] = [] 
     progression_state = 0
     received_count = 0
     old_location = 0
@@ -159,7 +164,7 @@ class BFMClient(BizHawkClient):
 
             save_data: bytes = (await bizhawk.read(
                 ctx.bizhawk_ctx,
-                [(0x0ae671, 6, MAIN_RAM)]
+                [(0x0ae671, 7, MAIN_RAM)]
             ))[0]
             holdint = [save_data[0],save_data[1],save_data[2],save_data[3]]
             new_bincho_checks = self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 32)
@@ -170,6 +175,12 @@ class BFMClient(BizHawkClient):
                 new_bakery_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 10, [0,1,2])
             else:
                 new_bakery_checks = self.bakery_checks
+            if(ctx.slot_data["restaurant_sanity"] == True):
+                holdint = [save_data[5],save_data[6]]
+                new_restaurant_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 9, [0,1])
+            else:
+                new_restaurant_checks = self.retaurant_checks
+
             save_data = (await bizhawk.read(
                 ctx.bizhawk_ctx,
                 [(0x0ae650, 2, MAIN_RAM)]
@@ -237,8 +248,22 @@ class BFMClient(BizHawkClient):
                 for i in range(len(new_bakery_checks)):
                     if(new_bakery_checks[i]):
                         locations_to_send_to_server.append(location_base_id + i + 82)
+                        if(i*2 < len(self.bakery_dialog)):
+                            if(not "Purchased" in self.bakery_dialog[i*2]):
+                                self.bakery_dialog[i*2] = "Purchased"
+                                self.fix_dialog(self.bakery_dialog)
 
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks):
+            if(new_restaurant_checks != self.restaurant_checks):
+                #logger.info("bakery checks %s", new_bakery_checks)
+                for i in range(len(new_restaurant_checks)):
+                    if(new_restaurant_checks[i]):
+                        locations_to_send_to_server.append(location_base_id + i + 89)
+                        if(i*2 < len(self.restaurant_dialog)):
+                            if(not "Purchased" in self.restaurant_dialog[i*2]):
+                                self.restaurant_dialog[i*2] = "Purchased"
+                                self.fix_dialog(self.restaurant_dialog)
+
+            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -247,6 +272,7 @@ class BFMClient(BizHawkClient):
                 self.minku_checks = new_minku_checks
                 self.chest_checks = new_chest_checks
                 self.bakery_checks = new_bakery_checks
+                self.restaurant_checks = new_restaurant_checks
 
             
             curr_location_data: bytes = (await bizhawk.read(
@@ -333,7 +359,7 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
                             )#current hp
-                    elif(item_id < 0x78):
+                    elif(item_id < 0x6f):
                         if(not item_id in self.bakery_inventory_expansion):
                             self.bakery_inventory_expansion.append(item_id)
                     elif(item_id == 0x78):
@@ -387,6 +413,8 @@ class BFMClient(BizHawkClient):
                         )"""
                     elif(item_id == 0x80):
                         logger.info("New stock added to Bakery")
+                    elif(item_id < 0x78):
+                        logger.info("New dish added to Restaurant")
                     else:
                         logger.info("unhandled item receieved %s",item_id_to_name[item_id])
                     self.received_count += 1
@@ -437,6 +465,11 @@ class BFMClient(BizHawkClient):
                                 }])
                                 break
                     if(curr_location in bakery_locations): # 0x2015chapter 2 Jam, also changes to 0x2056 chapter 3
+
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x11514A, [0x0], MAIN_RAM)]
+                        )
                         if(curr_location == 0x207b or curr_location == 0x2098):
                             if(not 0x68 in self.bakery_inventory_default):
                                 self.bakery_inventory_default = self.bakery_inventory_default + [0x69,0x68]
@@ -450,10 +483,11 @@ class BFMClient(BizHawkClient):
                         #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
                         if(len(self.bakery_inventory_expansion)>1):
                             self.bakery_inventory_expansion.sort(reverse=True)
+                        await self.update_progression(ctx)
                         if(ctx.slot_data["bakery_sanity"] == True):
                             self.update_list_of_received_items(ctx)
                             self.bakery_dialog = []
-                            self.cursor_pos = 0
+                            self.cursor_pos = -1
 
 
                             for i in range(len(self.bakery_inventory_sanity)):
@@ -478,7 +512,7 @@ class BFMClient(BizHawkClient):
                                         "create_as_hint": 0
                                     }])
                                     break
-                            self.fix_bakery_dialog()
+                            self.fix_dialog(self.bakery_dialog)
 
                             #logger.info("bakery dialog %s", self.bakery_dialog)
                             self.bakery_inventory = self.bakery_inventory_sanity.copy()
@@ -493,16 +527,43 @@ class BFMClient(BizHawkClient):
                             if(item_name_to_id["Progressive Bread"] in self.list_of_received_items):
                                 bread_to_add = self.bakery_inventory_default[:self.list_of_received_items.count(item_name_to_id["Progressive Bread"])]
                             
-                            for i in range(len(self.bakery_inventory)):
-                                if(self.bakery_checks[i]==True):
-                                    if(len(bread_to_add)>0):
-                                        #logger.info("bread to add %s", bread_to_add)
-                                        #logger.info("bakery inventory %s", self.bakery_inventory)
-                                        #logger.info("bakery inventory sanity %s", self.bakery_inventory_sanity)
-                                        self.bakery_inventory[i]=bread_to_add.pop(0)
+                            if((curr_location == 0x2015 or curr_location == 0x2056) and ctx.slot_data["restaurant_sanity"] == True and self.progression_state > 0x63):
+                                await self.fill_restaurant_dialog(ctx)
+                                for i in range(len(self.bakery_inventory)):
+                                    if(self.bakery_checks[i]==True and self.restaurant_checks[i]==False):
+                                        self.bakery_inventory[i]=0x40
+                                    elif(self.bakery_checks[i]==True):
+                                        if(len(bread_to_add)>0):
+                                            self.bakery_inventory[i]=bread_to_add.pop(0)
+                                for i in range(6,len(self.bakery_inventory)-1,-1):
+                                    if(self.restaurant_checks[i]==False):
+                                        self.bakery_inventory = self.bakery_inventory + [0x40] * (i-len(self.bakery_inventory)+1)
+                                        break
+                            else:
+                                for i in range(len(self.bakery_inventory)):
+                                    if(self.bakery_checks[i]==True):
+                                        if(len(bread_to_add)>0):
+                                            #logger.info("bread to add %s", bread_to_add)
+                                            #logger.info("bakery inventory %s", self.bakery_inventory)
+                                            #logger.info("bakery inventory sanity %s", self.bakery_inventory_sanity)
+                                            self.bakery_inventory[i]=bread_to_add.pop(0)
                                     
                             self.bakery_inventory = self.bakery_inventory + bread_to_add
                             self.bakery_inventory = self.bakery_inventory + self.bakery_inventory_expansion
+                        elif((curr_location == 0x2015 or curr_location == 0x2056) and ctx.slot_data["restaurant_sanity"] == True and self.progression_state > 0x63):
+                            self.bakery_inventory = []
+                            self.cursor_pos = -1
+                            await self.fill_restaurant_dialog(ctx)
+                            for i in range(6,-1,-1):
+                                if(self.restaurant_checks[i]==False):
+                                    self.bakery_inventory = [0x40] * (i+1)
+                                    break
+                            bread_to_add = self.bakery_inventory_default.copy()
+                            for i in range(len(self.bakery_inventory)):
+                                if(self.bakery_checks[i]==True):
+                                    if(len(bread_to_add)>0):
+                                        self.bakery_inventory[i]=bread_to_add.pop(0)
+                            self.bakery_inventory = self.bakery_inventory + bread_to_add + self.bakery_inventory_expansion
                         else:
                             self.bakery_inventory = self.bakery_inventory_default + self.bakery_inventory_expansion
 
@@ -527,7 +588,73 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(store_table[curr_location].inventory_pointer_lower_pointer, store_table[curr_location].inventory_pointer_lower, MAIN_RAM)]
                         )
+                    if(curr_location in restaurant_locations):
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x11514A, [0x0], MAIN_RAM)]
+                        )
+                        #logger.info("entered restaurant")
+                        if(ctx.slot_data["restaurant_sanity"] == True):
+                            if(False in self.restaurant_checks or not set(received_list).issuperset(set(self.restaurant_inventory_default))):
+                                self.update_list_of_received_items(ctx)
+                                self.restaurant_dialog = []
+                                self.cursor_pos = -1
 
+                                for i in range(7):
+                                    loc_id = standard_location_name_to_id["Item 1 - Restaurant"] + i
+                                    if(loc_id in ctx.locations_info):
+                                        if(self.restaurant_checks[i]==True):
+                                            s = "Purchased"
+                                        else:
+                                            s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+                                        self.restaurant_dialog = self.restaurant_dialog + [s]
+                                        s = ctx.player_names[ctx.locations_info[loc_id].player]
+                                        self.restaurant_dialog = self.restaurant_dialog + [s]
+                                    else:
+                                        if(not standard_location_name_to_id["Item 1 - Restaurant"] in table_ids_to_hint):
+                                            for i in range(7):
+                                                table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Restaurant"] + i)
+                                        await ctx.send_msgs([{
+                                            "cmd": "LocationScouts",
+                                            "locations": table_ids_to_hint,
+                                            "create_as_hint": 0
+                                        }])
+                                        break
+                                self.fix_dialog(self.restaurant_dialog)
+
+                                #logger.info("bakery dialog %s", self.bakery_dialog)
+                                self.restaurant_inventory = self.restaurant_inventory_sanity.copy()
+
+                                for i in range(len(self.restaurant_inventory)-1,-1,-1):
+                                    if(self.restaurant_checks[i]==True):
+                                        self.restaurant_inventory.pop(i)
+                                    else:
+                                        break
+
+                                restaurant_to_add = list(set(self.restaurant_inventory_default) & set(received_list))
+                                for i in range(len(self.restaurant_inventory)):
+                                    if(self.restaurant_checks[i]==True):
+                                        if(len(restaurant_to_add)>0):
+                                            self.restaurant_inventory[i]=restaurant_to_add.pop(0)
+                                self.restaurant_inventory = self.restaurant_inventory + restaurant_to_add
+                                self.restaurant_inventory = self.restaurant_inventory[:7]
+
+                                restaurant_dialog_pointers = []
+                                for i in range(len(self.restaurant_inventory)):
+                                    restaurant_dialog_pointers = restaurant_dialog_pointers + restaurant_pointers[curr_location][self.restaurant_inventory[i]]
+
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(store_table[curr_location].inventory_id, self.restaurant_inventory, MAIN_RAM)]
+                                )
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(store_table[curr_location].inventory_length_id, [len(self.restaurant_inventory)], MAIN_RAM)]
+                                )
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(restaurant_pointers_pointers[curr_location], restaurant_dialog_pointers, MAIN_RAM)]
+                                )
                         """
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -685,7 +812,7 @@ class BFMClient(BizHawkClient):
 
                 self.old_step_count = step_count
 
-            if(not self.level_transition):
+            if(self.level_transition == 0):
                 if(curr_location == 0x3060 or curr_location == 0x3062 or curr_location == 0x305d or curr_location == 0x305e or curr_location == 0x3063):
                     self.counter_for_delayed_check += 1
                     if(self.counter_for_delayed_check>9):
@@ -769,7 +896,84 @@ class BFMClient(BizHawkClient):
                                 self.check_if_lumina_needs_removed = 0
                     else:
                         self.check_if_lumina_needs_removed = 0
-                if(ctx.slot_data["bakery_sanity"] == True):
+                if(ctx.slot_data["bakery_sanity"] == True or ctx.slot_data["restaurant_sanity"] == True):
+                    if(curr_location in bakery_locations or curr_location in restaurant_locations):
+                        if(len(self.bakery_dialog)>0 or len(self.restaurant_dialog)>0):
+                            if(False in self.bakery_checks or False in self.restaurant_checks):
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x11514A, 1, MAIN_RAM
+                                )]))[0]
+                                new_cursor_pos = int.from_bytes(save_data, byteorder='little')
+
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x115130, 1, MAIN_RAM
+                                )]))[0]
+                                check_if_question_mark = int.from_bytes(save_data, byteorder='little')
+                                if(self.cursor_pos != new_cursor_pos and (check_if_question_mark == 0xec or new_cursor_pos > 0 or self.cursor_pos>0)):
+                                    self.cursor_pos = new_cursor_pos
+                                    #logger.info("cursor pos %s", self.cursor_pos)
+                                    if(ctx.slot_data["bakery_sanity"] == True and curr_location in bakery_locations):
+                                        if(self.cursor_pos < len(self.bakery_checks) and (self.cursor_pos+1) * 2 <= len(self.bakery_dialog) and self.cursor_pos < len(self.bakery_inventory)):
+                                            if(self.bakery_inventory[self.cursor_pos]==0x3e):
+                                                #logger.info("bakery text %s",self.assemble_binary_array_for_bakery_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]))
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1faae0, self.assemble_binary_array_for_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]), MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1269f0, [0xe0, 0xaa, 0x1f, 0x80], MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x126a00, [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1269f4, [0x01], MAIN_RAM)]
+                                                )
+                                    if(ctx.slot_data["restaurant_sanity"] == True and curr_location in bakery_locations):
+                                        if(self.cursor_pos < len(self.restaurant_checks) and (self.cursor_pos+1) * 2 <= len(self.restaurant_dialog) and self.cursor_pos < len(self.bakery_inventory)):
+                                            if(self.bakery_inventory[self.cursor_pos]==0x40):
+                                                #logger.info("bakery text %s",self.assemble_binary_array_for_bakery_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]))
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1faae0, self.assemble_binary_array_for_dialog(self.restaurant_dialog[(self.cursor_pos)*2],self.restaurant_dialog[(self.cursor_pos)*2+1]), MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1269f0, [0xe0, 0xaa, 0x1f, 0x80], MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x126a00, [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1269f4, [0x01], MAIN_RAM)]
+                                                )
+                                    if(ctx.slot_data["restaurant_sanity"] == True and curr_location in restaurant_locations):
+                                        if(self.cursor_pos < len(self.restaurant_checks) and (self.cursor_pos+1) * 2 <= len(self.restaurant_dialog) and self.cursor_pos < len(self.restaurant_inventory)):
+                                            if(self.restaurant_inventory[self.cursor_pos]==0x40):
+                                                #logger.info("bakery text %s",self.assemble_binary_array_for_bakery_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]))
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1faae0, self.assemble_binary_array_for_dialog(self.restaurant_dialog[(self.cursor_pos)*2],self.restaurant_dialog[(self.cursor_pos)*2+1]), MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1269f0, [0xe0, 0xaa, 0x1f, 0x80], MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x126a00, [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], MAIN_RAM)]
+                                                )
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1269f4, [0x01], MAIN_RAM)]
+                                                )
+
+                """if(ctx.slot_data["bakery_sanity"] == True):
                     if(curr_location in bakery_locations):
                         if(len(self.bakery_dialog)>0):
                             if(False in self.bakery_checks):
@@ -779,18 +983,18 @@ class BFMClient(BizHawkClient):
                                 new_cursor_pos = int.from_bytes(save_data, byteorder='little')
 
                                 save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
-                                    0x1269f0, 1, MAIN_RAM
+                                    0x115130, 1, MAIN_RAM
                                 )]))[0]
-                                check_if_in_menu = int.from_bytes(save_data, byteorder='little')
-                                if(self.cursor_pos != new_cursor_pos and check_if_in_menu != 0x90):
+                                check_if_question_mark = int.from_bytes(save_data, byteorder='little')
+                                if(self.cursor_pos != new_cursor_pos and (check_if_question_mark == 0xec or new_cursor_pos > 0)):
                                     self.cursor_pos = new_cursor_pos
                                     #logger.info("cursor pos %s", self.cursor_pos)
                                     if(self.cursor_pos < len(self.bakery_checks) and (self.cursor_pos+1) * 2 <= len(self.bakery_dialog)):
-                                        if(self.bakery_checks[self.cursor_pos] == False or self.bakery_inventory[self.cursor_pos]==0x3e):
+                                        if(self.bakery_inventory[self.cursor_pos]==0x3e):
                                             #logger.info("bakery text %s",self.assemble_binary_array_for_bakery_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]))
                                             await bizhawk.write(
                                                 ctx.bizhawk_ctx,
-                                                [(0x1faae0, self.assemble_binary_array_for_bakery_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]), MAIN_RAM)]
+                                                [(0x1faae0, self.assemble_binary_array_for_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]), MAIN_RAM)]
                                             )
                                             await bizhawk.write(
                                                 ctx.bizhawk_ctx,
@@ -805,6 +1009,41 @@ class BFMClient(BizHawkClient):
                                                 [(0x1269f4, [0x01], MAIN_RAM)]
                                             )
 
+                if(ctx.slot_data["restaurant_sanity"] == True):
+                    if(curr_location in restaurant_locations):
+                        if(len(self.restaurant_dialog)>0):
+                            if(False in self.restaurant_checks):
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x11514A, 1, MAIN_RAM
+                                )]))[0]
+                                new_cursor_pos = int.from_bytes(save_data, byteorder='little')
+
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x115130, 1, MAIN_RAM
+                                )]))[0]
+                                check_if_question_mark = int.from_bytes(save_data, byteorder='little')
+                                if(self.cursor_pos != new_cursor_pos and (check_if_question_mark == 0xec or new_cursor_pos > 0)):
+                                    self.cursor_pos = new_cursor_pos
+                                    #logger.info("cursor pos %s", self.cursor_pos)
+                                    if(self.cursor_pos < len(self.restaurant_checks) and (self.cursor_pos+1) * 2 <= len(self.restaurant_dialog) and self.cursor_pos < len(self.restaurant_inventory)):
+                                        if(self.restaurant_checks[self.cursor_pos] == False or self.restaurant_inventory[self.cursor_pos]==0x40):
+                                            #logger.info("bakery text %s",self.assemble_binary_array_for_bakery_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]))
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1faae0, self.assemble_binary_array_for_dialog(self.restaurant_dialog[(self.cursor_pos)*2],self.restaurant_dialog[(self.cursor_pos)*2+1]), MAIN_RAM)]
+                                            )
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1269f0, [0xe0, 0xaa, 0x1f, 0x80], MAIN_RAM)]
+                                            )
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x126a00, [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], MAIN_RAM)]
+                                            )
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1269f4, [0x01], MAIN_RAM)]
+                                            )"""
 
 
 
@@ -822,6 +1061,10 @@ class BFMClient(BizHawkClient):
                     if(not standard_location_name_to_id["Item 1 - Bakery"] in table_ids_to_hint):
                         for i in range(7):
                             table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Bakery"] + i)
+                if(ctx.slot_data["restaurant_sanity"] == True):
+                    if(not standard_location_name_to_id["Item 1 - Restaurant"] in table_ids_to_hint):
+                        for i in range(7):
+                            table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Restaurant"] + i)
                 await ctx.send_msgs([{
                     "cmd": "LocationScouts",
                     "locations": table_ids_to_hint,
@@ -867,29 +1110,29 @@ class BFMClient(BizHawkClient):
         pass
 
 
-    def fix_bakery_dialog(self):
-        if(len(self.bakery_dialog)>0):
+    def fix_dialog(self, text: List[str]):
+        if(len(text)>0):
             line_1_max = 0
             line_2_max = 0
-            for i in range(len(self.bakery_dialog)):
+            for i in range(len(text)):
                 if(i%2 == 1):
-                    if(len(self.bakery_dialog[i])>line_1_max):
-                        line_1_max = len(self.bakery_dialog[i])
+                    if(len(text[i])>line_1_max):
+                        line_1_max = len(text[i])
                 if(i%2 == 0):
-                    if(len(self.bakery_dialog[i])>line_2_max):
-                        line_2_max = len(self.bakery_dialog[i])
-            for i in range(len(self.bakery_dialog)):
+                    if(len(text[i])>line_2_max):
+                        line_2_max = len(text[i])
+            for i in range(len(text)):
                 if(i%2 == 1):
-                    if(len(self.bakery_dialog[i])<line_1_max):
-                        for _ in range(line_1_max - len(self.bakery_dialog[i])):
-                            self.bakery_dialog[i] = self.bakery_dialog[i] + " "
+                    if(len(text[i])<line_1_max):
+                        for _ in range(line_1_max - len(text[i])):
+                            text[i] = text[i] + " "
                 if(i%2 == 0):
-                    if(len(self.bakery_dialog[i])<line_2_max):
-                        for _ in range(line_2_max - len(self.bakery_dialog[i])):
-                            self.bakery_dialog[i] = self.bakery_dialog[i] + " "
+                    if(len(text[i])<line_2_max):
+                        for _ in range(line_2_max - len(text[i])):
+                            text[i] = text[i] + " "
         pass
 
-    def assemble_binary_array_for_bakery_dialog(self, s1: str, s2: str):
+    def assemble_binary_array_for_dialog(self, s1: str, s2: str):
         result: bytearray = []
         result.append(0x01)
         result.append(0x02)
@@ -990,6 +1233,30 @@ class BFMClient(BizHawkClient):
             if(0x4b in self.bakery_inventory_expansion):
                 self.bakery_inventory_expansion.remove(0x4b)
                 logger.info("removing extra red shoes from bakery")
+        pass
+
+    async def fill_restaurant_dialog(self, ctx: "BizHawkClientContext"):
+        for i in range(7):
+            loc_id = standard_location_name_to_id["Item 1 - Restaurant"] + i
+            if(loc_id in ctx.locations_info):
+                if(self.restaurant_checks[i]==True):
+                    s = "Purchased"
+                else:
+                    s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+                self.restaurant_dialog = self.restaurant_dialog + [s]
+                s = ctx.player_names[ctx.locations_info[loc_id].player]
+                self.restaurant_dialog = self.restaurant_dialog + [s]
+            else:
+                if(not standard_location_name_to_id["Item 1 - Restaurant"] in table_ids_to_hint):
+                    for i in range(7):
+                        table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Restaurant"] + i)
+                await ctx.send_msgs([{
+                    "cmd": "LocationScouts",
+                    "locations": table_ids_to_hint,
+                    "create_as_hint": 0
+                }])
+                break
+        self.fix_dialog(self.restaurant_dialog)
         pass
 
     async def assemble_binary_array_for_textbox(self, ctx: "BizHawkClientContext", loc_id: int):

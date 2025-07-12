@@ -18,6 +18,13 @@ class BakerySanity(Toggle):
     """
     internal_name = "bakery_sanity"
     display_name = "Bakery Sanity"
+    
+class RestaurantSanity(Toggle):
+    """
+    Randomize the restaurant's list of items for sale into the multiworld
+    """
+    internal_name = "restaurant_sanity"
+    display_name = "Restaurant Sanity"
 
 class HairColor(Choice):
     """
@@ -46,6 +53,7 @@ class CustomHairColor(FreeText):
 class BFMOptions(PerGameCommonOptions):
     lumina_randomzied: LuminaRandomized
     bakery_sanity: BakerySanity
+    restaurant_sanity: RestaurantSanity
     death_link: DeathLink
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor

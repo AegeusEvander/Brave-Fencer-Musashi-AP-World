@@ -81,7 +81,10 @@ class BFMWorld(World):
         if(self.options.lumina_randomzied.value == False):
             del self.player_location_table["Lumina - Spiral Tower"]
         if(self.options.bakery_sanity.value == False):
-            for index, name in enumerate(location_name_groups["Bakery"]):
+            for name in location_name_groups["Bakery"]:
+                del self.player_location_table[name]
+        if(self.options.restaurant_sanity.value == False):
+            for name in location_name_groups["Restaurant"]:
                 del self.player_location_table[name]
 
         if self.options.hair_color_selection == 1:
@@ -121,7 +124,8 @@ class BFMWorld(World):
             "deathlink": self.options.death_link.value,
             "hair_color": self.hair_selection,
             "lumina_randomzied": self.options.lumina_randomzied.value,
-            "bakery_sanity": self.options.bakery_sanity.value
+            "bakery_sanity": self.options.bakery_sanity.value,
+            "restaurant_sanity": self.options.restaurant_sanity.value
         }
         return slot_data
 
@@ -141,6 +145,9 @@ class BFMWorld(World):
             del items_to_create["Lumina"]
         if(self.options.bakery_sanity.value == False):
             del items_to_create["Progressive Bread"]
+        if(self.options.restaurant_sanity.value == False):
+            for name in item_name_groups["Restaurant"]:
+                del items_to_create[name] 
 
         for item, quantity in items_to_create.items():
             for _ in range(quantity):
