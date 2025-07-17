@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Options import Choice, Toggle, PerGameCommonOptions, DeathLink, FreeText
+from Options import Choice, Toggle, PerGameCommonOptions, DeathLink, FreeText, DefaultOnToggle
 from typing import Dict, Any, TYPE_CHECKING
 import logging
 if TYPE_CHECKING:
@@ -25,6 +25,20 @@ class RestaurantSanity(Toggle):
     """
     internal_name = "restaurant_sanity"
     display_name = "Restaurant Sanity"
+
+class GrocerySanity(Toggle):
+    """
+    Randomize the grocery's list of items for sale into the multiworld
+    """
+    internal_name = "grocery_sanity"
+    display_name = "Grocery Sanity"
+
+class GroceryRevive(Toggle):
+    """
+    Force S-Revive to always show up in the shop, collecting a S-Revive from the multiworld will give a price discount
+    """
+    internal_name = "grocery_s_revive"
+    display_name = "Grocery S-Revive"
 
 class HairColor(Choice):
     """
@@ -54,6 +68,8 @@ class BFMOptions(PerGameCommonOptions):
     lumina_randomzied: LuminaRandomized
     bakery_sanity: BakerySanity
     restaurant_sanity: RestaurantSanity
+    grocery_sanity: GrocerySanity
+    grocery_s_revive: GroceryRevive
     death_link: DeathLink
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor

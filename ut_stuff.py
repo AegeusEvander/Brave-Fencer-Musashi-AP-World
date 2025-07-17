@@ -16,6 +16,7 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.options.lumina_randomzied.value = world.passthrough["lumina_randomzied"]
             world.options.bakery_sanity.value = world.passthrough["bakery_sanity"]
             world.options.restaurant_sanity.value = world.passthrough["restaurant_sanity"]
+            world.options.grocery_sanity.value = world.passthrough["grocery_sanity"]
             #world.options.start_with_sword.value = world.passthrough["start_with_sword"]
         else:
             world.using_ut = False

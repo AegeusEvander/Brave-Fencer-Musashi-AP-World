@@ -25,6 +25,9 @@ def saved_everyone(state: CollectionState, world: "BFMWorld") -> bool:
 def has_lumina(state: CollectionState, world: "BFMWorld") -> bool:
     return (not world.options.lumina_randomzied) or state.has("Lumina", world.player)
 
+def has_rice(state: CollectionState, world: "BFMWorld") -> bool:
+    return state.has_all({"Bailiff", "CookA"}, world.player)
+
 def set_region_rules(world: "BFMWorld") -> None:
     player = world.player
     options = world.options
@@ -83,6 +86,17 @@ def set_location_rules(world: "BFMWorld") -> None:
                 lambda state: can_fight_skullpion(state, world))
         set_rule(world.get_location("Item 7 - Bakery"),
                 lambda state: can_fight_skullpion(state, world))
+    if(options.grocery_sanity.value == True):
+        set_rule(world.get_location("Item 8 - Grocery"), #orange, save Tim
+                lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Item 9 - Grocery"), #Chapter 4 EX-Drink
+                lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Item 10 - Grocery"), #Chapter 4 H-Mint
+                lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Item 11 - Grocery"), #rice ball
+                lambda state: has_rice(state, world) and state.has("Chef", player))
+        set_rule(world.get_location("Item 12 - Grocery"), #neatball
+                lambda state: has_rice(state, world) and state.has_all({"CookB", "Butcher"}, player))
     set_rule(world.get_location("Minku - Grillin Village Above Gondola"),
              lambda state: state.has("Bracelet", player))
     set_rule(world.get_location("Aged Coin Chest - Steamwood Forest"),

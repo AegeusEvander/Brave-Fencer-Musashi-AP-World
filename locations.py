@@ -105,6 +105,18 @@ location_table: Dict[str, BFMLocationData] = {
     "Item 5 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant"),
     "Item 6 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant"),
     "Item 7 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant"),
+    "Item 1 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 2 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 3 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 4 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 5 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 6 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 7 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 8 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 9 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 10 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 11 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Item 12 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
 }
 
 sphere_one: List[str] = [
@@ -132,7 +144,7 @@ for loc_name, loc_data in location_table.items():
 table_ids_to_hint: List[int] = []
 for loc_name, loc_id in standard_location_name_to_id.items():
     if(location_table[loc_name].location_group):
-        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant"]):
+        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant", "Grocery"]):
             table_ids_to_hint.append(loc_id)
     else:
         table_ids_to_hint.append(loc_id)

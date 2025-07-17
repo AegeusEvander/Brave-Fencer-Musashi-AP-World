@@ -17,7 +17,7 @@ from .utils import Constants
 from .version import __version__
 from .hair_color import hair_color_addresses, default_hair_color, new_hair_color
 from .items import npc_ids, item_id_to_name, item_name_to_id
-from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations
+from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations
 
 
 from NetUtils import ClientStatus
@@ -45,6 +45,7 @@ class BFMClient(BizHawkClient):
     minku_checks = [False] * 13
     chest_checks = [False] * 33
     bakery_checks = [False] * 7
+    grocery_checks = [False] * 12
     restaurant_checks = [False] * 7
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
@@ -56,6 +57,10 @@ class BFMClient(BizHawkClient):
     restaurant_inventory_sanity = [0x40,0x40,0x40,0x40,0x40,0x40,0x40]
     restaurant_inventory = []
     restaurant_dialog: List[str] = [] 
+    grocery_inventory_default = [0x04,0x05,0x06,0x0a,0x08,0x09,0x6b]
+    grocery_inventory_sanity = [0x42,0x42,0x42,0x42,0x42,0x42,0x42]
+    grocery_inventory = []
+    grocery_dialog: List[str] = [] 
     progression_state = 0
     received_count = 0
     old_location = 0
@@ -164,7 +169,7 @@ class BFMClient(BizHawkClient):
 
             save_data: bytes = (await bizhawk.read(
                 ctx.bizhawk_ctx,
-                [(0x0ae671, 7, MAIN_RAM)]
+                [(0x0ae671, 8, MAIN_RAM)]
             ))[0]
             holdint = [save_data[0],save_data[1],save_data[2],save_data[3]]
             new_bincho_checks = self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 32)
@@ -179,7 +184,12 @@ class BFMClient(BizHawkClient):
                 holdint = [save_data[5],save_data[6]]
                 new_restaurant_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 9, [0,1])
             else:
-                new_restaurant_checks = self.retaurant_checks
+                new_restaurant_checks = self.restaurant_checks
+            if(ctx.slot_data["grocery_sanity"] == True):
+                holdint = [save_data[6],save_data[7]]
+                new_grocery_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 13, [0])
+            else:
+                new_grocery_checks = self.grocery_checks
 
             save_data = (await bizhawk.read(
                 ctx.bizhawk_ctx,
@@ -263,7 +273,17 @@ class BFMClient(BizHawkClient):
                                 self.restaurant_dialog[i*2] = "Purchased"
                                 self.fix_dialog(self.restaurant_dialog)
 
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks):
+            if(new_grocery_checks != self.grocery_checks):
+                #logger.info("bakery checks %s", new_bakery_checks)
+                for i in range(len(new_grocery_checks)):
+                    if(new_grocery_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Item 1 - Grocery"] + i)
+                        if(i*2 < len(self.grocery_dialog)):
+                            if(not "Purchased" in self.grocery_dialog[i*2]):
+                                self.grocery_dialog[i*2] = "Purchased"
+                                self.fix_dialog(self.grocery_dialog)
+
+            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -273,6 +293,7 @@ class BFMClient(BizHawkClient):
                 self.chest_checks = new_chest_checks
                 self.bakery_checks = new_bakery_checks
                 self.restaurant_checks = new_restaurant_checks
+                self.grocery_checks = new_grocery_checks
 
             
             curr_location_data: bytes = (await bizhawk.read(
@@ -359,7 +380,13 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
                             )#current hp
-                    elif(item_id < 0x6f):
+                    elif(item_id == 0xa):
+                        if(ctx.slot_data["grocery_s_revive"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x10ee64, [0x1e, 0, 0x1e, 0], MAIN_RAM)]
+                            )#lower s-revive price
+                    elif(item_id < 0x6a and item_id > 0x12):
                         if(not item_id in self.bakery_inventory_expansion):
                             self.bakery_inventory_expansion.append(item_id)
                     elif(item_id == 0x78):
@@ -413,8 +440,10 @@ class BFMClient(BizHawkClient):
                         )"""
                     elif(item_id == 0x80):
                         logger.info("New stock added to Bakery")
-                    elif(item_id < 0x78):
-                        logger.info("New dish added to Restaurant")
+                    elif(item_id < 0x78 and item_id > 0x70):
+                        logger.info("%s added to Restaurant",item_id_to_name[item_id])
+                    elif(item_id < 0xc or item_id == 0x6a or item_id == 0x6b or item_id== 0x6d):
+                        logger.info("%s added to Grocery",item_id_to_name[item_id])
                     else:
                         logger.info("unhandled item receieved %s",item_id_to_name[item_id])
                     self.received_count += 1
@@ -655,6 +684,155 @@ class BFMClient(BizHawkClient):
                                     ctx.bizhawk_ctx,
                                     [(restaurant_pointers_pointers[curr_location], restaurant_dialog_pointers, MAIN_RAM)]
                                 )
+                    if(curr_location in grocery_locations): # 0x2015chapter 2 Jam, also changes to 0x2056 chapter 3
+                        if(ctx.slot_data["grocery_sanity"] == True):
+                            await self.update_progression(ctx)
+                            self.update_list_of_received_items(ctx)
+                            self.grocery_dialog = []
+                            self.cursor_pos = -1
+                            
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x11514A, [0x0], MAIN_RAM)] #set cursor to zero incase it is greater than the current index
+                            )
+                            if(len(self.grocery_inventory_sanity)<12 or 0 in self.grocery_inventory_sanity):
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0BA202, 1, MAIN_RAM)]
+                                ))[0]
+                                rice_ball = 0
+                                rice_state = int.from_bytes(save_data, byteorder='little')
+                                if(rice_state == 0x4):
+                                    logger.info("rice ball item available")
+                                    rice_ball = 1
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0BA213, 1, MAIN_RAM)]
+                                ))[0]
+                                neatball = 0
+                                neatball_state = int.from_bytes(save_data, byteorder='little')
+                                if(neatball_state == 0x3):
+                                    logger.info("neatball item available")
+                                    neatball = 1
+                                if(neatball == 1 or rice_ball == 1):
+                                    if(rice_ball == 1 and not 0x1 in self.grocery_inventory_default):
+                                        self.grocery_inventory_default = self.grocery_inventory_default + [0x1]
+                                    if(neatball == 1 and not 0x6a in self.grocery_inventory_default):
+                                        self.grocery_inventory_default = self.grocery_inventory_default + [0x6a]
+                                    if(len(self.grocery_inventory_sanity) < 11):
+                                        if(neatball == 1 and rice_ball == 0):
+                                            self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0]*(11-len(self.grocery_inventory_sanity)) + [0x42]
+                                        elif(neatball == 0 and rice_ball == 1):
+                                            self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0]*(10-len(self.grocery_inventory_sanity)) + [0x42] 
+                                        else:
+                                            self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0]*(10-len(self.grocery_inventory_sanity)) + [0x42, 0x42]
+                                    elif(len(self.grocery_inventory_sanity) == 11 and neatball == 1): 
+                                        self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0x42]
+                                    elif(rice_ball == 1):
+                                        self.grocery_inventory_sanity[10] = 0x42
+
+                            if(not 0xb in self.grocery_inventory_default):
+                                if(self.progression_state >= 0x12c):
+                                    if(len(self.grocery_inventory_sanity) < 11): #no Riceball or Neatball yet
+                                        self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0x42]
+                                        self.grocery_inventory_default = self.grocery_inventory_default + [0xb]
+                                    else: #have either Riceball or Neatball
+                                        self.grocery_inventory_sanity[7] = 0x42
+                                        self.grocery_inventory_default = self.grocery_inventory_default[:7] + [0xb] + self.grocery_inventory_default[7:]
+
+                            if(curr_location == 0x207c or curr_location == 0x2099): #Chapter 4/5/6
+                                if(not 0x7 in self.grocery_inventory_default):
+                                    self.grocery_inventory_default = self.grocery_inventory_default[:3] + [0x7] + self.grocery_inventory_default[3:5] + [0x6d] + self.grocery_inventory_default[5:] #EX-Drink and H-Mint
+                                    if(len(self.grocery_inventory_sanity) < 11): #no Riceball or Neatball yet
+                                        self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0x42,0x42]
+                                    else:
+                                        self.grocery_inventory_sanity[8] = 0x42
+                                        self.grocery_inventory_sanity[9] = 0x42
+                                    
+                            self.grocery_inventory = [0x0a]
+                            #logger.info("bakery inventory %s",self.bakery_inventory)
+                            #logger.info("bakery inventory bytes %s",bytes(self.bakery_inventory))
+                            #logger.info("bakery inventory len %s",len(self.bakery_inventory))
+                            #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
+
+
+                            for i in range(len(self.grocery_inventory_sanity)):
+                                loc_id = standard_location_name_to_id["Item 1 - Grocery"] + i
+                                if(loc_id in ctx.locations_info):
+                                    if(self.grocery_checks[i]==True):
+                                        s = "Purchased"
+                                    else:
+                                        s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+                                    self.grocery_dialog = self.grocery_dialog + [s]
+                                    s = ctx.player_names[ctx.locations_info[loc_id].player]
+                                    self.grocery_dialog = self.grocery_dialog + [s]
+                                else:
+                                    if(not standard_location_name_to_id["Item 1 - Grocery"] in table_ids_to_hint):
+                                        for i in range(12):
+                                            table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Grocery"] + i)
+                                    #logger.info("no scout information found try reentering area (after taking a couple steps) %s", table_ids_to_hint)
+                                    #logger.info("item 7 id %s", standard_location_name_to_id["Item 7 - Bakery"])
+                                    await ctx.send_msgs([{
+                                        "cmd": "LocationScouts",
+                                        "locations": table_ids_to_hint,
+                                        "create_as_hint": 0
+                                    }])
+                                    break
+                            self.fix_dialog(self.grocery_dialog)
+
+                            #logger.info("bakery dialog %s", self.bakery_dialog)
+                            self.grocery_inventory = self.grocery_inventory_sanity.copy()
+
+                            for i in range(len(self.grocery_inventory)-1,-1,-1):
+                                if(self.grocery_checks[i]==True or self.grocery_inventory[i]==0x0):
+                                    self.grocery_inventory.pop(i)
+                                else:
+                                    break
+
+                            #logger.info("starting inventory %s", self.grocery_inventory)
+                            #logger.info("grocery default %s", self.grocery_inventory_default)
+                            #grocery_to_add = list(set(self.grocery_inventory_default) & set(received_list))
+                            grocery_to_add = []
+                            for i in range(len(self.grocery_inventory_default)):
+                                if(self.grocery_inventory_default[i] in received_list or (ctx.slot_data["grocery_s_revive"] == True and self.grocery_inventory_default[i] == 0xa)):
+                                    grocery_to_add = grocery_to_add + [self.grocery_inventory_default[i]]
+                                    #logger.info("grocery to add %s", grocery_to_add)
+                            if(received_list.count(0x6) > 1 and 0x7 in self.grocery_inventory_default):
+                                grocery_to_add = [0x7 if x==0x6 else x for x in grocery_to_add]
+                            if(received_list.count(0x8) > 1 and 0x6d in self.grocery_inventory_default):
+                                grocery_to_add = [0x6d if x==0x8 else x for x in grocery_to_add]
+                            #logger.info("grocery to add %s", grocery_to_add)
+
+                            if(len(self.grocery_inventory) >= 4 and 0xa in grocery_to_add):
+                                if(self.grocery_checks[3]==True):
+                                    self.grocery_inventory[3] = 0xa
+                                    grocery_to_add.remove(0xa)
+                            
+                            for i in range(len(self.grocery_inventory)):
+                                if(self.grocery_checks[i]==True or self.grocery_inventory[i]==0x0):
+                                    if(self.grocery_inventory[i] != 0xa):
+                                        if(len(grocery_to_add)>0):
+                                            #logger.info("bread to add %s", bread_to_add)
+                                            #logger.info("bakery inventory %s", self.bakery_inventory)
+                                            #logger.info("bakery inventory sanity %s", self.bakery_inventory_sanity)
+                                            self.grocery_inventory[i]=grocery_to_add.pop(0)
+                            #logger.info("inventory after after grocery to add %s", self.grocery_inventory)
+                                    
+                            self.grocery_inventory = self.grocery_inventory + grocery_to_add
+                            #logger.info("inventory after after final adds grocery to add %s", self.grocery_inventory)
+                        
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(store_table[curr_location].inventory_id, self.grocery_inventory, MAIN_RAM)]
+                            )
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(store_table[curr_location].inventory_length_id, [len(self.grocery_inventory)]*8, MAIN_RAM)]
+                            )
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(store_table[curr_location].inventory_pointer_upper_pointer, store_table[curr_location].inventory_pointer_upper, MAIN_RAM)] #somehow coresponds to 0x801f
+                            )
                         """
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -973,6 +1151,47 @@ class BFMClient(BizHawkClient):
                                                     [(0x1269f4, [0x01], MAIN_RAM)]
                                                 )
 
+                if(ctx.slot_data["grocery_sanity"] == True):
+                    if(curr_location in grocery_locations):
+                        if(len(self.grocery_dialog)>0):
+                            if(False in self.grocery_checks):
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x11514A, 1, MAIN_RAM
+                                )]))[0]
+                                new_cursor_pos = int.from_bytes(save_data, byteorder='little')
+
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x115130, 1, MAIN_RAM
+                                )]))[0]
+                                check_if_question_mark = int.from_bytes(save_data, byteorder='little')
+                                if(self.cursor_pos != new_cursor_pos and (check_if_question_mark == 0xec or new_cursor_pos > 0 or self.cursor_pos>0)):
+                                    self.cursor_pos = new_cursor_pos
+                                    #logger.info("cursor pos %s", self.cursor_pos)
+                                    if(self.cursor_pos < len(self.grocery_checks) and (self.cursor_pos+1) * 2 <= len(self.grocery_dialog) and self.cursor_pos < len(self.grocery_inventory)):
+                                        if(self.grocery_inventory[self.cursor_pos]==0x42):
+                                            #logger.info("bakery text %s",self.assemble_binary_array_for_bakery_dialog(self.bakery_dialog[(self.cursor_pos)*2],self.bakery_dialog[(self.cursor_pos)*2+1]))
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1faae0, self.assemble_binary_array_for_dialog(self.grocery_dialog[(self.cursor_pos)*2],self.grocery_dialog[(self.cursor_pos)*2+1]), MAIN_RAM)]
+                                            )
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1269f0, [0xe0, 0xaa, 0x1f, 0x80], MAIN_RAM)]
+                                            )
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x126a00, [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], MAIN_RAM)]
+                                            )
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1269f4, [0x01], MAIN_RAM)]
+                                            )
+                                        elif(self.grocery_inventory[self.cursor_pos]==0x0):
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x115130, [0xe8], MAIN_RAM)] #clear text box
+                                            )
+
                 """if(ctx.slot_data["bakery_sanity"] == True):
                     if(curr_location in bakery_locations):
                         if(len(self.bakery_dialog)>0):
@@ -1065,6 +1284,10 @@ class BFMClient(BizHawkClient):
                     if(not standard_location_name_to_id["Item 1 - Restaurant"] in table_ids_to_hint):
                         for i in range(7):
                             table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Restaurant"] + i)
+                if(ctx.slot_data["grocery_sanity"] == True):
+                    if(not standard_location_name_to_id["Item 1 - Grocery"] in table_ids_to_hint):
+                        for i in range(12):
+                            table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Grocery"] + i)
                 await ctx.send_msgs([{
                     "cmd": "LocationScouts",
                     "locations": table_ids_to_hint,

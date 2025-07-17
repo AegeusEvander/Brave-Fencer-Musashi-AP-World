@@ -86,6 +86,18 @@ item_table: Dict[str, BFMItemData] = {
     "Salad": BFMItemData(IC.filler, 1, 0x75, "Restaurant"),
     "Lasagna": BFMItemData(IC.filler, 1, 0x76, "Restaurant"),
     "Pork Chop": BFMItemData(IC.filler, 1, 0x77, "Restaurant"),
+    "Rice Ball": BFMItemData(IC.filler, 1, 0x01, "Grocery"),
+    "Gel": BFMItemData(IC.filler, 1, 0x04, "Grocery"),
+    "W-Gel": BFMItemData(IC.useful, 1, 0x05, "Grocery"),
+    "Progressive Drink": BFMItemData(IC.useful, 2, 0x06, "Grocery"),
+    #"EX-Drink": BFMItemData(IC.useful, 1, 0x07, "Grocery"),
+    "Progressive Mint": BFMItemData(IC.useful, 2, 0x08, "Grocery"),
+    "Antidote": BFMItemData(IC.useful, 1, 0x09, "Grocery"),
+    "S-Revive": BFMItemData(IC.useful, 1, 0x0a, "Grocery"),
+    "Orange": BFMItemData(IC.useful, 1, 0x0b, "Grocery"),
+    "Neatball": BFMItemData(IC.useful, 1, 0x6a, "Grocery"),
+    "Cheese": BFMItemData(IC.useful, 1, 0x6b, "Grocery"),
+    #"H-Mint": BFMItemData(IC.useful, 1, 0x6d, "Grocery"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

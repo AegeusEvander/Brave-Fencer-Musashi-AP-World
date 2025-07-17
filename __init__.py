@@ -86,6 +86,9 @@ class BFMWorld(World):
         if(self.options.restaurant_sanity.value == False):
             for name in location_name_groups["Restaurant"]:
                 del self.player_location_table[name]
+        if(self.options.grocery_sanity.value == False):
+            for name in location_name_groups["Grocery"]:
+                del self.player_location_table[name]
 
         if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
@@ -125,7 +128,9 @@ class BFMWorld(World):
             "hair_color": self.hair_selection,
             "lumina_randomzied": self.options.lumina_randomzied.value,
             "bakery_sanity": self.options.bakery_sanity.value,
-            "restaurant_sanity": self.options.restaurant_sanity.value
+            "restaurant_sanity": self.options.restaurant_sanity.value,
+            "grocery_sanity": self.options.grocery_sanity.value,
+            "grocery_s_revive": self.options.grocery_s_revive.value
         }
         return slot_data
 
@@ -147,6 +152,9 @@ class BFMWorld(World):
             del items_to_create["Progressive Bread"]
         if(self.options.restaurant_sanity.value == False):
             for name in item_name_groups["Restaurant"]:
+                del items_to_create[name] 
+        if(self.options.grocery_sanity.value == False):
+            for name in item_name_groups["Grocery"]:
                 del items_to_create[name] 
 
         for item, quantity in items_to_create.items():
