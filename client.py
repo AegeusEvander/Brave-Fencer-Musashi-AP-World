@@ -16,8 +16,8 @@ from .dialog_locations import dialog_location_table, short_text_boxes
 from .utils import Constants
 from .version import __version__
 from .hair_color import hair_color_addresses, default_hair_color, new_hair_color
-from .items import npc_ids, item_id_to_name, item_name_to_id
-from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations
+from .items import npc_ids, item_id_to_name, item_name_to_id, item_name_groups
+from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations, toy_shop_locations, toy_shop_fix, toy_shop_dialog, toy_shop_dialog_length 
 
 
 from NetUtils import ClientStatus
@@ -47,6 +47,7 @@ class BFMClient(BizHawkClient):
     bakery_checks = [False] * 7
     grocery_checks = [False] * 12
     restaurant_checks = [False] * 7
+    toy_checks = [False] * 30
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -61,6 +62,8 @@ class BFMClient(BizHawkClient):
     grocery_inventory_sanity = [0x42,0x42,0x42,0x42,0x42,0x42,0x42]
     grocery_inventory = []
     grocery_dialog: List[str] = [] 
+    toy_inventory = [False] * 30
+    toy_dialog: List[bytearray] = [bytearray()] * 30 
     progression_state = 0
     received_count = 0
     old_location = 0
@@ -167,6 +170,7 @@ class BFMClient(BizHawkClient):
             #global bincho_checks
             from CommonClient import logger
 
+            received_list: List[int] = [received_item[0] for received_item in ctx.items_received]
             save_data: bytes = (await bizhawk.read(
                 ctx.bizhawk_ctx,
                 [(0x0ae671, 8, MAIN_RAM)]
@@ -207,6 +211,30 @@ class BFMClient(BizHawkClient):
             #logger.info("What was read 0 in 0aae671 %s",self.bincho_checks)
             holdint = [save_data[4]]
             new_chest_checks.extend(self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 7))
+
+            if(ctx.slot_data["toy_sanity"] == True):
+                save_data: bytes = (await bizhawk.read(
+                    ctx.bizhawk_ctx,
+                    [(0x0ba21b, 30, MAIN_RAM)]
+                ))[0]
+                new_toy_checks: List[bool] = [val & 0b10000 == 0b10000 for val in save_data]
+                new_toy_inventory: List[bool] = [val & 0b11110000 == 0b10000000 for val in save_data]
+                new_toy_purchased_awaiting: List[bool] = [val & 0b11110000 == 0b10010000 for val in save_data]
+                new_toy_in_storage: List[bool] = [val & 0b01000000 == 0b01000000 for val in save_data]
+                new_toy_needs_fixed: List[bool] = [val & 0b11010000 == 0b11000000 for val in save_data]
+                if(True in new_toy_needs_fixed):
+                    for i in range(len(new_toy_needs_fixed)):
+                        if(new_toy_needs_fixed[i]):
+                            toy_data = save_data[i] | 0b10000
+                            toy_data = toy_data & 0b10011111
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba21b+i, [toy_data], MAIN_RAM)]
+                            )
+
+            else:
+                new_toy_checks = self.toy_checks
+                new_toy_inventory = self.toy_inventory
 
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
@@ -282,8 +310,39 @@ class BFMClient(BizHawkClient):
                             if(not "Purchased" in self.grocery_dialog[i*2]):
                                 self.grocery_dialog[i*2] = "Purchased"
                                 self.fix_dialog(self.grocery_dialog)
+            
+            if(new_toy_checks != self.toy_checks):
+                #logger.info("bakery checks %s", new_bakery_checks)
+                for i in range(len(new_toy_checks)):
+                    if(new_toy_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Musashi - Toy Shop"] + i)
+                        if(new_toy_purchased_awaiting[i]):
+                            if(item_name_to_id["Musashi Action Figure"] + i in received_list):
+                                logger.info("adding %s toy to storage", item_id_to_name[item_name_to_id["Musashi Action Figure"] + i])
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba21b+i, 1, MAIN_RAM)]
+                                ))[0]
+                                toy_data = save_data[0] | 0b1000000
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba21b+i, [toy_data], MAIN_RAM)]
+                                )
+                                new_toy_in_storage[i] = True
+                                new_toy_purchased_awaiting[i] = False
 
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks):
+
+            if(new_toy_inventory != self.toy_inventory):
+                toys_for_sale = []
+                for i in range(len(new_toy_inventory)):
+                    if(new_toy_inventory[i] and not self.toy_inventory[i]):
+                        toys_for_sale = toys_for_sale + [item_id_to_name[item_name_to_id["Musashi Action Figure"] + i]]
+                if(len(toys_for_sale)>0):
+                    logger.info("new toys for sale %s",toys_for_sale)
+                self.toy_inventory = new_toy_inventory
+
+
+            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -294,6 +353,7 @@ class BFMClient(BizHawkClient):
                 self.bakery_checks = new_bakery_checks
                 self.restaurant_checks = new_restaurant_checks
                 self.grocery_checks = new_grocery_checks
+                self.toy_checks = new_toy_checks
 
             
             curr_location_data: bytes = (await bizhawk.read(
@@ -328,7 +388,6 @@ class BFMClient(BizHawkClient):
             #not save menu
             #if(curr_location != 12296):
 
-            received_list: List[int] = [received_item[0] for received_item in ctx.items_received]
             if(self.old_step_count != 0 and self.level_transition != 1):
                 if(self.received_count < len(ctx.items_received)):
                     #logger.info("list %s",ctx.items_received[self.received_count])
@@ -444,6 +503,29 @@ class BFMClient(BizHawkClient):
                         logger.info("%s added to Restaurant",item_id_to_name[item_id])
                     elif(item_id < 0xc or item_id == 0x6a or item_id == 0x6b or item_id== 0x6d):
                         logger.info("%s added to Grocery",item_id_to_name[item_id])
+                    elif(item_id >= item_name_to_id["Musashi Action Figure"] and item_id < item_name_to_id["Musashi Action Figure"] + len(item_name_groups["Toy Shop"])):
+                        if(ctx.slot_data["toy_sanity"] == True):
+                            val = item_id - item_name_to_id["Musashi Action Figure"]
+                            if(new_toy_purchased_awaiting[val] == False):
+                                if(new_toy_in_storage[val]):
+                                    logger.info("%s toy already in storage", item_id_to_name[item_id])
+                                else:
+                                    logger.info("received %s toy but was not yet purchased", item_id_to_name[item_id])
+                            else:
+                                logger.info("adding %s toy to storage", item_id_to_name[item_id])
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba21b+val, 1, MAIN_RAM)]
+                                ))[0]
+                                toy_data = save_data[0] | 0b1000000
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba21b+val, [toy_data], MAIN_RAM)]
+                                )
+                                new_toy_in_storage[val] = True
+                                new_toy_purchased_awaiting[val] = False
+                        else:
+                            logger.info("received toy when toysanity was disabled, something went wrong")
                     else:
                         logger.info("unhandled item receieved %s",item_id_to_name[item_id])
                     self.received_count += 1
@@ -819,6 +901,14 @@ class BFMClient(BizHawkClient):
                             #logger.info("inventory after after grocery to add %s", self.grocery_inventory)
                                     
                             self.grocery_inventory = self.grocery_inventory + grocery_to_add
+
+                            if(len(self.grocery_inventory) >= 4 and 0xa in self.grocery_inventory):
+                                if(self.grocery_checks[3]==True):
+                                    if(self.grocery_inventory[3] != 0xa):
+                                        for i in range(len(self.grocery_inventory)):
+                                            if(self.grocery_inventory[i] == 0xa):
+                                                self.grocery_inventory[i] = self.grocery_inventory[3]
+                                        self.grocery_inventory[3] = 0xa
                             #logger.info("inventory after after final adds grocery to add %s", self.grocery_inventory)
                         
                             await bizhawk.write(
@@ -833,6 +923,62 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(store_table[curr_location].inventory_pointer_upper_pointer, store_table[curr_location].inventory_pointer_upper, MAIN_RAM)] #somehow coresponds to 0x801f
                             )
+                    
+                    if(curr_location in toy_shop_locations): # 0x2015chapter 2 Jam, also changes to 0x2056 chapter 3
+                        if(ctx.slot_data["toy_sanity"] == True):
+                            
+                            if(len(self.toy_dialog[29]) == 0):
+                                for i in range(len(self.toy_checks)):
+                                    loc_id = standard_location_name_to_id["Musashi - Toy Shop"] + i
+                                    if(loc_id in ctx.locations_info):
+                                        self.toy_dialog[i] = await self.assemble_binary_array_for_toyshop(ctx,loc_id,toy_shop_dialog_length[i])
+                                    else:
+                                        if(not standard_location_name_to_id["Musashi - Toy Shop"] in table_ids_to_hint):
+                                            for i in range(30):
+                                                table_ids_to_hint.append(standard_location_name_to_id["Musashi - Toy Shop"] + i)
+                                        logger.info("no scout information found try reentering area (after taking a couple steps)")
+                                        #logger.info("item 7 id %s", standard_location_name_to_id["Item 7 - Bakery"])
+                                        await ctx.send_msgs([{
+                                            "cmd": "LocationScouts",
+                                            "locations": table_ids_to_hint,
+                                            "create_as_hint": 0
+                                        }])
+                                        break
+                            
+                            if(len(self.toy_dialog[29]) != 0):
+                                logger.info("writing toy dialog")
+                                for i in range(len(self.toy_inventory)):
+                                    if(self.toy_inventory[i]):
+                                        await bizhawk.write(
+                                            ctx.bizhawk_ctx,
+                                            [(toy_shop_dialog[curr_location][i], self.toy_dialog[i], MAIN_RAM)]
+                                        )
+                            
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(toy_shop_fix[curr_location], [0x10], MAIN_RAM)]
+                            )
+
+                            save_data: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba239, 13, MAIN_RAM)]
+                            ))[0]
+                            new_toy_purchased_to_update: List[bool] = [val & 0b11110000 == 0b10010000 for val in save_data]
+                            if(True in new_toy_purchased_to_update):
+                                for i in range(len(new_toy_purchased_to_update)):
+                                    if(new_toy_purchased_to_update[i]):
+                                        logger.info("adding yet to be randomized toy to storage")
+                                        save_data: bytes = (await bizhawk.read(
+                                            ctx.bizhawk_ctx,
+                                            [(0x0ba239+i, 1, MAIN_RAM)]
+                                        ))[0]
+                                        toy_data = save_data[0] | 0b1000000
+                                        toy_data = toy_data & 0b11101111
+                                        await bizhawk.write(
+                                            ctx.bizhawk_ctx,
+                                            [(0x0ba239+i, [toy_data], MAIN_RAM)]
+                                        )
+                            
                         """
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -1288,6 +1434,10 @@ class BFMClient(BizHawkClient):
                     if(not standard_location_name_to_id["Item 1 - Grocery"] in table_ids_to_hint):
                         for i in range(12):
                             table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Grocery"] + i)
+                if(ctx.slot_data["toy_sanity"] == True):
+                    if(not standard_location_name_to_id["Musashi - Toy Shop"] in table_ids_to_hint):
+                        for i in range(30):
+                            table_ids_to_hint.append(standard_location_name_to_id["Musashi - Toy Shop"] + i)
                 await ctx.send_msgs([{
                     "cmd": "LocationScouts",
                     "locations": table_ids_to_hint,
@@ -1525,6 +1675,30 @@ class BFMClient(BizHawkClient):
             return result
         
         result = result[:54]
+        result.append(0x00)
+
+        return result
+
+    async def assemble_binary_array_for_toyshop(self, ctx: "BizHawkClientContext", loc_id: int, max: int):
+
+        result = bytearray([2,0,0])
+        result.append(0x01)
+        result.append(0x02)
+        s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+        result.extend(s.encode("utf-8"))
+        result.append(0x01)
+        result.append(0x01)
+        result.append(0x0a)
+        s = "for "
+        result.extend(s.encode("utf-8"))
+        s = ctx.player_names[ctx.locations_info[loc_id].player]
+        result.extend(s.encode("utf-8"))
+        result.append(0x00)
+
+        if(len(result) < max):
+            return result
+        
+        result = result[:(max - 1)]
         result.append(0x00)
 
         return result

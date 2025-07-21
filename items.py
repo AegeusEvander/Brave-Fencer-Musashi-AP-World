@@ -11,6 +11,7 @@ class BFMItemData(NamedTuple):
 
 
 item_base_id = 0x0ba1b8
+item_action_figure_id = 0x100
 
 item_table: Dict[str, BFMItemData] = {
     "Guard": BFMItemData(IC.progression, 1, 0x40, "NPC"),
@@ -98,6 +99,36 @@ item_table: Dict[str, BFMItemData] = {
     "Neatball": BFMItemData(IC.useful, 1, 0x6a, "Grocery"),
     "Cheese": BFMItemData(IC.useful, 1, 0x6b, "Grocery"),
     #"H-Mint": BFMItemData(IC.useful, 1, 0x6d, "Grocery"),
+    "Musashi Action Figure": BFMItemData(IC.filler, 1, 0x0 + item_action_figure_id, "Toy Shop"),
+    "Bee Plant": BFMItemData(IC.filler, 1, 0x1 + item_action_figure_id, "Toy Shop"),
+    "Soldier1": BFMItemData(IC.filler, 1, 0x2 + item_action_figure_id, "Toy Shop"),
+    "Soldier2": BFMItemData(IC.filler, 1, 0x3 + item_action_figure_id, "Toy Shop"),
+    "Rootrick": BFMItemData(IC.filler, 1, 0x4 + item_action_figure_id, "Toy Shop"),
+    "Steam Knight": BFMItemData(IC.filler, 1, 0x5 + item_action_figure_id, "Toy Shop"),
+    "Soldier3": BFMItemData(IC.filler, 1, 0x6 + item_action_figure_id, "Toy Shop"),
+    "Herb Plant": BFMItemData(IC.filler, 1, 0x7 + item_action_figure_id, "Toy Shop"),
+    "Killer Man Eater": BFMItemData(IC.filler, 1, 0x8 + item_action_figure_id, "Toy Shop"),
+    "Magician": BFMItemData(IC.filler, 1, 0x9 + item_action_figure_id, "Toy Shop"),
+    "Sleepie": BFMItemData(IC.filler, 1, 0xa + item_action_figure_id, "Toy Shop"),
+    "Skullpion": BFMItemData(IC.filler, 1, 0xb + item_action_figure_id, "Toy Shop"),
+    "Regular Vambee": BFMItemData(IC.filler, 1, 0xc + item_action_figure_id, "Toy Shop"),
+    "Vambee Soldier": BFMItemData(IC.filler, 1, 0xd + item_action_figure_id, "Toy Shop"),
+    "Bowler": BFMItemData(IC.filler, 1, 0xe + item_action_figure_id, "Toy Shop"),
+    "Cure Worm": BFMItemData(IC.filler, 1, 0xf + item_action_figure_id, "Toy Shop"),
+    "Bubbles": BFMItemData(IC.filler, 1, 0x10 + item_action_figure_id, "Toy Shop"),
+    "Relic Keeper": BFMItemData(IC.filler, 1, 0x11 + item_action_figure_id, "Toy Shop"),
+    "Penguin": BFMItemData(IC.filler, 1, 0x12 + item_action_figure_id, "Toy Shop"),
+    "Haya Wolf": BFMItemData(IC.filler, 1, 0x13 + item_action_figure_id, "Toy Shop"),
+    "Slow Guy": BFMItemData(IC.filler, 1, 0x14 + item_action_figure_id, "Toy Shop"),
+    "Steel Golem": BFMItemData(IC.filler, 1, 0x15 + item_action_figure_id, "Toy Shop"),
+    "Gingerelle": BFMItemData(IC.filler, 1, 0x16 + item_action_figure_id, "Toy Shop"),
+    "Frost Dragon": BFMItemData(IC.filler, 1, 0x17 + item_action_figure_id, "Toy Shop"),
+    "GiAnt": BFMItemData(IC.filler, 1, 0x18 + item_action_figure_id, "Toy Shop"),
+    "Toad Stool": BFMItemData(IC.filler, 1, 0x19 + item_action_figure_id, "Toy Shop"),
+    "Ed & Ben": BFMItemData(IC.filler, 1, 0x1a + item_action_figure_id, "Toy Shop"),
+    "Topo": BFMItemData(IC.filler, 1, 0x1b + item_action_figure_id, "Toy Shop"),
+    "Colonel Capricola": BFMItemData(IC.filler, 1, 0x1c + item_action_figure_id, "Toy Shop"),
+    "Queen Ant": BFMItemData(IC.filler, 1, 0x1d + item_action_figure_id, "Toy Shop"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

@@ -117,6 +117,36 @@ location_table: Dict[str, BFMLocationData] = {
     "Item 10 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
     "Item 11 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
     "Item 12 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery"),
+    "Musashi - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop"),
+    "Bee Plant - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop"),
+    "Soldier1 - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop"),
+    "Soldier2 - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop"),
+    "Rootrick - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop"),
+    "Steam Knight - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop"),
+    "Soldier3 - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
+    "Herb Plant - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
+    "Killer Man Eater - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
+    "Magician - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
+    "Sleepie - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
+    "Skullpion - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
+    "Regular Vambee - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
+    "Vambee Soldier - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
+    "Bowler - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
+    "Cure Worm - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
+    "Bubbles - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
+    "Relic Keeper - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
+    "Penguin - Toy Shop": BFMLocationData("Toy Shop Series 4",location_group = "Toy Shop"),
+    "Haya Wolf - Toy Shop": BFMLocationData("Toy Shop Series 4",location_group = "Toy Shop"),
+    "Slow Guy - Toy Shop": BFMLocationData("Toy Shop Series 4",location_group = "Toy Shop"),
+    "Steel Golem - Toy Shop": BFMLocationData("Toy Shop Series 4",location_group = "Toy Shop"),
+    "Gingerelle - Toy Shop": BFMLocationData("Toy Shop Series 4",location_group = "Toy Shop"),
+    "Frost Dragon - Toy Shop": BFMLocationData("Toy Shop Series 4",location_group = "Toy Shop"),
+    "GiAnt - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
+    "Toad Stool - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
+    "Ed & Ben - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
+    "Topo - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
+    "Colonel Capricola - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
+    "Queen Ant - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
 }
 
 sphere_one: List[str] = [
@@ -144,7 +174,7 @@ for loc_name, loc_data in location_table.items():
 table_ids_to_hint: List[int] = []
 for loc_name, loc_id in standard_location_name_to_id.items():
     if(location_table[loc_name].location_group):
-        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant", "Grocery"]):
+        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant", "Grocery", "Toy Shop"]):
             table_ids_to_hint.append(loc_id)
     else:
         table_ids_to_hint.append(loc_id)

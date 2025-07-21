@@ -1,7 +1,7 @@
 bfm_regions: dict[str, tuple[str]] = {
     "Menu": ("Spiral Tower",),
     "Spiral Tower": ("Grillin Village",),
-    "Grillin Village": ("Somnolent Forest","Somnolent Forest Deadend","Steamwood Forest","Mine Entrance","Restaurant Basement","Upper Grillin Village","Grillin Reservoir"),
+    "Grillin Village": ("Somnolent Forest","Somnolent Forest Deadend","Steamwood Forest","Mine Entrance","Restaurant Basement","Upper Grillin Village","Grillin Reservoir","Toy Shop Series 1"),
     "Upper Grillin Village": ("Twinpeak Entrance","Upper Mines"),
     "Somnolent Forest": ("Somnolent Forest Behind Steam","Meandering Forest","Island of Dragons"),
     "Somnolent Forest Deadend": tuple(),
@@ -46,5 +46,12 @@ bfm_regions: dict[str, tuple[str]] = {
     "Upper Mines": ("Upper Mines Big Fan Room",),
     "Upper Mines Big Fan Room": ("Upper Mines Ant Parade",),
     "Upper Mines Ant Parade": ("Upper Mines Before Digging",),
-    "Upper Mines Before Digging": tuple()
+    "Upper Mines Before Digging": tuple(),
+    "Toy Shop Series 1": ("Toy Shop Series 2","Toy Shop Series 3","Toy Shop Series 4","Toy Shop Series 5","Toy Shop Series 6","Toy Shop Series Special"),
+    "Toy Shop Series 2": tuple(),
+    "Toy Shop Series 3": tuple(),
+    "Toy Shop Series 4": tuple(),
+    "Toy Shop Series 5": tuple(),
+    "Toy Shop Series 6": tuple(),
+    "Toy Shop Series Special": tuple()
 }

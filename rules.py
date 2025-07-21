@@ -36,6 +36,13 @@ def set_region_rules(world: "BFMWorld") -> None:
         lambda state: can_fight_skullpion(state, world)
     world.get_entrance("Grillin Village -> Restaurant Basement").access_rule = \
         lambda state: can_fight_skullpion(state, world)
+    if(options.toy_sanity.value == True):
+        world.get_entrance("Toy Shop Series 1 -> Toy Shop Series 3").access_rule = \
+            lambda state: can_fight_skullpion(state, world)
+        world.get_entrance("Toy Shop Series 1 -> Toy Shop Series 4").access_rule = \
+            lambda state: can_enter_frozen_palace(state, world) and can_identify_gondola_gizmo(state, world) and can_fight_skullpion(state, world)
+        world.get_entrance("Toy Shop Series 1 -> Toy Shop Series 5").access_rule = \
+            lambda state: can_enter_frozen_palace(state, world) and can_identify_gondola_gizmo(state, world) and can_fight_skullpion(state, world) and can_fight_frost_dragon(state, world)
     world.get_entrance("Twinpeak Entrance -> Twinpeak Path to Skullpion").access_rule = \
         lambda state: state.has("Bracelet", player)
     if(options.bakery_sanity.value == True):
@@ -74,39 +81,54 @@ def set_location_rules(world: "BFMWorld") -> None:
         set_rule(world.get_location(name), lambda state: has_lumina(state, world)) 
 
     add_rule(world.get_location("Weaver Bincho - Twinpeak Second Peak"),
-             lambda state: can_fight_skullpion(state, world))
+        lambda state: can_fight_skullpion(state, world))
     set_rule(world.get_location("Minku - Twinpeak End of Stream"),
-             lambda state: can_fight_skullpion(state, world))
+        lambda state: can_fight_skullpion(state, world))
     set_rule(world.get_location("Minku - Steamwood Forest"),
-             lambda state: can_fight_skullpion(state, world))
+        lambda state: can_fight_skullpion(state, world))
     set_rule(world.get_location("Minku - Somnolent Forest"),
-             lambda state: can_fight_skullpion(state, world))
+        lambda state: can_fight_skullpion(state, world))
     if(options.bakery_sanity.value == True):
         set_rule(world.get_location("Item 6 - Bakery"),
-                lambda state: can_fight_skullpion(state, world))
+            lambda state: can_fight_skullpion(state, world))
         set_rule(world.get_location("Item 7 - Bakery"),
-                lambda state: can_fight_skullpion(state, world))
+            lambda state: can_fight_skullpion(state, world))
     if(options.grocery_sanity.value == True):
         set_rule(world.get_location("Item 8 - Grocery"), #orange, save Tim
-                lambda state: can_fight_skullpion(state, world))
+            lambda state: can_fight_skullpion(state, world))
         set_rule(world.get_location("Item 9 - Grocery"), #Chapter 4 EX-Drink
-                lambda state: can_fight_skullpion(state, world))
+            lambda state: can_fight_skullpion(state, world))
         set_rule(world.get_location("Item 10 - Grocery"), #Chapter 4 H-Mint
-                lambda state: can_fight_skullpion(state, world))
+            lambda state: can_fight_skullpion(state, world))
         set_rule(world.get_location("Item 11 - Grocery"), #rice ball
-                lambda state: has_rice(state, world) and state.has("Chef", player))
+            lambda state: has_rice(state, world) and state.has("Chef", player))
         set_rule(world.get_location("Item 12 - Grocery"), #neatball
-                lambda state: has_rice(state, world) and state.has_all({"CookB", "Butcher"}, player))
+            lambda state: has_rice(state, world) and state.has_all({"CookB", "Butcher"}, player))
     set_rule(world.get_location("Minku - Grillin Village Above Gondola"),
-             lambda state: state.has("Bracelet", player))
+        lambda state: state.has("Bracelet", player))
     set_rule(world.get_location("Aged Coin Chest - Steamwood Forest"),
-             lambda state: state.has("Bracelet", player))
+        lambda state: state.has("Bracelet", player))
     set_rule(world.get_location("Rock Chest - Twinpeak Second Peak"),
-             lambda state: state.has("Bracelet", player) and has_lumina(state, world))
-    set_rule(world.get_location("Bracelet Chest - Twinpeak Entrance"),
-             lambda state: has_lumina(state, world))
+        lambda state: state.has("Bracelet", player) and has_lumina(state, world))
+    if(options.bakery_sanity.value == True):
+        set_rule(world.get_location("Bracelet Chest - Twinpeak Entrance"),
+            lambda state: has_lumina(state, world) and (state.has("Progressive Bread", player) or state.has("Bracelet", player)))
+    else:
+        set_rule(world.get_location("Bracelet Chest - Twinpeak Entrance"),
+            lambda state: has_lumina(state, world))
     set_rule(world.get_location("200 Drans Chest - Twinpeak Path to Skullpion"),
-             lambda state: has_lumina(state, world))
+        lambda state: has_lumina(state, world))
     set_rule(world.get_location("Glasses Chest - Somnolent Forest"),
-             lambda state: can_fight_skullpion(state, world))
+        lambda state: can_fight_skullpion(state, world))
+    if(options.toy_sanity.value == True):
+        set_rule(world.get_location("Skullpion - Toy Shop"),
+            lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Frost Dragon - Toy Shop"),
+            lambda state: can_fight_frost_dragon(state, world))
+        set_rule(world.get_location("Slow Guy - Toy Shop"),
+            lambda state: state.has_any({"Red Eye", "Blue Eye", "Red Shoes"}, player))
+        set_rule(world.get_location("Steel Golem - Toy Shop"),
+            lambda state: state.has_any({"Red Eye", "Red Shoes"}, player))
+
+
              

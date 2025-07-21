@@ -40,6 +40,13 @@ class GroceryRevive(Toggle):
     internal_name = "grocery_s_revive"
     display_name = "Grocery S-Revive"
 
+class ToySanity(Toggle):
+    """
+    Randomize the toy shop's list of items for sale into the multiworld
+    """
+    internal_name = "toy_sanity"
+    display_name = "Toy Sanity"
+
 class HairColor(Choice):
     """
     Pick Hair Color, or choose custom for further customization
@@ -70,6 +77,7 @@ class BFMOptions(PerGameCommonOptions):
     restaurant_sanity: RestaurantSanity
     grocery_sanity: GrocerySanity
     grocery_s_revive: GroceryRevive
+    toy_sanity: ToySanity
     death_link: DeathLink
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor
