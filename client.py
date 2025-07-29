@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING, Any, ClassVar, List
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch as launch_component
 
 from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, location_base_id, table_ids_to_hint
-from .dialog_locations import dialog_location_table, short_text_boxes
+from .dialog_locations import dialog_location_table, short_text_boxes, castle_dialog
 #if TYPE_CHECKING:
 #    from .context import BizHawkClientContext
 from .utils import Constants
 from .version import __version__
 from .hair_color import hair_color_addresses, default_hair_color, new_hair_color
 from .items import npc_ids, item_id_to_name, item_name_to_id, item_name_groups
-from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations, toy_shop_locations, toy_shop_fix, toy_shop_dialog, toy_shop_dialog_length 
+from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations, toy_shop_locations, toy_shop_fix, toy_shop_dialog, toy_shop_dialog_length, tech_fix, tech_check_locations
 
 
 from NetUtils import ClientStatus
@@ -48,6 +48,7 @@ class BFMClient(BizHawkClient):
     grocery_checks = [False] * 12
     restaurant_checks = [False] * 7
     toy_checks = [False] * 30
+    tech_checks = [False] * 7
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -64,6 +65,7 @@ class BFMClient(BizHawkClient):
     grocery_dialog: List[str] = [] 
     toy_inventory = [False] * 30
     toy_dialog: List[bytearray] = [bytearray()] * 30 
+    tech_dialog: List[bytearray] = [bytearray()] * 7 
     progression_state = 0
     received_count = 0
     old_location = 0
@@ -231,10 +233,18 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(0x0ba21b+i, [toy_data], MAIN_RAM)]
                             )
-
             else:
                 new_toy_checks = self.toy_checks
                 new_toy_inventory = self.toy_inventory
+
+            if(ctx.slot_data["tech_sanity"] == True):
+                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, tech_check_locations))
+                new_tech_checks: List[bool] = []
+                for i in range(len(save_data)):
+                    new_tech_checks = new_tech_checks + [int.from_bytes(save_data[i], "little")>(2+(i==2))]
+            else:
+                new_tech_checks = self.tech_checks
+
 
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
@@ -340,9 +350,13 @@ class BFMClient(BizHawkClient):
                 if(len(toys_for_sale)>0):
                     logger.info("new toys for sale %s",toys_for_sale)
                 self.toy_inventory = new_toy_inventory
+            
+            if(new_tech_checks != self.tech_checks):
+                for i in range(len(new_tech_checks)):
+                    if(new_tech_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)
 
-
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks):
+            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -354,6 +368,7 @@ class BFMClient(BizHawkClient):
                 self.restaurant_checks = new_restaurant_checks
                 self.grocery_checks = new_grocery_checks
                 self.toy_checks = new_toy_checks
+                self.tech_checks = new_tech_checks
 
             
             curr_location_data: bytes = (await bizhawk.read(
@@ -526,6 +541,28 @@ class BFMClient(BizHawkClient):
                                 new_toy_purchased_awaiting[val] = False
                         else:
                             logger.info("received toy when toysanity was disabled, something went wrong")
+                    elif(item_id>0x80 and item_id<0x88):
+                        logger.info("adding %s to Tech",item_id_to_name[item_id])
+                        if(item_id == 0x87):
+                            save_data: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae659, 1, MAIN_RAM)]
+                            ))[0]
+                            tech_data = save_data[0] | 0b10
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae659, [tech_data], MAIN_RAM)]
+                            )
+                        else:
+                            save_data: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae658, 1, MAIN_RAM)]
+                            ))[0]
+                            tech_data = save_data[0] | (0b1 << (item_id - 0x80 + (item_id > 0x83)))
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae658, [tech_data], MAIN_RAM)]
+                            )
                     else:
                         logger.info("unhandled item receieved %s",item_id_to_name[item_id])
                     self.received_count += 1
@@ -537,6 +574,21 @@ class BFMClient(BizHawkClient):
                 if(curr_hair_color == bytes.fromhex(ctx.slot_data["hair_color"])):
                     self.hair_color_updated = 1
                 else:
+                    logger.info(f"v{ctx.slot_data["version"]} Version of APWorld used to generate this slot")
+                    logger.info(f"v{__version__} Currently installed APWorld version")
+                    if(bytes.fromhex(default_hair_color) == curr_hair_color):
+                        logger.info("This version of the game appears to be unpatched, this could result in unexpected behavior and maybe uncompletable. Please close and reopen this client after selecting the patched version of the game in bizhawk.")
+                        logger.info("For assistance in patching the game please view:")
+                        logger.info("https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/blob/main/docs/setup_en.md#patching-the-bin-file")
+                        logger.info("For further assistance please consider joining the Archipelago discord server (found on https://archipelago.gg/) going to future game design and then Brave Fencer Musashi")
+                    else:
+                        save_data: bytes = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            [(0x047dc0, 3, MAIN_RAM)]
+                        ))[0]
+                        s = str(save_data[0]) + "." + str(save_data[1]) + "." + str(save_data[2])
+                        logger.info(f"v{s} Current game patch") 
+                        logger.info("Try to have all version numbers match if possible for best compatibility")                      
                     logger.info("Coloring Hair")
                     for address in hair_color_addresses:
                         await bizhawk.write(
@@ -978,7 +1030,39 @@ class BFMClient(BizHawkClient):
                                             ctx.bizhawk_ctx,
                                             [(0x0ba239+i, [toy_data], MAIN_RAM)]
                                         )
+                    if(curr_location == 0x3003): #At Geezer
+                        if(ctx.slot_data["tech_sanity"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                tech_fix
+                            )
+                            if(len(self.tech_dialog[6]) == 0):
+                                for i in range(len(self.tech_checks)):
+                                    loc_id = standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i
+                                    if(loc_id in ctx.locations_info):
+                                        self.tech_dialog[i] = await self.assemble_binary_array_for_textbox(ctx,loc_id)
+                                    else:
+                                        if(not standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] in table_ids_to_hint):
+                                            for i in range(7):
+                                                table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)
+                                        logger.info("no scout information found try reentering area (after taking a couple steps)")
+                                        #logger.info("item 7 id %s", standard_location_name_to_id["Item 7 - Bakery"])
+                                        await ctx.send_msgs([{
+                                            "cmd": "LocationScouts",
+                                            "locations": table_ids_to_hint,
+                                            "create_as_hint": 0
+                                        }])
+                                        break
                             
+                            if(len(self.tech_dialog[6]) != 0):
+                                logger.info("writing tech dialog")
+                                for i in range(len(self.tech_dialog)):
+                                    if(self.tech_checks[i] == False):
+                                        await bizhawk.write(
+                                            ctx.bizhawk_ctx,
+                                            [(castle_dialog[i], self.tech_dialog[i], MAIN_RAM)]
+                                        )
+
                         """
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -1438,6 +1522,10 @@ class BFMClient(BizHawkClient):
                     if(not standard_location_name_to_id["Musashi - Toy Shop"] in table_ids_to_hint):
                         for i in range(30):
                             table_ids_to_hint.append(standard_location_name_to_id["Musashi - Toy Shop"] + i)
+                if(ctx.slot_data["tech_sanity"] == True):
+                    if(not standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] in table_ids_to_hint):
+                        for i in range(7):
+                            table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)       
                 await ctx.send_msgs([{
                     "cmd": "LocationScouts",
                     "locations": table_ids_to_hint,

@@ -81,3 +81,13 @@ short_text_boxes: List[int] = [
     standard_location_name_to_id["Blue Eye Chest - Frozen Palace Red Eye Maze"],
     standard_location_name_to_id["Green Eye Chest - Frozen Palace Green Eye Maze"]
 ]
+
+castle_dialog: List[int] = [
+    0x18b9b4,  
+    0x188ea4,
+    0x188b30,
+    0x189c9c,
+    0x18aeb4,
+    0x18c8a4,
+    0x18cd90
+]

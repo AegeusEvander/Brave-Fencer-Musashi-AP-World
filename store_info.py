@@ -1,4 +1,6 @@
-from typing import Dict, NamedTuple, Set, Optional, List
+from typing import Dict, NamedTuple, Set, Optional, List, ClassVar
+
+MAIN_RAM: str = "MainRAM"
 
 bakery_locations: List[int] = [
     0x2015, #Chapter 2
@@ -321,4 +323,24 @@ toy_shop_dialog_length: List[int] = [
     60,
     56,
     56
+]
+
+tech_fix=[
+    (0x1818d0, [0x84], MAIN_RAM),
+    (0x18073c, [0x84], MAIN_RAM),
+    (0x180674, [0x84], MAIN_RAM),
+    (0x180998, [0x84], MAIN_RAM),
+    (0x181080, [0x84], MAIN_RAM),
+    (0x1810ec, [0x84], MAIN_RAM),
+    (0x181314, [0x84], MAIN_RAM)
+]
+
+tech_check_locations=[
+    (0x0ba20c, 1, MAIN_RAM), #Artisan
+    (0x0ba1fb, 1, MAIN_RAM), #Maid
+    (0x0ba1f5, 1, MAIN_RAM), #Clown
+    (0x0ba200, 1, MAIN_RAM), #KnightB
+    (0x0ba207, 1, MAIN_RAM), #KnightA
+    (0x0ba216, 1, MAIN_RAM), #KnightC
+    (0x0ba218, 1, MAIN_RAM)  #KnightD
 ]

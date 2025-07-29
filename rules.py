@@ -28,6 +28,12 @@ def has_lumina(state: CollectionState, world: "BFMWorld") -> bool:
 def has_rice(state: CollectionState, world: "BFMWorld") -> bool:
     return state.has_all({"Bailiff", "CookA"}, world.player)
 
+def has_orange(state: CollectionState, world: "BFMWorld") -> bool:
+    if(world.options.grocery_sanity.value == True):
+        return state.has("Orange", world.player) and can_fight_skullpion(state, world)
+    else:
+        return can_fight_skullpion(state, world)
+
 def set_region_rules(world: "BFMWorld") -> None:
     player = world.player
     options = world.options
@@ -129,6 +135,21 @@ def set_location_rules(world: "BFMWorld") -> None:
             lambda state: state.has_any({"Red Eye", "Blue Eye", "Red Shoes"}, player))
         set_rule(world.get_location("Steel Golem - Toy Shop"),
             lambda state: state.has_any({"Red Eye", "Red Shoes"}, player))
+    if(options.tech_sanity.value == True):
+        set_rule(world.get_location("Improved Fusion - Allucaneet Castle"),
+            lambda state: state.has("Artisan", player))
+        set_rule(world.get_location("Dashing Pierce - Allucaneet Castle"),
+            lambda state: state.has("Maid", player))
+        set_rule(world.get_location("Shish Kebab - Allucaneet Castle"),
+            lambda state: state.has("Acrobat", player) and has_orange(state, world))
+        set_rule(world.get_location("Crosswise Cut - Allucaneet Castle"),
+            lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Tenderize - Allucaneet Castle"),
+            lambda state: state.has("KnightA", player))
+        set_rule(world.get_location("Desperado Attack - Allucaneet Castle"),
+            lambda state: state.has("KnightC", player) and state.has("Crosswise Cut", player))
+        set_rule(world.get_location("Rumparoni Special - Allucaneet Castle"),
+            lambda state: state.has("KnightD", player))
 
 
              

@@ -1,6 +1,5 @@
 #taken from Tunic 
 from typing import Any, TYPE_CHECKING
-
 #from .options import 
 #from .options import BFMOptions, LuminaRandomized
 
@@ -18,7 +17,7 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.options.restaurant_sanity.value = world.passthrough["restaurant_sanity"]
             world.options.grocery_sanity.value = world.passthrough["grocery_sanity"]
             world.options.toy_sanity.value = world.passthrough["toy_sanity"]
-            #world.options.start_with_sword.value = world.passthrough["start_with_sword"]
+            world.options.tech_sanity.value = world.passthrough["tech_sanity"]
         else:
             world.using_ut = False
     else:

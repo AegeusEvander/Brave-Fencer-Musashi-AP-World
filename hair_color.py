@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 #color in hex RRGGBB
-default_hair_color = 0x403366
+default_hair_color = "403366"
 
 new_hair_color: bytes = bytes.fromhex("BBBBBB")
 
@@ -11,7 +11,8 @@ hair_color_options: Dict[int,str] = {
     4: "0F45D2",
     5: "6AA84F",
     6: "C94700",
-    7: "F2779D"
+    7: "F2779D",
+    8: "C0C000"
 }
 
 hair_color_addresses: List[int] = [

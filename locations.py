@@ -147,6 +147,13 @@ location_table: Dict[str, BFMLocationData] = {
     "Topo - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
     "Colonel Capricola - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
     "Queen Ant - Toy Shop": BFMLocationData("Toy Shop Series 5",location_group = "Toy Shop"),
+    "Improved Fusion - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
+    "Dashing Pierce - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
+    "Shish Kebab - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
+    "Crosswise Cut - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
+    "Tenderize - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
+    "Desperado Attack - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
+    "Rumparoni Special - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
 }
 
 sphere_one: List[str] = [
@@ -174,7 +181,7 @@ for loc_name, loc_data in location_table.items():
 table_ids_to_hint: List[int] = []
 for loc_name, loc_id in standard_location_name_to_id.items():
     if(location_table[loc_name].location_group):
-        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant", "Grocery", "Toy Shop"]):
+        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant", "Grocery", "Toy Shop", "Tech"]):
             table_ids_to_hint.append(loc_id)
     else:
         table_ids_to_hint.append(loc_id)

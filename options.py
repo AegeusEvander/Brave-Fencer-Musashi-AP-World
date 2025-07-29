@@ -47,6 +47,13 @@ class ToySanity(Toggle):
     internal_name = "toy_sanity"
     display_name = "Toy Sanity"
 
+class TechSanity(Toggle):
+    """
+    Randomize the Weapon Techniques and Fusion upgrade into the multiworld
+    """
+    internal_name = "tech_sanity"
+    display_name = "Tech Sanity"
+
 class HairColor(Choice):
     """
     Pick Hair Color, or choose custom for further customization
@@ -60,6 +67,7 @@ class HairColor(Choice):
     option_green = 5
     option_orange = 6
     option_pink = 7
+    option_yellow = 8
     default = 2
 
 class CustomHairColor(FreeText):
@@ -78,6 +86,7 @@ class BFMOptions(PerGameCommonOptions):
     grocery_sanity: GrocerySanity
     grocery_s_revive: GroceryRevive
     toy_sanity: ToySanity
+    tech_sanity: TechSanity
     death_link: DeathLink
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor

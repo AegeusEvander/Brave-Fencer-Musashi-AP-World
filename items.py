@@ -95,7 +95,7 @@ item_table: Dict[str, BFMItemData] = {
     "Progressive Mint": BFMItemData(IC.useful, 2, 0x08, "Grocery"),
     "Antidote": BFMItemData(IC.useful, 1, 0x09, "Grocery"),
     "S-Revive": BFMItemData(IC.useful, 1, 0x0a, "Grocery"),
-    "Orange": BFMItemData(IC.useful, 1, 0x0b, "Grocery"),
+    "Orange": BFMItemData(IC.progression, 1, 0x0b, "Grocery"),
     "Neatball": BFMItemData(IC.useful, 1, 0x6a, "Grocery"),
     "Cheese": BFMItemData(IC.useful, 1, 0x6b, "Grocery"),
     #"H-Mint": BFMItemData(IC.useful, 1, 0x6d, "Grocery"),
@@ -129,6 +129,13 @@ item_table: Dict[str, BFMItemData] = {
     "Topo": BFMItemData(IC.filler, 1, 0x1b + item_action_figure_id, "Toy Shop"),
     "Colonel Capricola": BFMItemData(IC.filler, 1, 0x1c + item_action_figure_id, "Toy Shop"),
     "Queen Ant": BFMItemData(IC.filler, 1, 0x1d + item_action_figure_id, "Toy Shop"),
+    "Improved Fusion": BFMItemData(IC.useful, 1, 0x81, "Tech"),
+    "Dashing Pierce": BFMItemData(IC.useful, 1, 0x82, "Tech"),
+    "Shish Kebab": BFMItemData(IC.useful, 1, 0x83, "Tech"),
+    "Crosswise Cut": BFMItemData(IC.progression, 1, 0x84, "Tech"),
+    "Tenderize": BFMItemData(IC.useful, 1, 0x85, "Tech"),
+    "Desperado Attack": BFMItemData(IC.useful, 1, 0x86, "Tech"),
+    "Rumparoni Special": BFMItemData(IC.useful, 1, 0x87, "Tech"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints
