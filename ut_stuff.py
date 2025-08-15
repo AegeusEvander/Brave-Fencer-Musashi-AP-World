@@ -18,6 +18,8 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.options.grocery_sanity.value = world.passthrough["grocery_sanity"]
             world.options.toy_sanity.value = world.passthrough["toy_sanity"]
             world.options.tech_sanity.value = world.passthrough["tech_sanity"]
+            world.options.scroll_sanity.value = world.passthrough["scroll_sanity"]
+            world.options.sky_scroll_logic.value = world.passthrough["sky_scroll_logic"]
         else:
             world.using_ut = False
     else:

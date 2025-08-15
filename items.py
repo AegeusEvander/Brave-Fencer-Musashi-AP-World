@@ -12,6 +12,7 @@ class BFMItemData(NamedTuple):
 
 item_base_id = 0x0ba1b8
 item_action_figure_id = 0x100
+scroll_base_id = 0x200
 
 item_table: Dict[str, BFMItemData] = {
     "Guard": BFMItemData(IC.progression, 1, 0x40, "NPC"),
@@ -78,7 +79,7 @@ item_table: Dict[str, BFMItemData] = {
     "Blue Eye": BFMItemData(IC.progression, 1, 0x61, "Chest Reward"),
     "Green Eye": BFMItemData(IC.progression, 1, 0x62, "Chest Reward"),
     "1000 Drans": BFMItemData(IC.filler, 6, 0x78, "Chest Reward"),
-    "Lumina": BFMItemData(IC.progression, 1, 0x79, "Equipment"),
+    "Lumina": BFMItemData(IC.progression | IC.useful, 1, 0x79, "Equipment"),
     "Progressive Bread": BFMItemData(IC.progression, 7, 0x80, "Bakery"),
     "Juice": BFMItemData(IC.filler, 1, 0x71, "Restaurant"),
     "Pea Soup": BFMItemData(IC.filler, 1, 0x72, "Restaurant"),
@@ -136,6 +137,11 @@ item_table: Dict[str, BFMItemData] = {
     "Tenderize": BFMItemData(IC.useful, 1, 0x85, "Tech"),
     "Desperado Attack": BFMItemData(IC.useful, 1, 0x86, "Tech"),
     "Rumparoni Special": BFMItemData(IC.useful, 1, 0x87, "Tech"),
+    "Earth Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x16 + scroll_base_id, "Scroll"),
+    "Water Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x17 + scroll_base_id, "Scroll"),
+    "Fire Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x18 + scroll_base_id, "Scroll"),
+    "Wind Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x19 + scroll_base_id, "Scroll"),
+    "Sky Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x1a + scroll_base_id, "Scroll"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

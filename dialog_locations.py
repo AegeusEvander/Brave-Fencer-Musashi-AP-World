@@ -91,3 +91,11 @@ castle_dialog: List[int] = [
     0x18c8a4,
     0x18cd90
 ]
+
+scroll_dialog: Dict[int, Dict[int, int]] = {
+    0x3026: {standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"]: 0x196960},
+    0x304e: {standard_location_name_to_id["Water Scroll - Grillin Reservoir"]: 0x19490c},
+    0x3021: {standard_location_name_to_id["Fire Scroll - Island of Dragons"]: 0x197b8c},
+    0x3023: {standard_location_name_to_id["Wind Scroll - Grillin Volcano"]: 0x191d0c},
+    0x3081: {standard_location_name_to_id["Sky Scroll - Sky Island"]: 0x191f44}
+}

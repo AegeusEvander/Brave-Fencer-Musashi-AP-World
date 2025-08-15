@@ -36,7 +36,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Chef Bincho - Frozen Palace Crate Pile": BFMLocationData("Frozen Palace Crate Pile",location_group = "Bincho"),
     "MercenA Bincho - Restaurant Basement Bowling 1": BFMLocationData("Restaurant Basement Bowling 1",location_group = "Bincho"),
     "Chief Bincho - Misteria Underground Lake": BFMLocationData("Misteria Underground Lake",location_group = "Bincho"),
-    "CookB Bincho - Upper Mines": BFMLocationData("Upper Mines",location_group = "Bincho"),
+    "CookB Bincho - Upper Mines": BFMLocationData("Upper Mines Behind Posion",location_group = "Bincho"),
     "Conductor Bincho - Upper Mines Ant Parade": BFMLocationData("Upper Mines Ant Parade",location_group = "Bincho"),
     "Butcher Bincho - Frozen Palace Atrium Right Balcony": BFMLocationData("Frozen Palace Atrium Right Balcony",location_group = "Bincho"),
     "KnightC Bincho - Restaurant Basement Dark Platform Maze 3": BFMLocationData("Restaurant Basement Dark Platform Maze 3",location_group = "Bincho"),
@@ -87,8 +87,8 @@ location_table: Dict[str, BFMLocationData] = {
     "Red Cloth Chest - Frozen Palace Green Eye Maze": BFMLocationData("Frozen Palace Green Eye Maze",location_group = "Chest"),
     "Black Cloth Chest - Frost Dragon Door": BFMLocationData("Frost Dragon Door",location_group = "Chest"),
     "Glasses Chest - Somnolent Forest": BFMLocationData("Somnolent Forest",location_group = "Chest"),
-    "Large Tool Chest - Upper Mines": BFMLocationData("Upper Mines",location_group = "Chest"),
-    "Odd Bone Chest - Upper Mines": BFMLocationData("Upper Mines",location_group = "Chest"),
+    "Large Tool Chest - Upper Mines": BFMLocationData("Upper Mines Behind Posion",location_group = "Chest"),
+    "Odd Bone Chest - Upper Mines": BFMLocationData("Upper Mines Behind Posion",location_group = "Chest"),
     "Armor Chest - Reservoir Tunnel": BFMLocationData("Reservoir Tunnel",location_group = "Chest"),
     "Lumina - Spiral Tower": BFMLocationData("Spiral Tower",location_group = "Equipment"),
     "Item 1 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery"),
@@ -129,7 +129,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Magician - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
     "Sleepie - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
     "Skullpion - Toy Shop": BFMLocationData("Toy Shop Series 2",location_group = "Toy Shop"),
-    "Regular Vambee - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
+    "Relic Vambee - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
     "Vambee Soldier - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
     "Bowler - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
     "Cure Worm - Toy Shop": BFMLocationData("Toy Shop Series 3",location_group = "Toy Shop"),
@@ -154,6 +154,11 @@ location_table: Dict[str, BFMLocationData] = {
     "Tenderize - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
     "Desperado Attack - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
     "Rumparoni Special - Allucaneet Castle": BFMLocationData("Castle",location_group = "Tech"),
+    "Earth Scroll - Twinpeak First Peak": BFMLocationData("Twinpeak Around the Bend",location_group = "Scroll"),
+    "Water Scroll - Grillin Reservoir": BFMLocationData("Grillin Reservoir",location_group = "Scroll"),
+    "Fire Scroll - Island of Dragons": BFMLocationData("Island of Dragons",location_group = "Scroll"),
+    "Wind Scroll - Grillin Volcano": BFMLocationData("Wind Scroll",location_group = "Scroll"),
+    "Sky Scroll - Sky Island": BFMLocationData("Sky Island",location_group = "Scroll"),
 }
 
 sphere_one: List[str] = [
@@ -181,7 +186,8 @@ for loc_name, loc_data in location_table.items():
 table_ids_to_hint: List[int] = []
 for loc_name, loc_id in standard_location_name_to_id.items():
     if(location_table[loc_name].location_group):
-        if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant", "Grocery", "Toy Shop", "Tech"]):
+        #if(not location_table[loc_name].location_group in ["Bakery", "Equipment", "Minku", "Restaurant", "Grocery", "Toy Shop", "Tech"]):
+        if(location_table[loc_name].location_group in ["Bincho", "Chest"]):
             table_ids_to_hint.append(loc_id)
     else:
         table_ids_to_hint.append(loc_id)

@@ -42,7 +42,7 @@ class GroceryRevive(Toggle):
 
 class ToySanity(Toggle):
     """
-    Randomize the toy shop's list of items for sale into the multiworld
+    Randomize the toy shop's list of items for sale into the multiworld, only includes Series 1 through 5 (Does not require Soda Fountain)
     """
     internal_name = "toy_sanity"
     display_name = "Toy Sanity"
@@ -53,6 +53,28 @@ class TechSanity(Toggle):
     """
     internal_name = "tech_sanity"
     display_name = "Tech Sanity"
+
+class ScrollSanity(Toggle):
+    """
+    Randomize the Five Legendary Scrolls into the multiworld
+    """
+    internal_name = "scroll_sanity"
+    display_name = "Scroll Sanity"
+
+class SkyScrollLogic(Choice):
+    """
+    Only Considered when Scroll Sanity is On. Changes what is considered in logic when Sky Scroll is available
+
+    Vanilla - Sky Scroll is not considered, some easy to reach checks may show as out of logic
+    Simple - Sky Scroll maybe expected to be used to cross gaps or go up a certain slope
+    Complex - Sky Scroll maybe expected to be used to access areas early or out of order (may expect player to softlock if needed to reach a location [Save often])
+    """
+    internal_name = "sky_scroll_logic"
+    display_name = "Sky Scroll Logic"
+    option_vanilla = 1
+    option_simple = 2
+    option_complex = 3
+    default = 1
 
 class HairColor(Choice):
     """
@@ -87,6 +109,8 @@ class BFMOptions(PerGameCommonOptions):
     grocery_s_revive: GroceryRevive
     toy_sanity: ToySanity
     tech_sanity: TechSanity
+    scroll_sanity: ScrollSanity
+    sky_scroll_logic: SkyScrollLogic
     death_link: DeathLink
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor

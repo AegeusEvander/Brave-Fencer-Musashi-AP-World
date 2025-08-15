@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, List
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch as launch_component
 
 from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, location_base_id, table_ids_to_hint
-from .dialog_locations import dialog_location_table, short_text_boxes, castle_dialog
+from .dialog_locations import dialog_location_table, short_text_boxes, castle_dialog, scroll_dialog
 #if TYPE_CHECKING:
 #    from .context import BizHawkClientContext
 from .utils import Constants
@@ -49,6 +49,7 @@ class BFMClient(BizHawkClient):
     restaurant_checks = [False] * 7
     toy_checks = [False] * 30
     tech_checks = [False] * 7
+    scroll_checks = [False] * 5
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -175,7 +176,7 @@ class BFMClient(BizHawkClient):
             received_list: List[int] = [received_item[0] for received_item in ctx.items_received]
             save_data: bytes = (await bizhawk.read(
                 ctx.bizhawk_ctx,
-                [(0x0ae671, 8, MAIN_RAM)]
+                [(0x0ae671, 9, MAIN_RAM)]
             ))[0]
             holdint = [save_data[0],save_data[1],save_data[2],save_data[3]]
             new_bincho_checks = self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 32)
@@ -196,6 +197,8 @@ class BFMClient(BizHawkClient):
                 new_grocery_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 13, [0])
             else:
                 new_grocery_checks = self.grocery_checks
+            holdint = [save_data[7],save_data[8]]
+            new_scroll_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 10, [0,1,2,3,4])
 
             save_data = (await bizhawk.read(
                 ctx.bizhawk_ctx,
@@ -356,7 +359,50 @@ class BFMClient(BizHawkClient):
                     if(new_tech_checks[i]):
                         locations_to_send_to_server.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)
 
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks):
+            curr_location_data: bytes = (await bizhawk.read(
+                ctx.bizhawk_ctx,
+                [(0x0b9a08, 2, MAIN_RAM)]
+            ))[0]
+            curr_location = int.from_bytes(curr_location_data,byteorder='little')
+
+            if(new_scroll_checks != self.scroll_checks):
+                for i in range(len(new_scroll_checks)):
+                    if(new_scroll_checks[i]):
+                        if(ctx.slot_data["scroll_sanity"] == True):
+                            locations_to_send_to_server.append(standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] + i)
+                            if(i == 3):
+                                if(not standard_location_name_to_id["Wind Scroll"] in received_list):
+                                    if(curr_location == 0x3023):
+                                        logger.info("digging hole")
+                                        await bizhawk.write(
+                                            ctx.bizhawk_ctx,
+                                            [(0x1206da, [0x23, 0xfb], MAIN_RAM)]
+                                        )
+                        else:
+                            if(i < 2):
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64a, 1, MAIN_RAM)]
+                                ))[0]
+                                
+                                scroll_data = save_data[0] | (0b1 << (i + 6))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64a, [scroll_data], MAIN_RAM)]
+                                )
+                            else:
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64b, 1, MAIN_RAM)]
+                                ))[0]
+                                scroll_data = save_data[0] | (0b1 << (i - 2))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64b, [scroll_data], MAIN_RAM)]
+                                )
+
+
+            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -369,13 +415,9 @@ class BFMClient(BizHawkClient):
                 self.grocery_checks = new_grocery_checks
                 self.toy_checks = new_toy_checks
                 self.tech_checks = new_tech_checks
+                self.scroll_checks = new_scroll_checks
 
             
-            curr_location_data: bytes = (await bizhawk.read(
-                ctx.bizhawk_ctx,
-                [(0x0b9a08, 2, MAIN_RAM)]
-            ))[0]
-            curr_location = int.from_bytes(curr_location_data,byteorder='little')
             if(curr_location == 0x3005): #main menu/first moon cutscene
                 self.level_transition = 1
             if(curr_location == 0x3012): #waking up from nightmare
@@ -404,168 +446,194 @@ class BFMClient(BizHawkClient):
             #if(curr_location != 12296):
 
             if(self.old_step_count != 0 and self.level_transition != 1):
-                if(self.received_count < len(ctx.items_received)):
-                    #logger.info("list %s",ctx.items_received[self.received_count])
-                    item_id = ctx.items_received[self.received_count][0]
-                    #logger.info("list %s",item_id)
-                    if(item_id>0x0ba1f7 and item_id<0x0ba21b):
-                        npc_state: bytes = (await bizhawk.read(
-                            ctx.bizhawk_ctx,
-                            [(item_id, 1, MAIN_RAM)]
-                        ))[0]
-                        if(npc_state[0] == 0b0):
-                            await bizhawk.write(
+                for _ in range(4):
+                    if(self.received_count < len(ctx.items_received)):
+                        #logger.info("list %s",ctx.items_received[self.received_count])
+                        item_id = ctx.items_received[self.received_count][0]
+                        #logger.info("list %s",item_id)
+                        if(item_id>0x0ba1f7 and item_id<0x0ba21b):
+                            npc_state: bytes = (await bizhawk.read(
                                 ctx.bizhawk_ctx,
-                                [(item_id, [0b1], MAIN_RAM)]
-                            )
-                            logger.info("adding to rescue list %s",item_id_to_name[item_id])
-                            #logger.info("IDs of receieved items %s",set(received_list))
-                            #logger.info("IDs of all NPCs %s",set(npc_ids))
-                        else:
-                            logger.info("already in rescue list: %s",item_id_to_name[item_id])
-                        if(item_id == item_name_to_id["Guard"]):
-                            save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
-                                0x0ae666, 1, MAIN_RAM
-                            )]))[0]
-                            guard_state = int.from_bytes(save_data, byteorder='little')
-                            if(guard_state & 0x1 == 0x0):
-                                logger.info("Sending Guard to Twinpeak")
-                                guard_state = guard_state | 0x1
+                                [(item_id, 1, MAIN_RAM)]
+                            ))[0]
+                            if(npc_state[0] == 0b0):
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
-                                    [(0x0ae666, [guard_state], MAIN_RAM)]
+                                    [(item_id, [0b1], MAIN_RAM)]
                                 )
-                    elif(item_id==0x0ba21b): #found max health berry
-                        curr_max_hp_bytes: bytes = (await bizhawk.read(
-                            ctx.bizhawk_ctx,
-                            [(0x078eb2, 2, MAIN_RAM)]
-                        ))[0]
-                        curr_max_hp: int = int.from_bytes(curr_max_hp_bytes, byteorder='little')
-                        new_hp = 175
-                        for i in range(self.received_count+1):
-                            if(ctx.items_received[i][0] == 0x0ba21b):
-                                new_hp += 25
-                        if(curr_max_hp < new_hp):
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x078eb2, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
-                            )#max hp
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
-                            )#current hp
-                    elif(item_id == 0xa):
-                        if(ctx.slot_data["grocery_s_revive"] == True):
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x10ee64, [0x1e, 0, 0x1e, 0], MAIN_RAM)]
-                            )#lower s-revive price
-                    elif(item_id < 0x6a and item_id > 0x12):
-                        if(not item_id in self.bakery_inventory_expansion):
-                            self.bakery_inventory_expansion.append(item_id)
-                    elif(item_id == 0x78):
-                        curr_money_bytes: bytes = (await bizhawk.read(
-                            ctx.bizhawk_ctx,
-                            [(0x078e8C, 4, MAIN_RAM)]
-                        ))[0]
-                        curr_money: int = int.from_bytes(curr_money_bytes, byteorder='little')
-                        new_money = curr_money
-                        num_boons_byte: bytes = (await bizhawk.read(
-                            ctx.bizhawk_ctx,
-                            [(0x0ba246, 1, MAIN_RAM)]
-                        ))[0]
-                        num_boons: int = int.from_bytes(num_boons_byte, byteorder='little')
-                        boon_count = 0
-                        for i in range(self.received_count+1):
-                            if(ctx.items_received[i][0] == 0x78):
-                                boon_count += 1
-                                if(boon_count > num_boons):
-                                    new_money += 100
-                        if(curr_money < new_money):
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x078e8C, new_money.to_bytes(4, 'little'), MAIN_RAM)]
-                            )
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x0ba246, boon_count.to_bytes(1, 'little'), MAIN_RAM)]  #0x0ba238 is queen ant toy, maybe 0x0ba246
-                            )
-                            logger.info("added 1000 Drans to wallet")
-                    elif(item_id == 0x79):
-                        logger.info("Returning Lumina")
-                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
-                            0x0ae658, 1, MAIN_RAM
-                        )]))[0]
-                        lumina_state = int.from_bytes(save_data, byteorder='little')
-                        lumina_state = lumina_state | 0b1
-                        await bizhawk.write(
-                            ctx.bizhawk_ctx,
-                            [(0x0ae658, [lumina_state], MAIN_RAM)]
-                        )
-                        """
-                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
-                            0x078ec0, 1, MAIN_RAM
-                        )]))[0]
-                        lumina_state = int.from_bytes(save_data, byteorder='little')
-                        lumina_state = lumina_state | 0b1
-                        await bizhawk.write(
-                            ctx.bizhawk_ctx,
-                            [(0x078ec0, [lumina_state], MAIN_RAM)]
-                        )"""
-                    elif(item_id == 0x80):
-                        logger.info("New stock added to Bakery")
-                    elif(item_id < 0x78 and item_id > 0x70):
-                        logger.info("%s added to Restaurant",item_id_to_name[item_id])
-                    elif(item_id < 0xc or item_id == 0x6a or item_id == 0x6b or item_id== 0x6d):
-                        logger.info("%s added to Grocery",item_id_to_name[item_id])
-                    elif(item_id >= item_name_to_id["Musashi Action Figure"] and item_id < item_name_to_id["Musashi Action Figure"] + len(item_name_groups["Toy Shop"])):
-                        if(ctx.slot_data["toy_sanity"] == True):
-                            val = item_id - item_name_to_id["Musashi Action Figure"]
-                            if(new_toy_purchased_awaiting[val] == False):
-                                if(new_toy_in_storage[val]):
-                                    logger.info("%s toy already in storage", item_id_to_name[item_id])
-                                else:
-                                    logger.info("received %s toy but was not yet purchased", item_id_to_name[item_id])
+                                logger.info("adding to rescue list %s",item_id_to_name[item_id])
+                                #logger.info("IDs of receieved items %s",set(received_list))
+                                #logger.info("IDs of all NPCs %s",set(npc_ids))
                             else:
-                                logger.info("adding %s toy to storage", item_id_to_name[item_id])
+                                logger.info("already in rescue list: %s",item_id_to_name[item_id])
+                            if(item_id == item_name_to_id["Guard"]):
+                                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                    0x0ae666, 1, MAIN_RAM
+                                )]))[0]
+                                guard_state = int.from_bytes(save_data, byteorder='little')
+                                if(guard_state & 0x1 == 0x0):
+                                    logger.info("Sending Guard to Twinpeak")
+                                    guard_state = guard_state | 0x1
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x0ae666, [guard_state], MAIN_RAM)]
+                                    )
+                        elif(item_id==0x0ba21b): #found max health berry
+                            curr_max_hp_bytes: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x078eb2, 2, MAIN_RAM)]
+                            ))[0]
+                            curr_max_hp: int = int.from_bytes(curr_max_hp_bytes, byteorder='little')
+                            new_hp = 175
+                            for i in range(self.received_count+1):
+                                if(ctx.items_received[i][0] == 0x0ba21b):
+                                    new_hp += 25
+                            if(curr_max_hp < new_hp):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x078eb2, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
+                                )#max hp
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
+                                )#current hp
+                        elif(item_id == 0xa):
+                            if(ctx.slot_data["grocery_s_revive"] == True):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x10ee64, [0x1e, 0, 0x1e, 0], MAIN_RAM)]
+                                )#lower s-revive price
+                        elif(item_id < 0x6a and item_id > 0x12):
+                            if(not item_id in self.bakery_inventory_expansion):
+                                self.bakery_inventory_expansion.append(item_id)
+                        elif(item_id == 0x78):
+                            curr_money_bytes: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x078e8C, 4, MAIN_RAM)]
+                            ))[0]
+                            curr_money: int = int.from_bytes(curr_money_bytes, byteorder='little')
+                            new_money = curr_money
+                            num_boons_byte: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba246, 1, MAIN_RAM)]
+                            ))[0]
+                            num_boons: int = int.from_bytes(num_boons_byte, byteorder='little')
+                            boon_count = 0
+                            for i in range(self.received_count+1):
+                                if(ctx.items_received[i][0] == 0x78):
+                                    boon_count += 1
+                                    if(boon_count > num_boons):
+                                        new_money += 100
+                            if(curr_money < new_money):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x078e8C, new_money.to_bytes(4, 'little'), MAIN_RAM)]
+                                )
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba246, boon_count.to_bytes(1, 'little'), MAIN_RAM)]  #0x0ba238 is queen ant toy, maybe 0x0ba246
+                                )
+                                logger.info("added 1000 Drans to wallet")
+                        elif(item_id == 0x79):
+                            logger.info("Returning Lumina")
+                            save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                0x0ae658, 1, MAIN_RAM
+                            )]))[0]
+                            lumina_state = int.from_bytes(save_data, byteorder='little')
+                            lumina_state = lumina_state | 0b1
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae658, [lumina_state], MAIN_RAM)]
+                            )
+                            """
+                            save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                0x078ec0, 1, MAIN_RAM
+                            )]))[0]
+                            lumina_state = int.from_bytes(save_data, byteorder='little')
+                            lumina_state = lumina_state | 0b1
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x078ec0, [lumina_state], MAIN_RAM)]
+                            )"""
+                        elif(item_id == 0x80):
+                            logger.info("New stock added to Bakery")
+                        elif(item_id < 0x78 and item_id > 0x70):
+                            logger.info("%s added to Restaurant",item_id_to_name[item_id])
+                        elif(item_id < 0xc or item_id == 0x6a or item_id == 0x6b or item_id== 0x6d):
+                            logger.info("%s added to Grocery",item_id_to_name[item_id])
+                        elif(item_id >= item_name_to_id["Musashi Action Figure"] and item_id < item_name_to_id["Musashi Action Figure"] + len(item_name_groups["Toy Shop"])):
+                            if(ctx.slot_data["toy_sanity"] == True):
+                                val = item_id - item_name_to_id["Musashi Action Figure"]
+                                if(new_toy_purchased_awaiting[val] == False):
+                                    if(new_toy_in_storage[val]):
+                                        logger.info("%s toy already in storage", item_id_to_name[item_id])
+                                    else:
+                                        logger.info("received %s toy but was not yet purchased", item_id_to_name[item_id])
+                                else:
+                                    logger.info("adding %s toy to storage", item_id_to_name[item_id])
+                                    save_data: bytes = (await bizhawk.read(
+                                        ctx.bizhawk_ctx,
+                                        [(0x0ba21b+val, 1, MAIN_RAM)]
+                                    ))[0]
+                                    toy_data = save_data[0] | 0b1000000
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x0ba21b+val, [toy_data], MAIN_RAM)]
+                                    )
+                                    new_toy_in_storage[val] = True
+                                    new_toy_purchased_awaiting[val] = False
+                            else:
+                                logger.info("received toy when toysanity was disabled, something went wrong")
+                        elif(item_id>0x80 and item_id<0x88):
+                            logger.info("adding %s to Tech",item_id_to_name[item_id])
+                            if(item_id == 0x87):
                                 save_data: bytes = (await bizhawk.read(
                                     ctx.bizhawk_ctx,
-                                    [(0x0ba21b+val, 1, MAIN_RAM)]
+                                    [(0x0ae659, 1, MAIN_RAM)]
                                 ))[0]
-                                toy_data = save_data[0] | 0b1000000
+                                tech_data = save_data[0] | 0b10
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
-                                    [(0x0ba21b+val, [toy_data], MAIN_RAM)]
+                                    [(0x0ae659, [tech_data], MAIN_RAM)]
                                 )
-                                new_toy_in_storage[val] = True
-                                new_toy_purchased_awaiting[val] = False
+                            else:
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae658, 1, MAIN_RAM)]
+                                ))[0]
+                                tech_data = save_data[0] | (0b1 << (item_id - 0x80 + (item_id > 0x83)))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae658, [tech_data], MAIN_RAM)]
+                                )
+                        elif(item_id > 0x215 and item_id < 0x21b):
+                            logger.info("adding %s",item_id_to_name[item_id])
+                            i = item_id - 0x216
+                            if(i < 2):
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64a, 1, MAIN_RAM)]
+                                ))[0]
+                                
+                                scroll_data = save_data[0] | (0b1 << (i + 6))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64a, [scroll_data], MAIN_RAM)]
+                                )
+                            else:
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64b, 1, MAIN_RAM)]
+                                ))[0]
+                                scroll_data = save_data[0] | (0b1 << (i - 2))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae64b, [scroll_data], MAIN_RAM)]
+                                )
+
                         else:
-                            logger.info("received toy when toysanity was disabled, something went wrong")
-                    elif(item_id>0x80 and item_id<0x88):
-                        logger.info("adding %s to Tech",item_id_to_name[item_id])
-                        if(item_id == 0x87):
-                            save_data: bytes = (await bizhawk.read(
-                                ctx.bizhawk_ctx,
-                                [(0x0ae659, 1, MAIN_RAM)]
-                            ))[0]
-                            tech_data = save_data[0] | 0b10
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x0ae659, [tech_data], MAIN_RAM)]
-                            )
-                        else:
-                            save_data: bytes = (await bizhawk.read(
-                                ctx.bizhawk_ctx,
-                                [(0x0ae658, 1, MAIN_RAM)]
-                            ))[0]
-                            tech_data = save_data[0] | (0b1 << (item_id - 0x80 + (item_id > 0x83)))
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x0ae658, [tech_data], MAIN_RAM)]
-                            )
-                    else:
-                        logger.info("unhandled item receieved %s",item_id_to_name[item_id])
-                    self.received_count += 1
+                            logger.info("unhandled item receieved %s",item_id_to_name[item_id])
+                        self.received_count += 1
             if(self.hair_color_updated == 0):
                 curr_hair_color: bytes = (await bizhawk.read(
                     ctx.bizhawk_ctx,
@@ -588,7 +656,7 @@ class BFMClient(BizHawkClient):
                         ))[0]
                         s = str(save_data[0]) + "." + str(save_data[1]) + "." + str(save_data[2])
                         logger.info(f"v{s} Current game patch") 
-                        logger.info("Try to have all version numbers match if possible for best compatibility")                      
+                        logger.info("Try to have all version numbers match if possible for best compatibility")     
                     logger.info("Coloring Hair")
                     for address in hair_color_addresses:
                         await bizhawk.write(
@@ -627,6 +695,41 @@ class BFMClient(BizHawkClient):
                                     "create_as_hint": 0
                                 }])
                                 break
+                    if(ctx.slot_data["scroll_sanity"] == True):
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x13f430, [0x06, 0x01, 0x02, 0x24], MAIN_RAM)]
+                        )    
+                        save_data: bytes = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            [(0x0ae65b, 1, MAIN_RAM)]
+                        ))[0]
+                        if(save_data[0] & 0b10000000 == 0b00000000):
+                            logger.info("Removing Rock on Twinpeak")
+                            rock_data = save_data[0] | (0b10000000)
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae65b, [rock_data], MAIN_RAM)]
+                            )           
+                        if(curr_location in scroll_dialog):
+                            for loc_id, dialog_id in scroll_dialog[curr_location].items():
+                                if(loc_id in ctx.locations_info):
+                                    barray = await self.assemble_binary_array_for_textbox(ctx, loc_id)
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(dialog_id+4, barray, MAIN_RAM)]
+                                    )
+                                else:
+                                    logger.info("no scout information found try reentering area (after taking a couple steps)")
+                                    if(not standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] in table_ids_to_hint):
+                                        for i in range(5):
+                                            table_ids_to_hint.append(standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] + i)
+                                    await ctx.send_msgs([{
+                                        "cmd": "LocationScouts",
+                                        "locations": table_ids_to_hint,
+                                        "create_as_hint": 0
+                                    }])
+                                    break
                     if(curr_location in bakery_locations): # 0x2015chapter 2 Jam, also changes to 0x2056 chapter 3
 
                         await bizhawk.write(
@@ -1526,6 +1629,10 @@ class BFMClient(BizHawkClient):
                     if(not standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] in table_ids_to_hint):
                         for i in range(7):
                             table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)       
+                if(ctx.slot_data["scroll_sanity"] == True):
+                    if(not standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] in table_ids_to_hint):
+                        for i in range(5):
+                            table_ids_to_hint.append(standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] + i)
                 await ctx.send_msgs([{
                     "cmd": "LocationScouts",
                     "locations": table_ids_to_hint,
@@ -1605,6 +1712,12 @@ class BFMClient(BizHawkClient):
         result.extend(s.encode("utf-8"))
         result.extend(s2.encode("utf-8"))
         result.append(0x00)
+        if(len(result) < 49):
+            return result
+        
+        result = result[:47]
+        result.append(0x00)
+
         return result
 
     def decode_booleans(self, val: int, bits: int):
@@ -1737,6 +1850,12 @@ class BFMClient(BizHawkClient):
         s = ctx.player_names[ctx.locations_info[loc_id].player]
         result.extend(s.encode("utf-8"))
         result.append(0x00)
+        if(len(result) < 85):
+            return result
+        
+        result = result[:83]
+        result.append(0x00)
+
         return result
 
     async def assemble_short_binary_array_for_textbox(self, ctx: "BizHawkClientContext", loc_id: int):
