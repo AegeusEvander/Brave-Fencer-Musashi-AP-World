@@ -35,7 +35,7 @@ zip -r "bfm.apworld" .
 cd "$folder" || exit
 
 #cp "$temp_dir/bfm.apworld" "$HOME"
-cp -f "$temp_dir/bfm.apworld" "$HOME/Documents/Archipelago6.2/Archipelago/custom_worlds"
+cp -f "$temp_dir/bfm.apworld" "$HOME/Documents/Archipelago6.3/Archipelago/custom_worlds"
 
 # Clean up temporary directory
 rm -rf "$temp_dir"

@@ -13,6 +13,7 @@ class BFMItemData(NamedTuple):
 item_base_id = 0x0ba1b8
 item_action_figure_id = 0x100
 scroll_base_id = 0x200
+core_base_id = 0x300
 
 item_table: Dict[str, BFMItemData] = {
     "Guard": BFMItemData(IC.progression, 1, 0x40, "NPC"),
@@ -50,7 +51,7 @@ item_table: Dict[str, BFMItemData] = {
     "KnightD": BFMItemData(IC.progression, 1, 0x60, "NPC"),
     "Alchemist": BFMItemData(IC.progression, 1, 0x61, "NPC"),
     "Librarian": BFMItemData(IC.progression, 1, 0x62, "NPC"),
-    "Longevity Berry": BFMItemData(IC.useful, 13, 0x63 + item_base_id, "Stat Up"),
+    "Longevity Berry": BFMItemData(IC.progression, 13, 0x63 + item_base_id, "Stat Up"),
     "Rock": BFMItemData(IC.useful, 1, 0x13, "Chest Reward"),
     "Old Sword": BFMItemData(IC.filler, 1, 0x15, "Chest Reward"),
     "Shield": BFMItemData(IC.filler, 1, 0x17, "Chest Reward"),
@@ -78,7 +79,7 @@ item_table: Dict[str, BFMItemData] = {
     "Red Eye": BFMItemData(IC.progression, 1, 0x60, "Chest Reward"),
     "Blue Eye": BFMItemData(IC.progression, 1, 0x61, "Chest Reward"),
     "Green Eye": BFMItemData(IC.progression, 1, 0x62, "Chest Reward"),
-    "1000 Drans": BFMItemData(IC.filler, 6, 0x78, "Chest Reward"),
+    "1000 Drans": BFMItemData(IC.filler, 0, 0x78, "Chest Reward"), # moving 6 to 0 to allow for dynamic filler levels
     "Lumina": BFMItemData(IC.progression | IC.useful, 1, 0x79, "Equipment"),
     "Progressive Bread": BFMItemData(IC.progression, 7, 0x80, "Bakery"),
     "Juice": BFMItemData(IC.filler, 1, 0x71, "Restaurant"),
@@ -90,8 +91,8 @@ item_table: Dict[str, BFMItemData] = {
     "Pork Chop": BFMItemData(IC.filler, 1, 0x77, "Restaurant"),
     "Rice Ball": BFMItemData(IC.filler, 1, 0x01, "Grocery"),
     "Gel": BFMItemData(IC.filler, 1, 0x04, "Grocery"),
-    "W-Gel": BFMItemData(IC.useful, 1, 0x05, "Grocery"),
-    "Progressive Drink": BFMItemData(IC.useful, 2, 0x06, "Grocery"),
+    "W-Gel": BFMItemData(IC.progression, 1, 0x05, "Grocery"),
+    "Progressive Drink": BFMItemData(IC.progression, 2, 0x06, "Grocery"),
     #"EX-Drink": BFMItemData(IC.useful, 1, 0x07, "Grocery"),
     "Progressive Mint": BFMItemData(IC.useful, 2, 0x08, "Grocery"),
     "Antidote": BFMItemData(IC.useful, 1, 0x09, "Grocery"),
@@ -112,7 +113,7 @@ item_table: Dict[str, BFMItemData] = {
     "Magician": BFMItemData(IC.filler, 1, 0x9 + item_action_figure_id, "Toy Shop"),
     "Sleepie": BFMItemData(IC.filler, 1, 0xa + item_action_figure_id, "Toy Shop"),
     "Skullpion": BFMItemData(IC.filler, 1, 0xb + item_action_figure_id, "Toy Shop"),
-    "Regular Vambee": BFMItemData(IC.filler, 1, 0xc + item_action_figure_id, "Toy Shop"),
+    "Relic Vambee": BFMItemData(IC.filler, 1, 0xc + item_action_figure_id, "Toy Shop"),
     "Vambee Soldier": BFMItemData(IC.filler, 1, 0xd + item_action_figure_id, "Toy Shop"),
     "Bowler": BFMItemData(IC.filler, 1, 0xe + item_action_figure_id, "Toy Shop"),
     "Cure Worm": BFMItemData(IC.filler, 1, 0xf + item_action_figure_id, "Toy Shop"),
@@ -142,6 +143,10 @@ item_table: Dict[str, BFMItemData] = {
     "Fire Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x18 + scroll_base_id, "Scroll"),
     "Wind Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x19 + scroll_base_id, "Scroll"),
     "Sky Scroll": BFMItemData(IC.progression | IC.useful, 1, 0x1a + scroll_base_id, "Scroll"),
+    "Earth Boss Core": BFMItemData(IC.progression, 1, 0x8a + scroll_base_id, "Core"),
+    "Water Boss Core": BFMItemData(IC.progression, 1, 0x8b + scroll_base_id, "Core"),
+    "Fire Boss Core": BFMItemData(IC.progression, 1, 0x8c + scroll_base_id, "Core"),
+    "Wind Boss Core": BFMItemData(IC.progression, 1, 0x8d + scroll_base_id, "Core"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

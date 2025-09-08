@@ -3,7 +3,7 @@ from logging import warning
 from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState
 from .items import item_name_to_id, item_table, item_name_groups, slot_data_item_names
 from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one
-from .rules import saved_everyone, set_region_rules, set_location_rules
+from .rules import saved_everyone, set_region_rules, set_location_rules, can_fight_skullpion, has_all_scrolls, has_ex_drink, has_water_scroll, can_identify_gondola_gizmo, can_fight_frost_dragon, has_wind_scroll, can_enter_frozen_palace, has_earth_boss_core, has_wind_boss_core, has_fire_boss_core
 from .regions import bfm_regions
 from .options import BFMOptions
 from worlds.AutoWorld import WebWorld, World
@@ -98,7 +98,10 @@ class BFMWorld(World):
         if(self.options.scroll_sanity.value == False):
             for name in location_name_groups["Scroll"]:
                 del self.player_location_table[name]
-
+        if(self.options.core_sanity.value == False):
+            for name in location_name_groups["Core"]:
+                del self.player_location_table[name]
+        
         if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
                 if(all(s in string.hexdigits for s in self.options.custom_hair_color_selection.value)):
@@ -127,12 +130,34 @@ class BFMWorld(World):
             location = BFMLocation(self.player, location_name, location_id, region)
             region.locations.append(location)
 
-        self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "Taster", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "Janitor", "Artisan", "CarpentC", "MusicianC", "Knitter", "Chef", "MercenA", "Chief", "CookB", "Conductor", "Butcher", "KnightC", "Doctor", "KnightD", "Alchemist", "Librarian"}, self.player)
+        if(self.options.goal.value == 1): #save all NPCs
+            self.multiworld.completion_condition[self.player] = lambda state: state.has_group("NPC", self.player, 35)
+        elif(self.options.goal.value == 2): #save x NPCs
+            self.multiworld.completion_condition[self.player] = lambda state: state.has_group("NPC", self.player, self.options.npc_goal.value)
+        elif(self.options.goal.value == 3): #defeat earth crest guardian
+            self.multiworld.completion_condition[self.player] = lambda state: can_fight_skullpion(state, self)
+        elif(self.options.goal.value == 4): #defeat water crest guardian
+            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Relic Keeper Arena", self.player)
+            #self.multiworld.completion_condition[self.player] = lambda state: can_fight_skullpion(state, self) and has_water_scroll(state, self)
+        elif(self.options.goal.value == 5): #defeat fire crest guardian
+            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Frost Dragon Arena", self.player)
+            #self.multiworld.completion_condition[self.player] = lambda state: can_enter_frozen_palace(state, self) and can_identify_gondola_gizmo(state, self) and can_fight_skullpion(state, self) and can_fight_frost_dragon(state, self)
+        elif(self.options.goal.value == 6): #defeat wind crest guardian
+            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Queen Ant Arena", self.player)
+            #self.multiworld.completion_condition[self.player] = lambda state: can_enter_frozen_palace(state, self) and can_identify_gondola_gizmo(state, self) and can_fight_skullpion(state, self) and can_fight_frost_dragon(state, self) and has_wind_scroll(state, self) and has_fire_boss_core(state, self)
+        elif(self.options.goal.value == 7 or self.options.goal.value == 8): #defeat sky crest guardian or final boss
+            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Soda Fountain", self.player)
+            
+            #self.multiworld.completion_condition[self.player] = lambda state: has_all_scrolls(state, self) and has_earth_boss_core(state, self) and has_wind_boss_core(state, self) and has_ex_drink(state, self) and state.has_all({"Lumina", "Bracelet"}, self.player)
+        #self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "Taster", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "Janitor", "Artisan", "CarpentC", "MusicianC", "Knitter", "Chef", "MercenA", "Chief", "CookB", "Conductor", "Butcher", "KnightC", "Doctor", "KnightD", "Alchemist", "Librarian"}, self.player)
         #self.multiworld.completion_condition[self.player] = lambda state: saved_everyone(state, self.world)
 
     def fill_slot_data(self) -> Dict[str, Any]:
         slot_data: Dict[str, Any] = {
             "version": __version__,
+            "goal": self.options.goal.value,
+            "npc_goal": self.options.npc_goal.value,
+            "max_hp_logic": self.options.max_hp_logic.value,
             "deathlink": self.options.death_link.value,
             "hair_color": self.hair_selection,
             "lumina_randomzied": self.options.lumina_randomzied.value,
@@ -140,10 +165,15 @@ class BFMWorld(World):
             "restaurant_sanity": self.options.restaurant_sanity.value,
             "grocery_sanity": self.options.grocery_sanity.value,
             "grocery_s_revive": self.options.grocery_s_revive.value,
+            "grocery_sanity_heal_logic": self.options.grocery_sanity_heal_logic.value,
             "toy_sanity": self.options.toy_sanity.value,
             "tech_sanity": self.options.tech_sanity.value,
             "scroll_sanity": self.options.scroll_sanity.value,
-            "sky_scroll_logic": self.options.sky_scroll_logic.value
+            "sky_scroll_logic": self.options.sky_scroll_logic.value,
+            "core_sanity": self.options.core_sanity.value,
+            "early_skullpion": self.options.early_skullpion.value,
+            "skip_minigame_ant_gondola": self.options.skip_minigame_ant_gondola.value,
+            "fast_walk": self.options.fast_walk.value
         }
         return slot_data
 
@@ -178,17 +208,39 @@ class BFMWorld(World):
         if(self.options.scroll_sanity.value == False):
             for name in item_name_groups["Scroll"]:
                 del items_to_create[name] 
+        if(self.options.core_sanity.value == False):
+            for name in item_name_groups["Core"]:
+                del items_to_create[name] 
 
         for item, quantity in items_to_create.items():
             for _ in range(quantity):
                 bfm_items.append(self.create_item(item))
+
+        total_locations = len(self.multiworld.get_unfilled_locations(self.player))
+
+        for _ in range(total_locations - len(bfm_items)):
+            bfm_items.append(self.create_filler())
 
         for bfm_item in bfm_items:
             if bfm_item.name in slot_data_item_names:
                 self.slot_data_items.append(bfm_item)
 
         self.multiworld.itempool += bfm_items
-    
+
+        if (self.options.early_skullpion.value == True):
+            self.multiworld.early_items[self.player]["SoldierA"] = 1
+            self.multiworld.early_items[self.player]["MercenC"] = 1
+            self.multiworld.early_items[self.player]["CarpentA"] = 1
+            self.multiworld.early_items[self.player]["KnightB"] = 1
+            if(self.options.lumina_randomzied.value == True):
+                self.multiworld.early_items[self.player]["Lumina"] = 1
+
+    def get_filler_item_name(self) -> str:
+        return "1000 Drans"
+
+    def create_filler(self) -> "Item":
+        return self.create_item(self.get_filler_item_name())
+
     def set_rules(self) -> None:
         set_region_rules(self)
         set_location_rules(self)

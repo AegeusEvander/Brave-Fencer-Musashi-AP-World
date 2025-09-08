@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, List
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch as launch_component
 
 from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, location_base_id, table_ids_to_hint
-from .dialog_locations import dialog_location_table, short_text_boxes, castle_dialog, scroll_dialog
+from .dialog_locations import dialog_location_table, short_text_boxes, castle_dialog, scroll_dialog, boss_core_update, boss_core_dialog, boss_locations
 #if TYPE_CHECKING:
 #    from .context import BizHawkClientContext
 from .utils import Constants
@@ -50,6 +50,7 @@ class BFMClient(BizHawkClient):
     toy_checks = [False] * 30
     tech_checks = [False] * 7
     scroll_checks = [False] * 5
+    core_checks = [False] * 4
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -67,6 +68,8 @@ class BFMClient(BizHawkClient):
     toy_inventory = [False] * 30
     toy_dialog: List[bytearray] = [bytearray()] * 30 
     tech_dialog: List[bytearray] = [bytearray()] * 7 
+    core_dialog: List[bytearray] = [bytearray()] * 4 
+    found_wind_scroll = False
     progression_state = 0
     received_count = 0
     old_location = 0
@@ -85,6 +88,7 @@ class BFMClient(BizHawkClient):
     check_if_lumina_was_found = 1
     check_if_lumina_needs_removed = 1
     cursor_pos = 0
+    checked_cores = False
     
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
@@ -217,11 +221,15 @@ class BFMClient(BizHawkClient):
             holdint = [save_data[4]]
             new_chest_checks.extend(self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 7))
 
-            if(ctx.slot_data["toy_sanity"] == True):
-                save_data: bytes = (await bizhawk.read(
+            save_data_toys: bytes = bytes()
+            if(ctx.slot_data["toy_sanity"] == True or ctx.slot_data["core_sanity"] == True or ctx.slot_data["goal"] > 2):
+                save_data_toys = (await bizhawk.read(
                     ctx.bizhawk_ctx,
-                    [(0x0ba21b, 30, MAIN_RAM)]
+                    [(0x0ba21b, 43, MAIN_RAM)]
                 ))[0]
+
+            if(ctx.slot_data["toy_sanity"] == True):
+                save_data: bytes = save_data_toys[:30]
                 new_toy_checks: List[bool] = [val & 0b10000 == 0b10000 for val in save_data]
                 new_toy_inventory: List[bool] = [val & 0b11110000 == 0b10000000 for val in save_data]
                 new_toy_purchased_awaiting: List[bool] = [val & 0b11110000 == 0b10010000 for val in save_data]
@@ -239,6 +247,13 @@ class BFMClient(BizHawkClient):
             else:
                 new_toy_checks = self.toy_checks
                 new_toy_inventory = self.toy_inventory
+
+            
+            if(ctx.slot_data["core_sanity"] == True):
+                save_data: bytes = bytes([save_data_toys[11], save_data_toys[17], save_data_toys[23], save_data_toys[29]])
+                new_core_checks: List[bool] = [val & 0b10000000 == 0b10000000 for val in save_data] 
+            else:
+                new_core_checks = self.core_checks
 
             if(ctx.slot_data["tech_sanity"] == True):
                 save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, tech_check_locations))
@@ -359,6 +374,11 @@ class BFMClient(BizHawkClient):
                     if(new_tech_checks[i]):
                         locations_to_send_to_server.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)
 
+            if(new_core_checks != self.core_checks):
+                for i in range(len(new_core_checks)):
+                    if(new_core_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] + i)
+
             curr_location_data: bytes = (await bizhawk.read(
                 ctx.bizhawk_ctx,
                 [(0x0b9a08, 2, MAIN_RAM)]
@@ -371,14 +391,17 @@ class BFMClient(BizHawkClient):
                         if(ctx.slot_data["scroll_sanity"] == True):
                             locations_to_send_to_server.append(standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] + i)
                             if(i == 3):
-                                if(not standard_location_name_to_id["Wind Scroll"] in received_list):
-                                    if(curr_location == 0x3023):
+                                self.found_wind_scroll = True
+                                if(curr_location == 0x3023):
+                                    if(not item_name_to_id["Wind Scroll"] in received_list):
                                         logger.info("digging hole")
                                         await bizhawk.write(
                                             ctx.bizhawk_ctx,
                                             [(0x1206da, [0x23, 0xfb], MAIN_RAM)]
                                         )
                         else:
+                            if(i == 3):
+                                self.found_wind_scroll = True
                             if(i < 2):
                                 save_data: bytes = (await bizhawk.read(
                                     ctx.bizhawk_ctx,
@@ -402,7 +425,7 @@ class BFMClient(BizHawkClient):
                                 )
 
 
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks):
+            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks or new_core_checks != self.core_checks):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -416,6 +439,7 @@ class BFMClient(BizHawkClient):
                 self.toy_checks = new_toy_checks
                 self.tech_checks = new_tech_checks
                 self.scroll_checks = new_scroll_checks
+                self.core_checks = new_core_checks
 
             
             if(curr_location == 0x3005): #main menu/first moon cutscene
@@ -630,10 +654,43 @@ class BFMClient(BizHawkClient):
                                     ctx.bizhawk_ctx,
                                     [(0x0ae64b, [scroll_data], MAIN_RAM)]
                                 )
-
+                        elif(item_id > 0x289 and item_id < 0x28e):
+                            logger.info("adding %s",item_id_to_name[item_id])
+                            i = item_id - 0x28a + 2
+                            save_data: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae659, 1, MAIN_RAM)]
+                            ))[0]
+                            
+                            core_data = save_data[0] | (0b1 << i)
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae659, [core_data], MAIN_RAM)]
+                            )
                         else:
                             logger.info("unhandled item receieved %s",item_id_to_name[item_id])
                         self.received_count += 1
+                if(self.checked_cores == False):
+                    self.checked_cores = True
+                    if(ctx.slot_data["core_sanity"] == True):
+                        save_data: bytes = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            [(0x0ae659, 1, MAIN_RAM)]
+                        ))[0]
+                        cores_collected: List[bool] = self.decode_booleans_with_exclusions(save_data[0], 6, [0,1])
+                        need_to_update_cores = False
+                        new_core_data: int = save_data[0]
+                        for i in range(4):
+                            if(cores_collected[i] == True):
+                                if(not (item_name_to_id["Earth Boss Core"] + i in received_list)):
+                                    new_core_data = new_core_data & (0b11111111 - (0b1 << (i+2)))
+                                    need_to_update_cores = True
+                        if(need_to_update_cores == True):
+                            logger.info("Removing extra cores acquired") 
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae659, [new_core_data], MAIN_RAM)]
+                            )
             if(self.hair_color_updated == 0):
                 curr_hair_color: bytes = (await bizhawk.read(
                     ctx.bizhawk_ctx,
@@ -663,6 +720,7 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(address, bytes.fromhex(ctx.slot_data["hair_color"]), MAIN_RAM)]
                         )
+                                
         
             if(curr_location != self.old_location):
                 steps_bytes: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
@@ -1165,6 +1223,178 @@ class BFMClient(BizHawkClient):
                                             ctx.bizhawk_ctx,
                                             [(castle_dialog[i], self.tech_dialog[i], MAIN_RAM)]
                                         )
+                    if(curr_location in boss_core_dialog): #At a Boss
+                        if(ctx.slot_data["core_sanity"] == True):
+                            for jump_id in boss_core_update[curr_location]:
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(jump_id, [0,0,0,0], MAIN_RAM)]
+                                )
+                            for loc_id, dialog_id in boss_core_dialog[curr_location].items():
+                                if(loc_id in ctx.locations_info):
+                                #for i in range(len(self.core_checks)):
+                                    #loc_id = standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] + i
+                                    #if(loc_id in ctx.locations_info):
+                                        #logger.info("loop index %s", i)
+                                        #logger.info("textbox length %s", boss_core_dialog[[boss_locations[i]][1])
+                                        #logger.info("location id %s", loc_id)
+
+
+                                    barray = await self.assemble_binary_array_for_boss_textbox(ctx,loc_id,dialog_id[1])
+                                    logger.info("writing boss core dialog")
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(dialog_id[0]+4, barray, MAIN_RAM)]
+                                    )
+                                else:
+                                    if(not standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] in table_ids_to_hint):
+                                        for i in range(4):
+                                            table_ids_to_hint.append(standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] + i)
+                                    logger.info("no scout information found")
+                                    #logger.info("item 7 id %s", standard_location_name_to_id["Item 7 - Bakery"])
+                                    await ctx.send_msgs([{
+                                        "cmd": "LocationScouts",
+                                        "locations": table_ids_to_hint,
+                                        "create_as_hint": 0
+                                    }])
+                                    break
+                    if(curr_location == 0x3072):
+                        if(ctx.slot_data["skip_minigame_ant_gondola"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x18446c, [0x74], MAIN_RAM)]
+                            )
+                    if(curr_location == 0x304e): #in well
+                        await self.update_progression(ctx)
+                        if(ctx.slot_data["core_sanity"] == True or ctx.slot_data["scroll_sanity"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x182e1c, [0,0,0,0], MAIN_RAM)] #skip over water scroll updating progression state
+                            )
+                            if(self.progression_state < 0x19a): #before entering church
+                                logger.info("Hiding bell to prevent soft lock, return after Father White makes a request for the bell")
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x1207e6, 2, MAIN_RAM)]
+                                ))[0]
+                                bell_z = int.from_bytes(save_data, byteorder='little')
+                                if(bell_z == 0xfe6e):
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x1207e6, [0xff,0xfe], MAIN_RAM)] #hide the bell in a wall
+                                    )
+                                else:
+                                    save_data: bytes = (await bizhawk.read(
+                                        ctx.bizhawk_ctx,
+                                        [(0x1209fe, 2, MAIN_RAM)]
+                                    ))[0]
+                                    bell_z = int.from_bytes(save_data, byteorder='little')
+                                    if(bell_z == 0xfe6e):
+                                        await bizhawk.write(
+                                            ctx.bizhawk_ctx,
+                                            [(0x1209fe, [0xff,0xfe], MAIN_RAM)] #hide the bell in a wall
+                                        )
+                                    else:
+                                        logger.info("Could not find bell in memory report issue to developer")
+
+                            else:
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba1c2, 1, MAIN_RAM)]
+                                ))[0]
+                                bell_state: bool = save_data[0] == 0b1001110 #is in intial spawn position
+                                if(bell_state):
+                                    save_data: bytes = (await bizhawk.read(
+                                        ctx.bizhawk_ctx,
+                                        [(0x0ae65f, 1, MAIN_RAM)]
+                                    ))[0]
+                                    water_level_changed: bool = save_data[0] & 0b1 == 0b1
+                                    if(water_level_changed):
+                                        logger.info("water level has risen, moving bell to prevent soft lock")
+
+                                        save_data: bytes = (await bizhawk.read(
+                                            ctx.bizhawk_ctx,
+                                            [(0x1207e6, 2, MAIN_RAM)]
+                                        ))[0]
+                                        bell_z = int.from_bytes(save_data, byteorder='little')
+                                        if(bell_z == 0xfe6e):
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1207e2, [0x27,0x06, 0x0, 0x0, 0x7e, 0xfd, 0x0, 0x0, 0x80, 0xff], MAIN_RAM)] #water level has risen but bell has not been rescued, move bell to higher ground
+                                            )
+                                        else:
+                                            save_data: bytes = (await bizhawk.read(
+                                                ctx.bizhawk_ctx,
+                                                [(0x1209fe, 2, MAIN_RAM)]
+                                            ))[0]
+                                            bell_z = int.from_bytes(save_data, byteorder='little')
+                                            if(bell_z == 0xfe6e):
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x1209fa, [0x27,0x06, 0x0, 0x0, 0x7e, 0xfd, 0x0, 0x0, 0x80, 0xff], MAIN_RAM)] #water level has risen but bell has not been rescued, move bell to higher ground
+                                                )
+                                            else:
+                                                logger.info("Could not find bell in memory report issue to developer")
+                            
+                        if(ctx.slot_data["core_sanity"] == True):
+                            if(self.progression_state < 0x258): #before killing Relic Keeper
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x1845f4, [0,0,0,0], MAIN_RAM)] #skip over water crest updating progression state
+                                )
+                    if(curr_location == 0x1052 or curr_location == 0x1077): #in chapter 3 and 4 town
+                        if(ctx.slot_data["core_sanity"] == True):
+                            save_data: bytes = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ae65f, 1, MAIN_RAM)]
+                            ))[0]
+                            water_level_changed: bool = save_data[0] & 0b1 == 0b1
+                            if(water_level_changed):
+                                await self.update_progression(ctx)
+                                if(self.progression_state >= 0x19a and self.progression_state < 0x1ae): #getting rope reward
+                                    logger.info("removing rope to prevent soft lock")
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x18f7b0, [0], MAIN_RAM)] #removing rope as a reward
+                                    )
+                                save_data: bytes = (await bizhawk.read(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ae668, 1, MAIN_RAM)]
+                                ))[0]
+                                rope_into_well: bool = save_data[0] & 0b1000000 == 0b1000000
+                                if(rope_into_well):
+                                    logger.info("removing rope to prevent soft lock")
+                                    remove_rope = save_data[0] & 0b10111111
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x0ae668, [remove_rope], MAIN_RAM)] #water level has risen remove rope from well
+                                    )
+                                if(self.progression_state == 0x258): #defeated relic keeper
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x078e80, [0x76], MAIN_RAM)] #well was fixed move progression state
+                                    )
+                    if(curr_location == 0x3023): #at volcano near wind scroll
+                        if(ctx.slot_data["core_sanity"] == True):
+                            await self.update_progression(ctx)
+                            if(self.progression_state < 0x3d4): #before steamwood 2
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x182d38, [0,0,0,0], MAIN_RAM)] #dont update progression for wind scroll
+                                )
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x18386c, [0,0,0,0], MAIN_RAM)] #dont update progression for freed from bincho
+                                )
+                    if(curr_location == 0x1094): #Chapter 5 town
+                        if(ctx.slot_data["core_sanity"] == True):
+                            await self.update_progression(ctx)
+                            if(self.progression_state > 0x3d4 and self.progression_state < 0x460): #after steamwood 2
+                                if(self.found_wind_scroll): #already went to wind scroll
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x078e80, [0x60, 0x04], MAIN_RAM)] #update progression to freed from bincho
+                                    )
 
                         """
                         await bizhawk.write(
@@ -1311,6 +1541,13 @@ class BFMClient(BizHawkClient):
                         )
                     elif(curr_location == 0x3029): #twinpeak second peak
                         await self.update_progression(ctx)
+                        if(self.progression_state == 0xf0): #about to meet Hotelo at twinpeak
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x18e096, [0x0], MAIN_RAM)] #change entrance from 1 to 0 to prevent softlock
+                            )
+                            logger.info("applied shortcut to hotelo softlock fix")
+
                         if(self.progression_state > 0x59): #Jon has left the peak
                             save_data: bytes = (await bizhawk.read(
                                 ctx.bizhawk_ctx,
@@ -1320,7 +1557,11 @@ class BFMClient(BizHawkClient):
                             if(raft_state & 0b11000000 != 0b11000000):
                                 logger.info("Raft incomplete, checking for logs")
                                 self.check_for_logs = 1
-
+                    if(ctx.slot_data["fast_walk"] == True):
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x15a7e4, [0xa0, 0xff, 0x03, 0x3c, 0x2c, 0x00, 0x23, 0xae, 0x1e, 0x6a, 0x05, 0x08, 0x00, 0x00, 0x00, 0x00], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
+                        )
                 self.old_step_count = step_count
 
             if(self.level_transition == 0):
@@ -1601,11 +1842,56 @@ class BFMClient(BizHawkClient):
 
 
             #if not ctx.finished_game and len(ctx.items_received) == 35:
-            if not ctx.finished_game and set(received_list).issuperset(set(npc_ids)):
-                await ctx.send_msgs([{
-                    "cmd": "StatusUpdate",
-                    "status": ClientStatus.CLIENT_GOAL
-                }])
+            if not ctx.finished_game:
+                if(ctx.slot_data["goal"] == 2): #Rescue x NPCs
+                    if len(set(received_list)&(set(npc_ids))) >= ctx.slot_data["npc_goal"]:
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
+                elif(ctx.slot_data["goal"] == 3): #Skullpion goal
+                    if save_data_toys[11] & 0b10000000 == 0b10000000:
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
+                elif(ctx.slot_data["goal"] == 4): #Relic Keeper goal
+                    if save_data_toys[17] & 0b10000000 == 0b10000000:
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
+                elif(ctx.slot_data["goal"] == 5): #Frost Dragon goal
+                    if save_data_toys[23] & 0b10000000 == 0b10000000:
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
+                elif(ctx.slot_data["goal"] == 6): #Ant Queen goal
+                    if save_data_toys[29] & 0b10000000 == 0b10000000:
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
+                elif(ctx.slot_data["goal"] == 7): #ToD goal
+                    if save_data_toys[35] & 0b10000000 == 0b10000000:
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
+                elif(ctx.slot_data["goal"] == 8): #DL goal
+                    #if save_data_toys[40] & 0b10000000 == 0b10000000: #toy only happens with 6 legendary armors
+                    if(curr_location == 0x30A4 or curr_location == 0x30A2 or curr_location == 0x30A5):
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
+                else: #Rescue all NPCs
+                    if set(received_list).issuperset(set(npc_ids)):
+                        await ctx.send_msgs([{
+                            "cmd": "StatusUpdate",
+                            "status": ClientStatus.CLIENT_GOAL
+                        }])
             
             if (self.request_hints == 0):
                 self.request_hints = 1 
@@ -1633,6 +1919,10 @@ class BFMClient(BizHawkClient):
                     if(not standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] in table_ids_to_hint):
                         for i in range(5):
                             table_ids_to_hint.append(standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] + i)
+                if(ctx.slot_data["core_sanity"] == True):
+                    if(not standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] in table_ids_to_hint):
+                        for i in range(4):
+                            table_ids_to_hint.append(standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] + i)
                 await ctx.send_msgs([{
                     "cmd": "LocationScouts",
                     "locations": table_ids_to_hint,
@@ -1655,8 +1945,14 @@ class BFMClient(BizHawkClient):
                     curr_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
                     if curr_hp == 0 and self.has_died == 0:
                         self.has_died = 1
-                        logger.info("%s died",ctx.username)
-                        await ctx.send_death(f"{ctx.username} had a nightmare about a horrid death!")
+                        curr_maxhp_bytes: bytes = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            [(0x078eb2, 2, MAIN_RAM)]
+                        ))[0]
+                        max_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
+                        if(max_hp > 0):
+                            logger.info("%s died",ctx.username)
+                            await ctx.send_death(f"{ctx.username} had a nightmare about a horrid death!")
                     if curr_hp > 0 and self.has_died == 1:
                         self.has_died = 0
                         logger.info("%s revived",ctx.username)
@@ -1832,6 +2128,30 @@ class BFMClient(BizHawkClient):
                 break
         self.fix_dialog(self.restaurant_dialog)
         pass
+    async def assemble_binary_array_for_boss_textbox(self, ctx: "BizHawkClientContext", loc_id: int, length: int):
+        s = "<"+ctx.username+">"
+        result = bytearray(s,"utf-8")
+        result.append(0x0a)
+        s = "Found "
+        result.extend(s.encode("utf-8"))
+        result.append(0x01)
+        result.append(0x02)
+        s = ctx.item_names.lookup_in_slot(ctx.locations_info[loc_id].item, ctx.locations_info[loc_id].player)
+        result.extend(s.encode("utf-8"))
+        result.append(0x01)
+        result.append(0x01)
+        s = " for "
+        result.extend(s.encode("utf-8"))
+        s = ctx.player_names[ctx.locations_info[loc_id].player]
+        result.extend(s.encode("utf-8"))
+        if(len(result) == length):
+            return result
+        elif(len(result) > length):
+            result = result[:length]
+        else:
+            s = " " * (length - len(result))
+            result.extend(s.encode("utf-8"))
+        return result
 
     async def assemble_binary_array_for_textbox(self, ctx: "BizHawkClientContext", loc_id: int):
         s = "<"+ctx.username+">"

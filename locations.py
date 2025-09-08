@@ -159,6 +159,10 @@ location_table: Dict[str, BFMLocationData] = {
     "Fire Scroll - Island of Dragons": BFMLocationData("Island of Dragons",location_group = "Scroll"),
     "Wind Scroll - Grillin Volcano": BFMLocationData("Wind Scroll",location_group = "Scroll"),
     "Sky Scroll - Sky Island": BFMLocationData("Sky Island",location_group = "Scroll"),
+    "Defeat Earth Crest Guardian - Skullpion Arena": BFMLocationData("Skullpion Arena",location_group = "Core"),
+    "Defeat Water Crest Guardian - Relic Keeper Arena": BFMLocationData("Relic Keeper Arena",location_group = "Core"),
+    "Defeat Fire Crest Guardian - Frost Dragon Arena": BFMLocationData("Frost Dragon Arena",location_group = "Core"),
+    "Defeat Wind Crest Guardian - Queen Ant Arena": BFMLocationData("Queen Ant Arena",location_group = "Core"),
 }
 
 sphere_one: List[str] = [

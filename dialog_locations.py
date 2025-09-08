@@ -95,7 +95,26 @@ castle_dialog: List[int] = [
 scroll_dialog: Dict[int, Dict[int, int]] = {
     0x3026: {standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"]: 0x196960},
     0x304e: {standard_location_name_to_id["Water Scroll - Grillin Reservoir"]: 0x19490c},
-    0x3021: {standard_location_name_to_id["Fire Scroll - Island of Dragons"]: 0x197b8c},
+    0x3021: {standard_location_name_to_id["Fire Scroll - Island of Dragons"]: 0x197c68},
     0x3023: {standard_location_name_to_id["Wind Scroll - Grillin Volcano"]: 0x191d0c},
     0x3081: {standard_location_name_to_id["Sky Scroll - Sky Island"]: 0x191f44}
+}
+
+boss_core_dialog: Dict[int, Dict[int, List[int]]] = {
+    0x3024: {standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"]: [0x191624, 78]},
+    0x3042: {standard_location_name_to_id["Defeat Water Crest Guardian - Relic Keeper Arena"]: [0x18f578, 85]},
+    0x3067: {standard_location_name_to_id["Defeat Fire Crest Guardian - Frost Dragon Arena"]: [0x194ecc, 80]},
+    0x3075: {standard_location_name_to_id["Defeat Wind Crest Guardian - Queen Ant Arena"]: [0x194484, 77]}
+}
+boss_locations: List[int] = [
+    0x3024,
+    0x3042,
+    0x3067,
+    0x3075
+]
+boss_core_update: Dict[int, List[int]] = {
+    0x3024: [0x173fb8, 0x18679c],
+    0x3042: [0x173ffc],
+    0x3067: [0x174040],
+    0x3075: [0x174084]
 }
