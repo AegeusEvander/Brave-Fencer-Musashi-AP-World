@@ -14,6 +14,7 @@ item_base_id = 0x0ba1b8
 item_action_figure_id = 0x100
 scroll_base_id = 0x200
 core_base_id = 0x300
+level_base_id = 0x400
 
 item_table: Dict[str, BFMItemData] = {
     "Guard": BFMItemData(IC.progression, 1, 0x40, "NPC"),
@@ -147,6 +148,10 @@ item_table: Dict[str, BFMItemData] = {
     "Water Boss Core": BFMItemData(IC.progression, 1, 0x8b + scroll_base_id, "Core"),
     "Fire Boss Core": BFMItemData(IC.progression, 1, 0x8c + scroll_base_id, "Core"),
     "Wind Boss Core": BFMItemData(IC.progression, 1, 0x8d + scroll_base_id, "Core"),
+    "Body Stat Up": BFMItemData(IC.useful, 29, 0x1 + level_base_id, "Level"),
+    "Mind Stat Up": BFMItemData(IC.useful, 29, 0x2 + level_base_id, "Level"),
+    "Fusion Stat Up": BFMItemData(IC.useful, 29, 0x3 + level_base_id, "Level"),
+    "Lumina Stat Up": BFMItemData(IC.useful, 29, 0x4 + level_base_id, "Level"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

@@ -38,20 +38,26 @@ class NPCGoal(Range):
     range_end = 35
     default = 20
 
+class StartingMaxHP(Range):
+    """
+    Amount of max hp to start the game with (max hp will never go over 500)
+    Setting max hp to 1 will remove all max hp up from itempool (and disable deathlink)
+    """
+    internal_name = "starting_hp"
+    display_name = "Starting Max Hp"
+    range_start = 1
+    range_end = 200
+    default = 150
+
 class MaxHpLogic(Range):
     """
-    Amount of max hp expected logically before going to Soda Fountain
-    0 - 150 max hp 
-    1 - 200 max hp
-    2 - 225 max hp
-    ...
-    13 - 500 max hp
+    Amount of max hp expected logically before going to Soda Fountain (ignored if starting max hp is 1)
     """
     internal_name = "max_hp_logic"
     display_name = "Max Hp Logic for Soda Fountain"
-    range_start = 0
-    range_end = 13
-    default = 9
+    range_start = 150
+    range_end = 500
+    default = 400
 
 class LuminaRandomized(Toggle):
     """
@@ -138,6 +144,57 @@ class CoreSanity(Toggle):
     internal_name = "core_sanity"
     display_name = "Boss Core Sanity"
 
+class LevelSanity(Toggle):
+    """
+    Randomize the stats gained from leveling into the multiworld
+    """
+    internal_name = "level_sanity"
+    display_name = "Level Sanity"
+
+class LevelBundles(Range):
+    """
+    Number of bundles to receive lvl 30 stats (Body, Mind, Fusion, Lumina)
+    Lowering number bundles will leave more room for Traps/Filler
+    Only active if Level Sanity is True
+    """
+    internal_name = "level_bundles"
+    display_name = "Number of bundles for combat stats"
+    range_start = 1
+    range_end = 29
+    default = 29
+
+class StatGainModifier(Choice):
+    """
+    change how stats are gained
+    Early - Most stats are gained in the first couple bundles (maybe better for shorter goals)
+    Vanilla - Stats are gained roughly the same rate as the base game
+    Enhanced - Stats start similar to Vanilla but dramatically increase after receiving half of the stat up bundles (may make Wind Crest Guardian and path to Sky Crest Guardian easier)
+    Only active if Level Sanity is True
+    """
+    internal_name = "stat_gain_modifier"
+    display_name = "Stat Game Modifier"
+    option_early = 1
+    option_vanilla = 2
+    option_enhanced = 3
+    default = 2
+
+class XPGain(Choice):
+    """
+    Amount to multiply XP receieved, higher multiplier is faster leveling. Leveling may be required for progression so it is recommended to have increased XP gain.
+    No XP Gain - Challenge run modifier (level 1 the entire game), checks for leveling are removed (if enabled)
+    """
+    internal_name = "xp_gain"
+    display_name = "XP Gain Multiplier"
+    option_no_xp_gain = 1
+    option_quarter = 2
+    option_half = 3
+    option_vanilla = 4
+    option_double = 5
+    option_quadruple = 6
+    option_ten_fold = 7
+    option_one_hundred_fold = 8
+    default = 6
+
 class EarlySkullpion(Toggle):
     """
     Add the NPCs required for Skullpion, Lumina (if randomized), and Bracelet to the early generation (Will likely place in Sphere 1, this setting is only recommended for multiworld generations to avoid being stuck in chapter 2)
@@ -187,6 +244,7 @@ class CustomHairColor(FreeText):
 class BFMOptions(PerGameCommonOptions):
     goal: SetGoal
     npc_goal: NPCGoal
+    starting_hp: StartingMaxHP
     max_hp_logic: MaxHpLogic
     lumina_randomzied: LuminaRandomized
     bakery_sanity: BakerySanity
@@ -199,6 +257,10 @@ class BFMOptions(PerGameCommonOptions):
     scroll_sanity: ScrollSanity
     sky_scroll_logic: SkyScrollLogic
     core_sanity: CoreSanity
+    level_sanity: LevelSanity
+    level_bundles: LevelBundles
+    stat_gain_modifier: StatGainModifier
+    xp_gain: XPGain
     early_skullpion: EarlySkullpion
     skip_minigame_ant_gondola: SkipMinigameAntGondola
     death_link: DeathLink

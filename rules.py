@@ -5,6 +5,7 @@ from BaseClasses import CollectionState
 from .locations import location_name_groups
 if TYPE_CHECKING:
     from . import BFMWorld
+import math
 
 
 def can_fight_skullpion(state: CollectionState, world: "BFMWorld") -> bool:
@@ -23,7 +24,9 @@ def saved_everyone(state: CollectionState, world: "BFMWorld") -> bool:
     return state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "Taster", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "Janitor", "Artisan", "CarpentC", "MusicianC", "Knitter", "Chef", "MercenA", "Chief", "CookB", "Conductor", "Butcher", "KnightC", "Doctor", "KnightD", "Alchemist", "Librarian"}, world.player)
 
 def has_lumina(state: CollectionState, world: "BFMWorld") -> bool:
-    return (not world.options.lumina_randomzied) or state.has("Lumina", world.player)
+    if(world.options.lumina_randomzied.value == True):
+        return state.has("Lumina", world.player)
+    return True
 
 def has_rice(state: CollectionState, world: "BFMWorld") -> bool:
     return state.has_all({"Bailiff", "CookA"}, world.player)
@@ -40,7 +43,7 @@ def has_bread(state: CollectionState, world: "BFMWorld") -> bool:
     return True
 
 def has_healing(state: CollectionState, world: "BFMWorld") -> bool:
-    if(world.options.grocery_sanity_heal_logic.value == True):
+    if(world.options.grocery_sanity_heal_logic.value == True and world.options.grocery_sanity.value == True):
         return state.has("W-Gel", world.player) or state.has("Progressive Drink", world.player)
     return True
 
@@ -48,6 +51,15 @@ def has_ex_drink(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.grocery_sanity.value == True):
         return state.has("Progressive Drink", world.player, 2)
     return True
+
+def has_hp_for_soda_fountain(state: CollectionState, world: "BFMWorld") -> bool:
+    if(world.options.starting_hp.value == 1):
+        return True
+    berries_needed = math.ceil((world.options.max_hp_logic.value - world.options.starting_hp) / 25.0)
+    if(berries_needed > 1):
+        berries_needed = berries_needed - 1 #account for free mayor berry
+    berries_needed = max(min(13, berries_needed), 0)
+    return state.has("Longevity Berry", world.player, berries_needed)
 
 def has_earth_scroll(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
@@ -74,6 +86,12 @@ def has_wind_scroll(state: CollectionState, world: "BFMWorld") -> bool:
         return can_enter_frozen_palace(state, world) and can_identify_gondola_gizmo(state, world) and can_fight_skullpion(state, world) and can_fight_frost_dragon(state, world)
 
 def has_sky_scroll(state: CollectionState, world: "BFMWorld") -> bool:
+    if(world.options.scroll_sanity.value == True):
+        return state.has("Sky Scroll", world.player)
+    else:
+        return False
+
+def has_sky_scroll_simple(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
         if(world.options.sky_scroll_logic.value == 1):
             return False
@@ -133,9 +151,9 @@ def set_region_rules(world: "BFMWorld") -> None:
         world.get_entrance("Toy Shop Series 1 -> Toy Shop Series 5").access_rule = \
             lambda state: can_enter_frozen_palace(state, world) and can_identify_gondola_gizmo(state, world) and can_fight_skullpion(state, world) and can_fight_frost_dragon(state, world)
     world.get_entrance("Twinpeak Entrance -> Twinpeak Path to Skullpion").access_rule = \
-        lambda state: has_earth_scroll(state, world) or has_sky_scroll(state, world)
+        lambda state: has_earth_scroll(state, world) or has_sky_scroll_simple(state, world)
     world.get_entrance("Twinpeak Entrance -> Twinpeak Around the Bend").access_rule = \
-        lambda state: has_bread(state,world) or state.has("Bracelet", player) or has_water_scroll(state, world) or has_sky_scroll(state, world)
+        lambda state: has_bread(state,world) or state.has("Bracelet", player) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world)
     world.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena").access_rule = \
         lambda state: can_fight_skullpion(state, world)
     world.get_entrance("Restaurant Basement -> Restaurant Basement Path to Crest Guardian").access_rule = \
@@ -171,38 +189,43 @@ def set_region_rules(world: "BFMWorld") -> None:
     world.get_entrance("Steamwood Forest -> Sky Island").access_rule = \
         lambda state: has_earth_scroll(state, world) and has_water_scroll(state, world) and has_fire_scroll(state, world) and has_wind_scroll(state, world) and has_wind_boss_core(state, world) and has_earth_boss_core(state, world) and (can_double_jump(state, world) or has_sky_scroll(state, world))
     world.get_entrance("Sky Island -> Soda Fountain").access_rule = \
-        lambda state: has_all_scrolls(state, world) and can_double_jump(state, world) and has_lumina(state, world) and state.has("Bracelet", player) and state.has("Longevity Berry", player, options.max_hp_logic.value) and has_ex_drink(state, world)         
+        lambda state: has_all_scrolls(state, world) and can_double_jump(state, world) and has_lumina(state, world) and state.has("Bracelet", player) and has_hp_for_soda_fountain(state, world) and has_ex_drink(state, world)         
 
 def set_location_rules(world: "BFMWorld") -> None:
     player = world.player
     options = world.options
 
     for index, name in enumerate(location_name_groups["Bincho"]):
-        set_rule(world.get_location(name), lambda state: has_lumina(state, world)) 
+        set_rule(world.get_location(name), lambda state: has_lumina(state, world))
+
+    if(options.level_sanity.value == True and options.starting_hp.value != 1):
+        for index, name in enumerate(location_name_groups["Level"]):
+            if("Lum" in name):
+                set_rule(world.get_location(name), lambda state: has_lumina(state, world)) 
 
     add_rule(world.get_location("Weaver Bincho - Twinpeak Second Peak"),
-        lambda state: can_fight_skullpion(state, world) or has_sky_scroll(state, world)) 
+        lambda state: can_fight_skullpion(state, world) or has_sky_scroll_simple(state, world)) 
     set_rule(world.get_location("Minku - Twinpeak End of Stream"),
-        lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll(state, world))
+        lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     set_rule(world.get_location("Minku - Steamwood Forest"),
         lambda state: has_earth_boss_core(state, world) and has_earth_scroll(state, world))
     set_rule(world.get_location("Minku - Somnolent Forest"),
-        lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll(state, world))
+        lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     if(options.bakery_sanity.value == True):
-        set_rule(world.get_location("Item 6 - Bakery"),
-            lambda state: can_fight_skullpion(state, world))
-        set_rule(world.get_location("Item 7 - Bakery"),
-            lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Item 6 (JamBread) - Bakery"),
+            lambda state: can_fight_skullpion(state, world) and has_water_scroll(state, world))
+        set_rule(world.get_location("Item 7 (Biscuit) - Bakery"),
+            lambda state: can_fight_skullpion(state, world) and has_water_scroll(state, world))
     if(options.grocery_sanity.value == True):
-        set_rule(world.get_location("Item 8 - Grocery"), #orange, save Tim
+        set_rule(world.get_location("Item 8 (Orange) - Grocery"), #orange, save Tim
             lambda state: can_fight_skullpion(state, world))
-        set_rule(world.get_location("Item 9 - Grocery"), #Chapter 4 EX-Drink
-            lambda state: can_fight_skullpion(state, world))
-        set_rule(world.get_location("Item 10 - Grocery"), #Chapter 4 H-Mint
-            lambda state: can_fight_skullpion(state, world))
-        set_rule(world.get_location("Item 11 - Grocery"), #rice ball
+        set_rule(world.get_location("Item 9 (EX-Drink) - Grocery"), #Chapter 4 EX-Drink
+            lambda state: can_fight_skullpion(state, world) and has_water_scroll(state, world))
+        set_rule(world.get_location("Item 10 (H-Mint) - Grocery"), #Chapter 4 H-Mint
+            lambda state: can_fight_skullpion(state, world) and has_water_scroll(state, world))
+        set_rule(world.get_location("Item 11 (Riceball) - Grocery"), #rice ball
             lambda state: has_rice(state, world) and state.has("Chef", player))
-        set_rule(world.get_location("Item 12 - Grocery"), #neatball
+        set_rule(world.get_location("Item 12 (Neat Ball) - Grocery"), #neatball
             lambda state: has_rice(state, world) and state.has_all({"CookB", "Butcher"}, player))
     set_rule(world.get_location("Minku - Grillin Village Above Gondola"),
         lambda state: state.has("Bracelet", player))
@@ -214,15 +237,15 @@ def set_location_rules(world: "BFMWorld") -> None:
     set_rule(world.get_location("Rock Chest - Twinpeak Second Peak"),
         lambda state: has_earth_scroll(state, world)) #add sky scroll + double jump stuff here
     set_rule(world.get_location("Bracelet Chest - Twinpeak Entrance"),
-        lambda state: has_lumina(state, world) and (has_bread(state, world) or state.has("Bracelet", player)) or has_water_scroll(state, world) or has_sky_scroll(state, world))
+        lambda state: has_lumina(state, world) and (has_bread(state, world) or state.has("Bracelet", player)) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     set_rule(world.get_location("200 Drans Chest - Twinpeak Path to Skullpion"),
-        lambda state: ((has_water_scroll(state, world) or has_sky_scroll(state, world)) and has_earth_scroll(state, world)) or has_sky_scroll_complex(state, world))
+        lambda state: ((has_water_scroll(state, world) or has_sky_scroll_simple(state, world)) and has_earth_scroll(state, world)) or has_sky_scroll_complex(state, world))
     set_rule(world.get_location("Glasses Chest - Somnolent Forest"),
         lambda state: has_water_scroll(state, world) and has_water_boss_core(state, world))
     set_rule(world.get_location("Minku - Grillin Reservoir"),
-        lambda state: (has_water_scroll(state, world) and has_water_boss_core(state, world)) or has_sky_scroll(state, world))     
+        lambda state: (has_water_scroll(state, world) and has_water_boss_core(state, world)) or has_sky_scroll_simple(state, world))     
     set_rule(world.get_location("Old Shirt Chest - Grillin Reservoir"),
-        lambda state: (has_water_scroll(state, world) and has_water_boss_core(state, world)) or has_sky_scroll(state, world))    
+        lambda state: (has_water_scroll(state, world) and has_water_boss_core(state, world)) or has_sky_scroll_simple(state, world))    
     set_rule(world.get_location("Used Boot Chest - Grillin Reservoir"),
         lambda state: has_water_scroll(state, world) and has_water_boss_core(state, world))            
     if(options.toy_sanity.value == True):
@@ -239,19 +262,19 @@ def set_location_rules(world: "BFMWorld") -> None:
         set_rule(world.get_location("Queen Ant - Toy Shop"),
             lambda state: has_wind_scroll(state, world))
     if(options.tech_sanity.value == True):
-        set_rule(world.get_location("Improved Fusion - Allucaneet Castle"),
+        set_rule(world.get_location("Improved Fusion (Artisan) - Allucaneet Castle"),
             lambda state: state.has("Artisan", player))
-        set_rule(world.get_location("Dashing Pierce - Allucaneet Castle"),
+        set_rule(world.get_location("Dashing Pierce (Maid) - Allucaneet Castle"),
             lambda state: state.has("Maid", player))
-        set_rule(world.get_location("Shish Kebab - Allucaneet Castle"),
+        set_rule(world.get_location("Shish Kebab (Clown) - Allucaneet Castle"),
             lambda state: state.has("Acrobat", player) and has_orange(state, world))
-        set_rule(world.get_location("Crosswise Cut - Allucaneet Castle"),
+        set_rule(world.get_location("Crosswise Cut (KnightB) - Allucaneet Castle"),
             lambda state: can_fight_skullpion(state, world))
-        set_rule(world.get_location("Tenderize - Allucaneet Castle"),
+        set_rule(world.get_location("Tenderize (KnightA) - Allucaneet Castle"),
             lambda state: state.has("KnightA", player))
-        set_rule(world.get_location("Desperado Attack - Allucaneet Castle"),
+        set_rule(world.get_location("Desperado Attack (KnightC) - Allucaneet Castle"),
             lambda state: state.has("KnightC", player) and state.has("Crosswise Cut", player))
-        set_rule(world.get_location("Rumparoni Special - Allucaneet Castle"),
+        set_rule(world.get_location("Rumparoni Special (KnightD) - Allucaneet Castle"),
             lambda state: state.has("KnightD", player))
     
 

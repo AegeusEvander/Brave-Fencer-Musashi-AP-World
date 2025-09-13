@@ -10,7 +10,7 @@ Alternatively if on Linux download the `Delta Patcher` on flatpak
 - The latest `bfm.apworld` file. You can find this on the [Releases page](https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases). Put this in your `Archipelago/custom_worlds` folder, if on windows and archipelago is installed double clicking on bfm.apworld should do this for you.
 - Brave Fencer Musashi AP Randomizer xdelta patch file [Releases page](https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases)
 
-### Configuring BizHawk
+## Configuring BizHawk
 
 Once you have installed BizHawk, open `EmuHawk.exe` and change the following settings:
 
@@ -41,16 +41,15 @@ Once you have installed BizHawk, open `EmuHawk.exe` and change the following set
 2. In EmuHawk, go to `Tools > Lua Console`. This window must stay open in order to send or recieve items.
 3. In the Lua Console window, go to `Script > Open Script…`.
 4. Navigate to your Archipelago install folder and open `data/lua/connector_bizhawk_generic.lua`.
-5. Select "BizHawk Client" in the right-side column. On your first time opening BizHawk Client, you may also be asked to locate `EmuHawk.exe` in your BizHawk install.
+5. Select "BizHawk Client" within the Archipelago Launcher. On your first time opening BizHawk Client, you may also be asked to locate `EmuHawk.exe` in your BizHawk install.
 6. The emulator and client will eventually connect to each other. The BizHawk Client window should indicate that it connected and recognized Brave Fencer Musashi.
 7. To connect the client to the server, enter your room's address and port (e.g. `archipelago.gg:38281`) into the top text field of the client and click Connect.
+8. The client will ask for a `slot name`. This is the text after "name: " in the YAML file (Defaults to "Player1")
 
-You should now be able to receive and send items. You'll need to do these steps every time you want to reconnect. After selecting the script once you can instead use `File > Recent Scripts`. It is safe to make progress offline though it will be needed to be connected to receive items and for shop randomization; everything will re-sync when you reconnect.
+You should now be able to receive and send items. You'll need to do these steps every time you want to reconnect. After selecting the script once you can instead use `File > Recent Scripts`. It is safe to do most things if the client is not connected but it is expected that the client is connected to make progress and prevent some soft locks. If client gets disconnected try reconnecting/reloading as soon as able. It will be needed to be connected to receive items and for shop randomization; everything will re-sync when you reconnect.
 
 ## A Note to New Players of Brave Fencer Musashi
 
-A speedrun of the game may take 2-4 hours depending on catagory, a first time casual run may take 12-20 hours. Consider playing this game with quicker goal settings (to be added to options page TBD) or playing this game in an async.
+A speedrun of the game may take 2-4 hours depending on catagory, a first time casual run may take 12-20 hours. Consider playing this game with quicker goal settings (either rescue fewer NPCs/kill an earlier boss) or playing this game in an async.
 
 ## Notes and Limitations
-
-1. Consider using savestates

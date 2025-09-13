@@ -18,8 +18,8 @@ from .version import __version__
 from .hair_color import hair_color_addresses, default_hair_color, new_hair_color
 from .items import npc_ids, item_id_to_name, item_name_to_id, item_name_groups
 from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations, toy_shop_locations, toy_shop_fix, toy_shop_dialog, toy_shop_dialog_length, tech_fix, tech_check_locations
-
-
+from .stats import body_xp, mind_xp, lumina_xp, fusion_xp, body_stat, mind_stat, lumina_stat, fusion_stat, level_memory_ids
+import math
 from NetUtils import ClientStatus
 from collections import Counter
 import worlds._bizhawk as bizhawk
@@ -89,7 +89,17 @@ class BFMClient(BizHawkClient):
     check_if_lumina_needs_removed = 1
     cursor_pos = 0
     checked_cores = False
-    
+    max_hp_updated = False
+    xp_gain_updated = False
+    curr_body_lvl = 0
+    curr_mind_lvl = 0
+    curr_fus_lvl = 0
+    curr_lum_lvl = 0
+    curr_body_stat = 4
+    curr_mind_stat = 6
+    curr_fus_stat = 4
+    curr_lum_stat = 8
+
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         """Should return whether the currently loaded ROM should be handled by this client. You might read the game name
@@ -173,6 +183,8 @@ class BFMClient(BizHawkClient):
                 self.hair_color_updated = 0
                 self.old_step_count = 0
                 self.check_if_lumina_needs_removed = 1
+                self.max_hp_updated = False
+                self.xp_gain_updated = False
                 return
             #global bincho_checks
             from CommonClient import logger
@@ -263,6 +275,17 @@ class BFMClient(BizHawkClient):
             else:
                 new_tech_checks = self.tech_checks
 
+            if(ctx.slot_data["level_sanity"] == True):
+                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, level_memory_ids))
+                new_body_lvl: int = int.from_bytes(save_data[0], byteorder='little')
+                new_mind_lvl: int = int.from_bytes(save_data[1], byteorder='little')
+                new_fus_lvl: int = int.from_bytes(save_data[2], byteorder='little')
+                new_lum_lvl: int = int.from_bytes(save_data[3], byteorder='little')
+            else:
+                new_body_lvl = self.curr_body_lvl
+                new_mind_lvl = self.curr_mind_lvl
+                new_fus_lvl = self.curr_fus_lvl
+                new_lum_lvl = self.curr_lum_lvl
 
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
@@ -372,7 +395,7 @@ class BFMClient(BizHawkClient):
             if(new_tech_checks != self.tech_checks):
                 for i in range(len(new_tech_checks)):
                     if(new_tech_checks[i]):
-                        locations_to_send_to_server.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)
+                        locations_to_send_to_server.append(standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] + i)
 
             if(new_core_checks != self.core_checks):
                 for i in range(len(new_core_checks)):
@@ -424,8 +447,52 @@ class BFMClient(BizHawkClient):
                                     [(0x0ae64b, [scroll_data], MAIN_RAM)]
                                 )
 
+            if(self.curr_body_lvl != new_body_lvl):
+                for i in range(new_body_lvl):
+                    locations_to_send_to_server.append(standard_location_name_to_id["lvl 2 Body - Menu"] + i)
+                stats_to_write = [(0x0638fa + 16 * (new_body_lvl), self.curr_body_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                if(new_body_lvl < 29):
+                    stats_to_write.append((0x0638fa + 16 * (new_body_lvl + 1), self.curr_body_stat.to_bytes(2, 'little'), MAIN_RAM))
+                await bizhawk.write(
+                    ctx.bizhawk_ctx,
+                    stats_to_write
+                )
+            
+            if(self.curr_mind_lvl != new_mind_lvl):
+                for i in range(new_mind_lvl):
+                    locations_to_send_to_server.append(standard_location_name_to_id["lvl 2 Mind - Menu"] + i)
+                stats_to_write = [(0x0638fe + 16 * (new_mind_lvl), self.curr_mind_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                if(new_mind_lvl < 29):
+                    stats_to_write.append((0x0638fe + 16 * (new_mind_lvl + 1), self.curr_mind_stat.to_bytes(2, 'little'), MAIN_RAM))
+                await bizhawk.write(
+                    ctx.bizhawk_ctx,
+                    stats_to_write
+                )
 
-            if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks or new_core_checks != self.core_checks):
+            if(self.curr_fus_lvl != new_fus_lvl):
+                for i in range(new_fus_lvl):
+                    locations_to_send_to_server.append(standard_location_name_to_id["lvl 2 Fus - Menu"] + i)
+                stats_to_write = [(0x063906 + 16 * (new_fus_lvl), self.curr_fus_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                if(new_fus_lvl < 29):
+                    stats_to_write.append((0x063906 + 16 * (new_fus_lvl + 1), self.curr_fus_stat.to_bytes(2, 'little'), MAIN_RAM))
+                await bizhawk.write(
+                    ctx.bizhawk_ctx,
+                    stats_to_write
+                )
+
+            if(self.curr_lum_lvl != new_lum_lvl):
+                for i in range(new_lum_lvl):
+                    locations_to_send_to_server.append(standard_location_name_to_id["lvl 2 Lum - Menu"] + i)
+                stats_to_write = [(0x063902 + 16 * (new_lum_lvl), self.curr_lum_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                if(new_lum_lvl < 29):
+                    stats_to_write.append((0x063902 + 16 * (new_lum_lvl + 1), self.curr_lum_stat.to_bytes(2, 'little'), MAIN_RAM))
+                await bizhawk.write(
+                    ctx.bizhawk_ctx,
+                    stats_to_write
+                )
+
+            #if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks or new_core_checks != self.core_checks):
+            if(len(locations_to_send_to_server) > 0):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": locations_to_send_to_server
@@ -440,6 +507,10 @@ class BFMClient(BizHawkClient):
                 self.tech_checks = new_tech_checks
                 self.scroll_checks = new_scroll_checks
                 self.core_checks = new_core_checks
+                self.curr_body_lvl = new_body_lvl
+                self.curr_mind_lvl = new_mind_lvl
+                self.curr_fus_lvl = new_fus_lvl
+                self.curr_lum_lvl = new_lum_lvl
 
             
             if(curr_location == 0x3005): #main menu/first moon cutscene
@@ -451,6 +522,7 @@ class BFMClient(BizHawkClient):
                 self.death_link_timer = 240
                 self.has_died = 0
                 self.check_if_lumina_needs_removed = 1
+                self.max_hp_updated = False
                 curr_hp_bytes: bytes = (await bizhawk.read(
                     ctx.bizhawk_ctx,
                     [(0x078eb4, 2, MAIN_RAM)]
@@ -503,12 +575,13 @@ class BFMClient(BizHawkClient):
                                         [(0x0ae666, [guard_state], MAIN_RAM)]
                                     )
                         elif(item_id==0x0ba21b): #found max health berry
-                            curr_max_hp_bytes: bytes = (await bizhawk.read(
+                            await self.update_max_hp(ctx, self.received_count+1)
+                            """curr_max_hp_bytes: bytes = (await bizhawk.read(
                                 ctx.bizhawk_ctx,
                                 [(0x078eb2, 2, MAIN_RAM)]
                             ))[0]
                             curr_max_hp: int = int.from_bytes(curr_max_hp_bytes, byteorder='little')
-                            new_hp = 175
+                            new_hp = ctx.slot_data["starting_hp"] + 25
                             for i in range(self.received_count+1):
                                 if(ctx.items_received[i][0] == 0x0ba21b):
                                     new_hp += 25
@@ -520,7 +593,7 @@ class BFMClient(BizHawkClient):
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
                                     [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
-                                )#current hp
+                                )#current hp"""
                         elif(item_id == 0xa):
                             if(ctx.slot_data["grocery_s_revive"] == True):
                                 await bizhawk.write(
@@ -667,6 +740,98 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(0x0ae659, [core_data], MAIN_RAM)]
                             )
+                        elif(item_id == 0x401): #body stat up
+                            new_stat_value = 40
+                            stat_up_found = 0
+                            for i in range(len(ctx.items_received)):
+                                if(ctx.items_received[i][0] == item_id):
+                                    stat_up_found = stat_up_found + 1
+                            stat_up_found = min(stat_up_found, ctx.slot_data["level_bundles"])
+                            if(ctx.slot_data["stat_gain_modifier"] == 1): #Early
+                                new_stat_value = 4 + round(32 * math.sqrt(stat_up_found / ctx.slot_data["level_bundles"]))
+                            elif(ctx.slot_data["stat_gain_modifier"] == 2): #Vanilla
+                                new_stat_value = body_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])]
+                            else: #Enhanced
+                                new_stat_value = body_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])] + round(math.pow(stat_up_found / ctx.slot_data["level_bundles"], 10) * 100)
+                            if(new_stat_value != self.curr_body_stat):
+                                logger.info("%s: %s -> %s",item_id_to_name[item_id], self.curr_body_stat, new_stat_value)
+                                self.curr_body_stat = new_stat_value
+                                stats_to_write = [(0x0638fa + 16 * (self.curr_body_lvl), self.curr_body_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                                if(self.curr_body_lvl < 29):
+                                    stats_to_write.append((0x0638fa + 16 * (self.curr_body_lvl + 1), self.curr_body_stat.to_bytes(2, 'little'), MAIN_RAM))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    stats_to_write
+                                )
+                        elif(item_id == 0x402): #mind stat up
+                            new_stat_value = 40
+                            stat_up_found = 0
+                            for i in range(len(ctx.items_received)):
+                                if(ctx.items_received[i][0] == item_id):
+                                    stat_up_found = stat_up_found + 1
+                            stat_up_found = min(stat_up_found, ctx.slot_data["level_bundles"])
+                            if(ctx.slot_data["stat_gain_modifier"] == 1): #Early
+                                new_stat_value = 6 + round(38 * math.sqrt(stat_up_found / ctx.slot_data["level_bundles"]))
+                            elif(ctx.slot_data["stat_gain_modifier"] == 2): #Vanilla
+                                new_stat_value = mind_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])]
+                            else: #Enhanced
+                                new_stat_value = mind_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])] + round(math.pow(stat_up_found / ctx.slot_data["level_bundles"], 10) * 100)
+                            if(new_stat_value != self.curr_mind_stat):
+                                logger.info("%s: %s -> %s",item_id_to_name[item_id], self.curr_mind_stat, new_stat_value)
+                                self.curr_mind_stat = new_stat_value
+                                stats_to_write = [(0x0638fe + 16 * (self.curr_mind_lvl), self.curr_mind_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                                if(self.curr_mind_lvl < 29):
+                                    stats_to_write.append((0x0638fe + 16 * (self.curr_mind_lvl + 1), self.curr_mind_stat.to_bytes(2, 'little'), MAIN_RAM))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    stats_to_write
+                                )
+                        elif(item_id == 0x403): #fusion stat up
+                            new_stat_value = 40
+                            stat_up_found = 0
+                            for i in range(len(ctx.items_received)):
+                                if(ctx.items_received[i][0] == item_id):
+                                    stat_up_found = stat_up_found + 1
+                            stat_up_found = min(stat_up_found, ctx.slot_data["level_bundles"])
+                            if(ctx.slot_data["stat_gain_modifier"] == 1): #Early
+                                new_stat_value = 4 + round(34 * math.sqrt(stat_up_found / ctx.slot_data["level_bundles"]))
+                            elif(ctx.slot_data["stat_gain_modifier"] == 2): #Vanilla
+                                new_stat_value = fusion_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])]
+                            else: #Enhanced
+                                new_stat_value = fusion_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])] + round(math.pow(stat_up_found / ctx.slot_data["level_bundles"], 10) * 100)
+                            if(new_stat_value != self.curr_fus_stat):
+                                logger.info("%s: %s -> %s",item_id_to_name[item_id], self.curr_fus_stat, new_stat_value)
+                                self.curr_fus_stat = new_stat_value
+                                stats_to_write = [(0x063906 + 16 * (self.curr_fus_lvl), self.curr_fus_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                                if(self.curr_fus_lvl < 29):
+                                    stats_to_write.append((0x063906 + 16 * (self.curr_fus_lvl + 1), self.curr_fus_stat.to_bytes(2, 'little'), MAIN_RAM))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    stats_to_write
+                                )
+                        elif(item_id == 0x404): #Lumina stat up
+                            new_stat_value = 40
+                            stat_up_found = 0
+                            for i in range(len(ctx.items_received)):
+                                if(ctx.items_received[i][0] == item_id):
+                                    stat_up_found = stat_up_found + 1
+                            stat_up_found = min(stat_up_found, ctx.slot_data["level_bundles"])
+                            if(ctx.slot_data["stat_gain_modifier"] == 1): #Early
+                                new_stat_value = 8 + round(68 * math.sqrt(stat_up_found / ctx.slot_data["level_bundles"]))
+                            elif(ctx.slot_data["stat_gain_modifier"] == 2): #Vanilla
+                                new_stat_value = lumina_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])]
+                            else: #Enhanced
+                                new_stat_value = lumina_stat[round(29.0 * stat_up_found / ctx.slot_data["level_bundles"])] + round(math.pow(stat_up_found / ctx.slot_data["level_bundles"], 10) * 1000)
+                            if(new_stat_value != self.curr_lum_stat):
+                                logger.info("%s: %s -> %s",item_id_to_name[item_id], self.curr_lum_stat, new_stat_value)
+                                self.curr_lum_stat = new_stat_value
+                                stats_to_write = [(0x063902 + 16 * (self.curr_lum_lvl), self.curr_lum_stat.to_bytes(2, 'little'), MAIN_RAM)]
+                                if(self.curr_lum_lvl < 29):
+                                    stats_to_write.append((0x063902 + 16 * (self.curr_lum_lvl + 1), self.curr_lum_stat.to_bytes(2, 'little'), MAIN_RAM))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    stats_to_write
+                                )
                         else:
                             logger.info("unhandled item receieved %s",item_id_to_name[item_id])
                         self.received_count += 1
@@ -691,6 +856,49 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(0x0ae659, [new_core_data], MAIN_RAM)]
                             )
+                if(self.max_hp_updated == False):
+                    self.max_hp_updated = True
+                    await self.update_max_hp(ctx, self.received_count)
+            if(self.xp_gain_updated == False):
+                self.xp_gain_updated = True
+                if(ctx.slot_data["xp_gain"] != 4):
+                    if(ctx.slot_data["xp_gain"] != 1):
+                        xp_factor: float = 1.0
+                        if(ctx.slot_data["xp_gain"] == 2):
+                            xp_factor = 0.25
+                        elif(ctx.slot_data["xp_gain"] == 3):
+                            xp_factor = 0.5
+                        elif(ctx.slot_data["xp_gain"] == 5):
+                            xp_factor = 2
+                        elif(ctx.slot_data["xp_gain"] == 6):
+                            xp_factor = 4
+                        elif(ctx.slot_data["xp_gain"] == 7):
+                            xp_factor = 10
+                        elif(ctx.slot_data["xp_gain"] == 8):
+                            xp_factor = 100
+                        write_instructions = []
+                        for i in range(29):
+                            write_instructions.append((0x0638f8+16*i, math.ceil(body_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x0638fc+16*i, math.ceil(mind_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x063900+16*i, math.ceil(lumina_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x063904+16*i, math.ceil(fusion_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            write_instructions
+                        )
+                    else:
+                        write_instructions = [
+                            (0x02aa98, [0, 0, 0x2, 0x24], MAIN_RAM), #limit lvl 8
+                            (0x02aa90, [0], MAIN_RAM), #limit lvl 16
+                            (0x02aa80, [0], MAIN_RAM), #limit lvl 22
+                            (0x02aa70, [0], MAIN_RAM), #limit lvl 27
+                            (0x02aa50, [0x4a, 0x6], MAIN_RAM), #limit lvl 30 (chapter 6 check)
+                            (0x078ee4, [0] * 32, MAIN_RAM) #set lvl to 1 and xp to 0
+                        ]
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            write_instructions
+                        )
             if(self.hair_color_updated == 0):
                 curr_hair_color: bytes = (await bizhawk.read(
                     ctx.bizhawk_ctx,
@@ -1199,13 +1407,13 @@ class BFMClient(BizHawkClient):
                             )
                             if(len(self.tech_dialog[6]) == 0):
                                 for i in range(len(self.tech_checks)):
-                                    loc_id = standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i
+                                    loc_id = standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] + i
                                     if(loc_id in ctx.locations_info):
                                         self.tech_dialog[i] = await self.assemble_binary_array_for_textbox(ctx,loc_id)
                                     else:
-                                        if(not standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] in table_ids_to_hint):
+                                        if(not standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] in table_ids_to_hint):
                                             for i in range(7):
-                                                table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)
+                                                table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] + i)
                                         logger.info("no scout information found try reentering area (after taking a couple steps)")
                                         #logger.info("item 7 id %s", standard_location_name_to_id["Item 7 - Bakery"])
                                         await ctx.send_msgs([{
@@ -1912,9 +2120,9 @@ class BFMClient(BizHawkClient):
                         for i in range(30):
                             table_ids_to_hint.append(standard_location_name_to_id["Musashi - Toy Shop"] + i)
                 if(ctx.slot_data["tech_sanity"] == True):
-                    if(not standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] in table_ids_to_hint):
+                    if(not standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] in table_ids_to_hint):
                         for i in range(7):
-                            table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion - Allucaneet Castle"] + i)       
+                            table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] + i)       
                 if(ctx.slot_data["scroll_sanity"] == True):
                     if(not standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] in table_ids_to_hint):
                         for i in range(5):
@@ -2037,6 +2245,31 @@ class BFMClient(BizHawkClient):
             result.append(ctx.items_received[i][0])
         self.list_of_received_items = result
         pass
+
+    async def update_max_hp(self, ctx: "BizHawkClientContext", item_count: int):
+        curr_max_hp_bytes: bytes = (await bizhawk.read(
+            ctx.bizhawk_ctx,
+            [(0x078eb2, 2, MAIN_RAM)]
+        ))[0]
+        curr_max_hp: int = int.from_bytes(curr_max_hp_bytes, byteorder='little')
+        new_hp = ctx.slot_data["starting_hp"]
+        mayor_berry = False
+        for i in range(item_count):
+            if(ctx.items_received[i][0] == 0x0ba21b):
+                new_hp += 25
+                if(not mayor_berry):
+                    mayor_berry = True
+                    new_hp += 25
+        new_hp = min(new_hp, 500)
+        if(curr_max_hp != new_hp):
+            await bizhawk.write(
+                ctx.bizhawk_ctx,
+                [(0x078eb2, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
+            )#max hp
+            await bizhawk.write(
+                ctx.bizhawk_ctx,
+                [(0x078eb4, new_hp.to_bytes(2, 'little'), MAIN_RAM)]
+            )#current hp
 
     async def update_legendary_armor(self, ctx: "BizHawkClientContext"):
         from CommonClient import logger

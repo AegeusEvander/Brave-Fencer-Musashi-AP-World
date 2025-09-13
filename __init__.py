@@ -101,6 +101,10 @@ class BFMWorld(World):
         if(self.options.core_sanity.value == False):
             for name in location_name_groups["Core"]:
                 del self.player_location_table[name]
+        if(self.options.level_sanity.value == False or self.options.xp_gain.value == 1):
+            self.options.level_sanity.value = False
+            for name in location_name_groups["Level"]:
+                del self.player_location_table[name]
         
         if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
@@ -112,6 +116,9 @@ class BFMWorld(World):
                 self.hair_selection = hair_color_options[2]
         else:
             self.hair_selection = hair_color_options[self.options.hair_color_selection]
+
+        if(self.options.starting_hp.value == 1):
+            self.options.death_link.value = False
         
 
 
@@ -157,6 +164,7 @@ class BFMWorld(World):
             "version": __version__,
             "goal": self.options.goal.value,
             "npc_goal": self.options.npc_goal.value,
+            "starting_hp": self.options.starting_hp.value,
             "max_hp_logic": self.options.max_hp_logic.value,
             "deathlink": self.options.death_link.value,
             "hair_color": self.hair_selection,
@@ -171,6 +179,10 @@ class BFMWorld(World):
             "scroll_sanity": self.options.scroll_sanity.value,
             "sky_scroll_logic": self.options.sky_scroll_logic.value,
             "core_sanity": self.options.core_sanity.value,
+            "level_sanity": self.options.level_sanity.value,
+            "level_bundles": self.options.level_bundles.value,
+            "stat_gain_modifier": self.options.stat_gain_modifier.value,
+            "xp_gain": self.options.xp_gain.value,
             "early_skullpion": self.options.early_skullpion.value,
             "skip_minigame_ant_gondola": self.options.skip_minigame_ant_gondola.value,
             "fast_walk": self.options.fast_walk.value
@@ -211,6 +223,16 @@ class BFMWorld(World):
         if(self.options.core_sanity.value == False):
             for name in item_name_groups["Core"]:
                 del items_to_create[name] 
+        if(self.options.level_sanity.value == False or self.options.xp_gain.value == 1):
+            for name in item_name_groups["Level"]:
+                del items_to_create[name] 
+
+        if(self.options.level_sanity.value == True and self.options.xp_gain.value != 1 and self.options.level_bundles.value != 29):
+            for name in item_name_groups["Level"]:
+                items_to_create[name] = self.options.level_bundles.value
+
+        if(self.options.starting_hp.value == 1):
+            items_to_create["Longevity Berry"] = 0
 
         for item, quantity in items_to_create.items():
             for _ in range(quantity):
