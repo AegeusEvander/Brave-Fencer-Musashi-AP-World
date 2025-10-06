@@ -20,6 +20,7 @@ from .items import npc_ids, item_id_to_name, item_name_to_id, item_name_groups
 from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations, toy_shop_locations, toy_shop_fix, toy_shop_dialog, toy_shop_dialog_length, tech_fix, tech_check_locations
 from .stats import body_xp, mind_xp, lumina_xp, fusion_xp, body_stat, mind_stat, lumina_stat, fusion_stat, level_memory_ids
 import math
+import random
 from NetUtils import ClientStatus
 from collections import Counter
 import worlds._bizhawk as bizhawk
@@ -99,6 +100,9 @@ class BFMClient(BizHawkClient):
     curr_mind_stat = 6
     curr_fus_stat = 4
     curr_lum_stat = 8
+    raft_regrow_timer = 0
+    raft_hp = 4
+    elevator_active = True
 
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
@@ -876,10 +880,24 @@ class BFMClient(BizHawkClient):
                             xp_factor = 10
                         elif(ctx.slot_data["xp_gain"] == 8):
                             xp_factor = 100
+                        
+                        xp_factor_mind: float = 1.0
+                        if(ctx.slot_data["xp_gain_mind"] == 1):
+                            xp_factor_mind = xp_factor
+                        elif(ctx.slot_data["xp_gain_mind"] == 2):
+                            xp_factor_mind = 0.5
+                        elif(ctx.slot_data["xp_gain_mind"] == 4):
+                            xp_factor_mind = 2
+                        elif(ctx.slot_data["xp_gain_mind"] == 5):
+                            xp_factor_mind = 4
+                        elif(ctx.slot_data["xp_gain_mind"] == 6):
+                            xp_factor_mind = 10
+                        elif(ctx.slot_data["xp_gain_mind"] == 7):
+                            xp_factor_mind = 100
                         write_instructions = []
                         for i in range(29):
                             write_instructions.append((0x0638f8+16*i, math.ceil(body_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
-                            write_instructions.append((0x0638fc+16*i, math.ceil(mind_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x0638fc+16*i, math.ceil(mind_xp[i] / xp_factor_mind).to_bytes(2, 'little'), MAIN_RAM))
                             write_instructions.append((0x063900+16*i, math.ceil(lumina_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
                             write_instructions.append((0x063904+16*i, math.ceil(fusion_xp[i] / xp_factor).to_bytes(2, 'little'), MAIN_RAM))
                         await bizhawk.write(
@@ -1431,6 +1449,12 @@ class BFMClient(BizHawkClient):
                                             ctx.bizhawk_ctx,
                                             [(castle_dialog[i], self.tech_dialog[i], MAIN_RAM)]
                                         )
+                        if(ctx.slot_data["skip_minigame_town_on_fire"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x17f0e8, [0xb2], MAIN_RAM)]
+                            )
+
                     if(curr_location in boss_core_dialog): #At a Boss
                         if(ctx.slot_data["core_sanity"] == True):
                             for jump_id in boss_core_update[curr_location]:
@@ -1545,7 +1569,7 @@ class BFMClient(BizHawkClient):
                                                 logger.info("Could not find bell in memory report issue to developer")
                             
                         if(ctx.slot_data["core_sanity"] == True):
-                            if(self.progression_state < 0x258): #before killing Relic Keeper
+                            if(self.progression_state < 0x258 or self.progression_state > 0x276): #before killing Relic Keeper or after fixing well
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
                                     [(0x1845f4, [0,0,0,0], MAIN_RAM)] #skip over water crest updating progression state
@@ -1603,6 +1627,259 @@ class BFMClient(BizHawkClient):
                                         ctx.bizhawk_ctx,
                                         [(0x078e80, [0x60, 0x04], MAIN_RAM)] #update progression to freed from bincho
                                     )
+                    if(curr_location == 0x301b): #entering Meandering Forest
+                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                            0x0ba284, 1, MAIN_RAM
+                        )]))[0]
+                        leno_state = int.from_bytes(save_data, byteorder='little')
+                        if(leno_state > 0 and leno_state < 0xf and ctx.slot_data["leno_sniff_modifier"] != 100):
+                            snif_multiplier: float = 100.0
+                            snif_multiplier = ctx.slot_data["leno_sniff_modifier"] / snif_multiplier 
+                            write_instructions = []
+                            write_instructions.append((0x181434, math.ceil(0xb4 * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x180d40, math.ceil(0xb4 * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x180d4c, math.ceil(0xd2 * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x181488, math.ceil(0xd2 * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x180d68, math.ceil(0xf0 * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x1814a0, math.ceil(0xf0 * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x180d74, math.ceil(0x10e * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x1814ac, math.ceil(0x10e * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x180d90, math.ceil(0x12c * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x1814c4, math.ceil(0x12c * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x180d9c, math.ceil(0x14a * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            write_instructions.append((0x1814d0, math.ceil(0x14a * snif_multiplier).to_bytes(2, 'little'), MAIN_RAM))
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                write_instructions
+                            )
+                    if(curr_location == 0x3014): #entering Somnolent Forest
+                        if(ctx.slot_data["skip_minigame_follow_leno"] == True):
+                            save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                                0x0ba284, 1, MAIN_RAM
+                            )]))[0]
+                            leno_state = int.from_bytes(save_data, byteorder='little')
+                            if(leno_state > 0 and leno_state < 0x3):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba284, [0x0e], MAIN_RAM), (0x190614, [0x22, 0x30, 0x00, 0x04], MAIN_RAM)] #graveyard 0x04003022
+                                )
+                    if(curr_location == 0x302a): #rafting minigame
+                        if(ctx.slot_data["raft_difficulty"] == 2):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x17ece0, [0x0, 0x0], MAIN_RAM)] #remove damage calculation for rafting
+                            )
+                    if(curr_location == 0x1010 or curr_location == 0x1011 or curr_location == 0x301c or curr_location == 0x301d or curr_location == 0x301e or curr_location == 0x3020):
+                        if(ctx.slot_data["steamwood_timer"] != 100):
+                            await self.update_progression(ctx)
+                            if((self.progression_state < 0x0082 and self.progression_state >= 0x0078) or (self.progression_state < 0x03d4 and self.progression_state >= 0x03ca)):
+                                time_modifier = math.ceil(ctx.slot_data["steamwood_timer"] * 0x1555 / 100.0)
+                                if(ctx.slot_data["steamwood_timer"] == 1):
+                                    time_modifier = 0x25
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x14ae6c, time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #fix steamwood timer
+                                )
+                    if(curr_location == 0x301d or curr_location == 0x3020): #steamwood
+                        write_instructions = []
+                        if(ctx.slot_data["steamwood_random_valves"] == True):
+                            if(curr_location == 0x301d):#steamwood 1
+                                write_instructions.append((0x183cf8, [0x99, 0xb] * 7, MAIN_RAM)) #fix steamwood 1 valve timer
+                            else:
+                                write_instructions.append((0x184ed0, [0x99, 0xb] * 7, MAIN_RAM)) #fix steamwood 2 valve timer
+                        elif(ctx.slot_data["steamwood_valve_timer"] != 100):
+                            valve_long_timer = math.ceil(0x708 * ctx.slot_data["steamwood_valve_timer"] / 100.0).to_bytes(2, 'little')
+                            valve_short_timer = math.ceil(0x41a * ctx.slot_data["steamwood_valve_timer"] / 100.0).to_bytes(2, 'little')
+                            valve_timers = [valve_long_timer[0], valve_long_timer[1]] * 3 + [valve_short_timer[0], valve_short_timer[1]] * 2 + [valve_long_timer[0], valve_long_timer[1]] + [valve_short_timer[0], valve_short_timer[1]]
+                            if(curr_location == 0x301d):#steamwood 1
+                                write_instructions.append((0x183cf8, valve_timers, MAIN_RAM)) #fix steamwood 1 valve timer
+                            else:
+                                write_instructions.append((0x184ed0, valve_timers, MAIN_RAM)) #fix steamwood 2 valve timer
+                        if(ctx.slot_data["steamwood_disable_countdown"] == True):
+                            write_instructions.append((0x17ed0c, [0x0, 0x0], MAIN_RAM)) #remove valve countdown
+                        if(ctx.slot_data["steamwood_pressure_rise_rate"] == 2): #Faster
+                            if(curr_location == 0x301d):
+                                write_instructions.append((0x183a28, [0x4] * 4, MAIN_RAM)) #steamwood 1 pressure rise
+                            else:
+                                write_instructions.append((0x184a60, [0x4] * 4, MAIN_RAM)) #steamwood 2 pressure rise
+                        elif(ctx.slot_data["steamwood_pressure_rise_rate"] == 3): #Slower
+                            if(curr_location == 0x301d):
+                                write_instructions.append((0x183a2c, [0x3, 0x3, 0x4, 0x5], MAIN_RAM)) #steamwood 1 pressure rise
+                            else:
+                                write_instructions.append((0x184a64, [0x3, 0x3, 0x4, 0x5], MAIN_RAM)) #steamwood 2 pressure rise
+                        elif(ctx.slot_data["steamwood_pressure_rise_rate"] == 4): #Even
+                            if(curr_location == 0x301d):
+                                write_instructions.append((0x183a28, [0x3] * 8, MAIN_RAM)) #steamwood 1 pressure rise
+                            else:
+                                write_instructions.append((0x184a60, [0x3] * 8, MAIN_RAM)) #steamwood 2 pressure rise
+                        if(ctx.slot_data["steamwood_progress_lost"] != -16):
+                            write_instructions.append((0x17c598, ctx.slot_data["steamwood_progress_lost"].to_bytes(2, 'little', signed=True), MAIN_RAM))
+                        top_edge = 17
+                        bottom_edge = 68
+                        if(ctx.slot_data["steamwood_width_of_ok_pressure"] != 12):
+                            #mid_point = 74
+                            half_width = round(ctx.slot_data["steamwood_width_of_ok_pressure"] / 2)
+                            if(half_width > 16):
+                                top_edge = 0
+                            else:
+                                top_edge = top_edge - half_width
+                            bottom_edge = 96 - top_edge - ctx.slot_data["steamwood_width_of_ok_pressure"]
+                            write_instructions.append((0x17c540, (bottom_edge * -1).to_bytes(2, 'little', signed=True), MAIN_RAM)) #steamwood bottom edge calculation
+                            write_instructions.append((0x17c544, (ctx.slot_data["steamwood_width_of_ok_pressure"] + 1).to_bytes(2, 'little'), MAIN_RAM)) #steamwood top edge calculation
+                            if(curr_location == 0x301d):
+                                write_instructions.append((0x18397a, [ctx.slot_data["steamwood_width_of_ok_pressure"]], MAIN_RAM)) #steamwood 1 ok bar thickness
+                                write_instructions.append((0x183976, [top_edge+1], MAIN_RAM)) #steamwood 1 top edge
+                            else:
+                                write_instructions.append((0x1849b2, [ctx.slot_data["steamwood_width_of_ok_pressure"]], MAIN_RAM)) #steamwood 2 ok bar thickness
+                                write_instructions.append((0x1849ae, [top_edge+1], MAIN_RAM)) #steamwood 2 top edge
+                        if(ctx.slot_data["steamwood_valve_progress_modifier"] != 100):
+                            if(curr_location == 0x301d):
+                                write_instructions.append((0x183a30, [
+                                    math.ceil(0x30 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x28 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x20 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x18 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0)
+                                ], MAIN_RAM)) #steamwood 1 valve progress
+                            else:
+                                write_instructions.append((0x184a68, [
+                                    math.ceil(0x30 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x28 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x20 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x18 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0),
+                                    math.ceil(0x10 * ctx.slot_data["steamwood_valve_progress_modifier"] / 100.0)
+                                ], MAIN_RAM)) #steamwood 2 valve progress
+                        if(ctx.slot_data["steamwood_no_fail_over_pressure"] == True):
+                            write_instructions.append((0x17c6dc, [97 - top_edge], MAIN_RAM)) #check if over pressure
+                            write_instructions.append((0x17c6e4, [bottom_edge, 0x00, 0x02, 0x24, 0x0e, 0x02, 0x82], MAIN_RAM)) #set new pressure level
+                        #li $v0, 0x0001
+                        #noop
+                        #addu $v0, $a0
+                        #bne $v1, $v0, 0x8017dbf4
+                        if(curr_location == 0x301d):
+                            write_instructions.append((0x17dbc4, [0x01, 0x00 , 0x02, 0x24, 0x00, 0x00, 0x00, 0x00, 0x21, 0x10, 0x44, 0x00, 0x08, 0x00, 0x62, 0x14], MAIN_RAM)) #fix if the correct valve was completed
+                        else:
+                            write_instructions.append((0x17df00, [0x01, 0x00 , 0x02, 0x24, 0x00, 0x00, 0x00, 0x00, 0x21, 0x10, 0x44, 0x00, 0x08, 0x00, 0x62, 0x14], MAIN_RAM)) #fix if the correct valve was completed
+
+                        if(curr_location == 0x301d):
+                            write_instructions.append((0x17dbb0, [0x01, 0x00 , 0x02, 0x24], MAIN_RAM)) #fix check if current valve is less than next valve
+                        else:
+                            write_instructions.append((0x17deec, [0x01, 0x00 , 0x02, 0x24], MAIN_RAM)) #fix check if current valve is less than next valve
+                        write_instructions.append((0x17db40, [0x00, 0x00 , 0x00, 0x00, 0x02, 0x00, 0x63, 0x24], MAIN_RAM)) #fix check if current valve is less than active valve
+                        valve_order = [2, 3, 4, 5, 6, 7]
+                        if(ctx.slot_data["steamwood_number_valves"] == 1):
+                            valve_order = [8]
+                            write_instructions.append((0x0ba286, [0x08], MAIN_RAM)) #fix active valve
+                        elif(ctx.slot_data["steamwood_number_valves"] == 2):
+                            valve_order = [1, 8]
+                        else:
+                            if(ctx.slot_data["steamwood_random_valves"] == True):
+                                random.shuffle(valve_order)
+                            while(len(valve_order) + 2 > ctx.slot_data["steamwood_number_valves"]):
+                                valve_order.pop(random.randrange(len(valve_order))) 
+                            valve_order = [1] + valve_order + [8]
+                        valve_update = [8] * 7
+
+                        for i in range(len(valve_order)-1):
+                            # 1 7 2 5 3 4 6 8
+                            # 1 2 3 4 5 6 8
+                            valve_update[valve_order[i]-1] = valve_order[i+1]
+                        #logger.info("valve order %s", valve_order)
+                        #logger.info("valve update %s", valve_update)
+                        if(curr_location == 0x301d):
+                            write_instructions.append((0x183bc5, valve_update, MAIN_RAM)) #steamwood 1 valve order
+                        else:
+                            write_instructions.append((0x184c59, valve_update, MAIN_RAM)) #steamwood 2 valve order
+
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            write_instructions
+                        )
+                    if(curr_location == 0x302c or curr_location == 0x3029):
+                        if(ctx.slot_data["aqualin_timer"] != 100):
+                            await self.update_progression(ctx)
+                            if(self.progression_state < 0x012c and self.progression_state >= 0x00f0):
+                                time_modifier = math.ceil(ctx.slot_data["aqualin_timer"] * 0x1555 / 100.0)
+                                if(ctx.slot_data["aqualin_timer"] == 1):
+                                    time_modifier = 0x25
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x14ae6c, time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #fix aqualin timer
+                                )
+                    if(ctx.slot_data["restaurant_teleport_maze_no_fail"] == True):
+                        if(curr_location == 0x3032):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x18f638, [0x32, 0x30, 0x05, 0x00], MAIN_RAM)] #fix left teleporter first room
+                            )
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x18f680, [0x32, 0x30, 0x08, 0x00], MAIN_RAM)] #fix left teleporter third room
+                            )
+                        if(curr_location == 0x3033):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x19061c, [0x33, 0x30, 0x08, 0x00], MAIN_RAM)] #fix right teleporter second room
+                            )
+                    if(curr_location == 0x3051):
+                        if(ctx.slot_data["church_fight_time_modifier"] != 100):
+                            time_modifier = math.ceil(ctx.slot_data["church_fight_time_modifier"] * 0x1555 / 100.0)
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x14ae6c, time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #fix steamwood timer
+                            )
+                    if(curr_location == 0x3000): #path to castle
+                        if(ctx.slot_data["skip_minigame_town_on_fire"] == True):
+                            await self.update_progression(ctx)
+                            if(self.progression_state < 0x2b2 and self.progression_state >= 0x294):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x078e80, [0xb2, 0x02], MAIN_RAM)]
+                                )
+                    if(curr_location == 0x301b): #meandering forest
+                        if(ctx.slot_data["skip_to_frost_palace"] == True):
+                            await self.update_progression(ctx)
+                            if(self.progression_state >= 0x2f0):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x18adc4, [0x68, 0x30, 0x00, 0x04], MAIN_RAM)] #0x04003068 frost palace gates
+                                )
+                    if(curr_location == 0x3090): #Ben Fight
+                        if(ctx.slot_data["skip_over_calendar_maze"] == True or ctx.slot_data["soda_fountain_boss_rush"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x1858c4, [0x88, 0x30, 0x00, 0x00], MAIN_RAM)] #0x00003088 ed fight
+                            )
+                    if(curr_location == 0x3093): #sky island to soda fountain cutscene
+                        if(ctx.slot_data["soda_fountain_boss_rush"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x1857bc, [0x90, 0x30, 0x00, 0x00], MAIN_RAM)] #0x00003090 ben fight
+                            )
+                    if(curr_location == 0x3088): #ed fight
+                        if(ctx.slot_data["soda_fountain_boss_rush"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x188904, [0x8d, 0x30, 0x00, 0x00], MAIN_RAM)] #0x0000308d topo fight
+                            )
+                            """
+                    if(curr_location == 0x308d): #topo fight
+                        if(ctx.slot_data["soda_fountain_boss_rush"] == True):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x1886a4, [0x8f, 0x30, 0x00, 0x00], MAIN_RAM)] #0x0000308f tod fight
+                            )"""
+                    #if(curr_location == 0x2017)
+
+                                    
+
+
 
                         """
                         await bizhawk.write(
@@ -1773,6 +2050,137 @@ class BFMClient(BizHawkClient):
                 self.old_step_count = step_count
 
             if(self.level_transition == 0):
+                if(curr_location == 0x300b and ctx.slot_data["boulder_chase_zoom"] != 2): #running from boulder
+                    self.counter_for_delayed_check += 1
+                    if(self.counter_for_delayed_check>4):
+                        self.counter_for_delayed_check = 0
+                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                            0x12695C, 2, MAIN_RAM
+                        )]))[0]
+                        zoom = int.from_bytes(save_data, byteorder='little')
+                        if(zoom == 0x64):
+                            logger.info("applying zoom")
+                            if(ctx.slot_data["boulder_chase_zoom"] == 1):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [((0x12695C), [0x30], MAIN_RAM)] 
+                                )
+                            else:
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [((0x12695C), [0x20, 0x1], MAIN_RAM)] 
+                                )
+                if(curr_location == 0x301d or curr_location == 0x3020): #steamwood
+                    if(ctx.slot_data["steamwood_elevator_logic"] != 1): #not vanilla elevator
+                        self.counter_for_delayed_check += 1
+                        if(self.counter_for_delayed_check>2):
+                            self.counter_for_delayed_check = 0
+                            save_data: bytes = bytes([0,0,0])
+                            if(curr_location == 0x301d):
+                                save_data = (await bizhawk.read(ctx.bizhawk_ctx, [(0x120744, 1, MAIN_RAM),(0x126b62, 2, MAIN_RAM),(0x1206d2, 1, MAIN_RAM),(0x120704, 1, MAIN_RAM)]))
+                            else:
+                                save_data = (await bizhawk.read(ctx.bizhawk_ctx, [(0x120638, 1, MAIN_RAM),(0x126b62, 2, MAIN_RAM),(0x1205c6, 1, MAIN_RAM),(0x1205f8, 1, MAIN_RAM)]))
+                            is_musashi_on_elevator = int.from_bytes(save_data[0], byteorder='little')
+                            #logger.info("elevator data %s", save_data)
+                            #is_musashi_on_elevator: int = save_data[0]
+                            musashi_z = int.from_bytes(save_data[1], byteorder='little')
+                            elevator_state = int.from_bytes(save_data[2], byteorder='little')
+                            elevator_floor = int.from_bytes(save_data[3], byteorder='little')
+                            musashi_floor = 1
+                            if(musashi_z > 0xfdc0):
+                                musashi_floor = 1
+                            elif(musashi_z > 0xfbc0):
+                                musashi_floor = 2
+                            elif(musashi_z > 0xf9c0):
+                                musashi_floor = 3
+                            if(self.elevator_active == False and (is_musashi_on_elevator == 1 or (musashi_floor != elevator_floor and elevator_state == 1))):
+                                self.elevator_active = True
+                                #logger.info("Musashi floor %s", musashi_floor)
+                                #logger.info("Elevator floor %s", elevator_floor)
+                                #logger.info("Restarting Elevator")
+                                if(curr_location == 0x301d):
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [((0x17f6cc), [0xff, 0xff], MAIN_RAM)] 
+                                    )
+                                else:
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [((0x180704), [0xff, 0xff], MAIN_RAM)] 
+                                    )
+                            elif(self.elevator_active == True and is_musashi_on_elevator == 0):
+                                if(musashi_floor == 1):
+                                    if(elevator_state == 7):
+                                        #logger.info("Stopping Elevator")
+                                        self.elevator_active = False
+                                        if(curr_location == 0x301d):
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [((0x17f6cc), [0x00, 0x00], MAIN_RAM)] 
+                                            )
+                                        else:
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                [((0x180704), [0x00, 0x00], MAIN_RAM)] 
+                                            )
+                                elif(ctx.slot_data["steamwood_elevator_logic"] == 2):
+                                    if(musashi_floor == 2):
+                                        if(elevator_state == 2):
+                                            #logger.info("Stopping Elevator")
+                                            self.elevator_active = False
+                                            if(curr_location == 0x301d):
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x17f6cc), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+                                            else:
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x180704), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+                                    elif(musashi_floor == 3):
+                                        if(elevator_state == 3):
+                                            #logger.info("Stopping Elevator")
+                                            self.elevator_active = False
+                                            if(curr_location == 0x301d):
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x17f6cc), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+                                            else:
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x180704), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+                                elif(ctx.slot_data["steamwood_elevator_logic"] == 3):
+                                    if(musashi_floor == 2):
+                                        if(elevator_state == 6):
+                                            self.elevator_active = False
+                                            if(curr_location == 0x301d):
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x17f6cc), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+                                            else:
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x180704), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+                                    elif(musashi_floor == 3):
+                                        if(elevator_state == 5):
+                                            self.elevator_active = False
+                                            if(curr_location == 0x301d):
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x17f6cc), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+                                            else:
+                                                await bizhawk.write(
+                                                    ctx.bizhawk_ctx,
+                                                    [((0x180704), [0x00, 0x00], MAIN_RAM)] 
+                                                )
+
+
                 if(curr_location == 0x3060 or curr_location == 0x3062 or curr_location == 0x305d or curr_location == 0x305e or curr_location == 0x3063):
                     self.counter_for_delayed_check += 1
                     if(self.counter_for_delayed_check>9):
@@ -1788,9 +2196,9 @@ class BFMClient(BizHawkClient):
                                         ctx.bizhawk_ctx,
                                         [(dialog_id+4, barray, MAIN_RAM)]
                                     )
-                elif(curr_location == 0x3029 and self.check_for_logs): #Twinpeak second peak check if raft needs updated
+                if(curr_location == 0x3029 and self.check_for_logs): #Twinpeak second peak check if raft needs updated
                     self.counter_for_delayed_check += 1
-                    if(self.counter_for_delayed_check>19):
+                    if(self.counter_for_delayed_check>12):
                         self.counter_for_delayed_check = 0
                         await self.update_inventory(ctx)
                         if(0x4e in self.curr_inventory and 0x50 in self.curr_inventory and 0x51 in self.curr_inventory and 0x52 in self.curr_inventory):
@@ -1811,6 +2219,41 @@ class BFMClient(BizHawkClient):
                                         ctx.bizhawk_ctx,
                                         [((0x0ba1e7+i), [0x0], MAIN_RAM)] 
                                     )
+                if(curr_location == 0x302a): #rafting minigame
+                    if(ctx.slot_data["raft_difficulty"] == 3 or ctx.slot_data["raft_hp"] != 4):
+                        self.counter_for_delayed_check += 1
+                        if(self.counter_for_delayed_check > 4):
+                            self.counter_for_delayed_check = 0
+                            save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(0x0ba287, 1, MAIN_RAM),(0x17ec48, 1, MAIN_RAM)]))
+                            self.raft_hp = int.from_bytes(save_data[0], byteorder='little')
+                            #logger.info("log data %s", save_data)
+                            #self.raft_hp = save_data[0]
+                            if(ctx.slot_data["raft_hp"] != 4 and int.from_bytes(save_data[1], byteorder='little') == 4):
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    [(0x0ba287, [ctx.slot_data["raft_hp"]], MAIN_RAM), (0x17ec48, [ctx.slot_data["raft_hp"]], MAIN_RAM)] #fix starting raft hp
+                                )
+                            if(ctx.slot_data["raft_difficulty"] == 3):
+                                self.raft_regrow_timer += 1 
+                                if(self.raft_hp == 4):
+                                    self.raft_regrow_timer = 0
+                                if(self.raft_regrow_timer >= ctx.slot_data["raft_regrow"]):
+                                    self.raft_regrow_timer = 0
+                                    await bizhawk.write(
+                                        ctx.bizhawk_ctx,
+                                        [(0x0ba287, [self.raft_hp + 1], MAIN_RAM)] #add a log
+                                    )
+
+                    """if(ctx.slot_data["skip_minigame_follow_leno"] == True):
+                        save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+                            0x0ba284, 1, MAIN_RAM
+                        )]))[0]
+                        leno_state = int.from_bytes(save_data, byteorder='little')
+                        if(leno_state > 0 and leno_state < 0x3):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba284, [0x0e], MAIN_RAM), (0x190614, [0x22, 0x30, 0x00, 0x04], MAIN_RAM)] #graveyard 0x04003022
+                            )"""
                 if(self.check_if_lumina_was_found):
                     if(ctx.slot_data["lumina_randomzied"] == True):
                         save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(

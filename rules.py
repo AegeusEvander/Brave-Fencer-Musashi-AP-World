@@ -235,7 +235,7 @@ def set_location_rules(world: "BFMWorld") -> None:
         set_rule(world.get_location("Earth Scroll - Twinpeak First Peak"),
             lambda state: state.has("Bracelet", player) and has_lumina(state, world))
     set_rule(world.get_location("Rock Chest - Twinpeak Second Peak"),
-        lambda state: has_earth_scroll(state, world)) #add sky scroll + double jump stuff here
+        lambda state: has_earth_scroll(state, world) and (has_lumina(state, world) or has_sky_scroll_complex(state, world))) #add sky scroll + double jump stuff here
     set_rule(world.get_location("Bracelet Chest - Twinpeak Entrance"),
         lambda state: has_lumina(state, world) and (has_bread(state, world) or state.has("Bracelet", player)) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     set_rule(world.get_location("200 Drans Chest - Twinpeak Path to Skullpion"),
@@ -258,9 +258,9 @@ def set_location_rules(world: "BFMWorld") -> None:
         set_rule(world.get_location("Steel Golem - Toy Shop"),
             lambda state: state.has_any({"Red Eye", "Red Shoes"}, player) or has_sky_scroll_complex(state, world))
         set_rule(world.get_location("GiAnt - Toy Shop"),
-            lambda state: has_wind_scroll(state, world))
+            lambda state: has_wind_scroll(state, world) and has_fire_boss_core(state, world))
         set_rule(world.get_location("Queen Ant - Toy Shop"),
-            lambda state: has_wind_scroll(state, world))
+            lambda state: has_wind_scroll(state, world) and has_fire_boss_core(state, world))
     if(options.tech_sanity.value == True):
         set_rule(world.get_location("Improved Fusion (Artisan) - Allucaneet Castle"),
             lambda state: state.has("Artisan", player))

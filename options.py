@@ -94,7 +94,7 @@ class GroceryRevive(Toggle):
     internal_name = "grocery_s_revive"
     display_name = "Grocery S-Revive"
 
-class GrocerySanityHealLogic(Toggle):
+class GrocerySanityHealLogic(DefaultOnToggle):
     """
     Require either C-Drink or W-Gel logically before being required to defeat a Crest Guardian (only relevant when Grocery Sanity is 'true')
     """
@@ -195,6 +195,22 @@ class XPGain(Choice):
     option_one_hundred_fold = 8
     default = 6
 
+class XPGainMind(Choice):
+    """
+    Amount to multiply XP receieved for Mind, higher multiplier is faster leveling. Mind is gained by taking steps which can be a slow process to get to max level. Consider a high XP gain overall or at least a higher xp gain for Mind
+    defaults to the same multiplier chosen in xp_gain
+    """
+    internal_name = "xp_gain_mind"
+    display_name = "XP Gain Multiplier for Mind"
+    option_same_as_above = 1
+    option_half = 2
+    option_vanilla = 3
+    option_double = 4
+    option_quadruple = 5
+    option_ten_fold = 6
+    option_one_hundred_fold = 7
+    default = 1
+
 class EarlySkullpion(Toggle):
     """
     Add the NPCs required for Skullpion, Lumina (if randomized), and Bracelet to the early generation (Will likely place in Sphere 1, this setting is only recommended for multiworld generations to avoid being stuck in chapter 2)
@@ -202,12 +218,272 @@ class EarlySkullpion(Toggle):
     internal_name = "early_skullpion"
     display_name = "Early Skullpion"
 
+class BoulderChaseZoomLevel(Choice):
+    """
+    slightly change zoom level during Chapter 1 boulder chase sequence
+    """
+    internal_name = "boulder_chase_zoom"
+    display_name = "Boulder Chase Zoom Level"
+    option_tight = 1
+    option_vanilla = 2
+    option_wide = 3
+    default = 2
+
+class LenoSniffModifier(Range):
+    """
+    Modify how long Leno spends sniffing when attempting to find the path to the graveyard
+    10 -> 10% of the vanilla time
+    100 -> 100% vanilla
+    200 -> 200% spend twice the time
+    """
+    internal_name = "leno_sniff_modifier"
+    display_name = "Leno Sniff Modifier"
+    range_start = 10
+    range_end = 200
+    default = 100
+
+class SkipMinigameFollowLeno(Toggle):
+    """
+    Skip over the minigame follow Leno through meandering forest to get to the graveyard
+    Going into meandering forest with Leno will instead take you directly to the graveyard
+    """
+    internal_name = "skip_minigame_follow_leno"
+    display_name = "Skip Minigame Follow Leno"
+
+class RaftStartingHP(Range):
+    """
+    How many logs to start with when doing the rafting minigame
+    """
+    internal_name = "raft_hp"
+    display_name = "Raft Starting HP"
+    range_start = 1
+    range_end = 4
+    default = 4
+
+class RaftDifficulty(Choice):
+    """
+    Adjust the difficulty for the rafting minigame
+    Vanilla - No adjustments
+    Invincible - Never lose logs
+    Regrow Logs - Regain logs after a period of time
+    """
+    internal_name = "raft_difficulty"
+    display_name = "Raft Difficulty"
+    option_vanilla = 1
+    option_invincible = 2
+    option_regrow_logs = 3
+    default = 1
+
+class RaftRegrow(Range):
+    """
+    Time before regrowing a log during rafting (needs difficulty set to regrow logs to work)
+    # -> time in seconds before regrowing a log
+    logs that are regained are currently invisible
+    """
+    internal_name = "raft_regrow"
+    display_name = "Raft Regrow"
+    range_start = 1
+    range_end = 50
+    default = 20
+
+class SteamwoodTimerModifier(Range):
+    """
+    Modify how fast the 24 hour timer for Steamwood ticks down (both first and second visit)
+    1 -> 1% of the vanilla time (roughly IRL time)
+    100 -> 100% vanilla
+    150 -> 150% timer ticks down 50% faster
+    """
+    internal_name = "steamwood_timer"
+    display_name = "Steamwood Timer Modifier"
+    range_start = 1
+    range_end = 150
+    default = 100
+
+class SteamwoodValveTimeModifier(Range):
+    """
+    Modify the starting timer inbetween valves for Steamwood ticks down (both first and second visit)
+    90 -> 90% of the vanilla time to complete the next valve (harder)
+    100 -> 100% vanilla
+    165 -> 165% timer starts 65% higher
+    """
+    internal_name = "steamwood_valve_timer"
+    display_name = "Steamwood Valve Time Modifier"
+    range_start = 90
+    range_end = 165
+    default = 100
+
+class SteamwoodDisableValveCountdown(Toggle):
+    """
+    Whether to disable the countdown for the inbetween valve timer
+    """
+    internal_name = "steamwood_disable_countdown"
+    display_name = "Steamwood Disable Valve Countdown"
+
+class SteamwoodNumberOfValves(Range):
+    """
+    The number of valves to be closed to finish steamwood. In the vanilla game you need to complete all 8 but reducing this number will skip over numbers
+    If set to 1 only valve 8 will need to be completed, otherwise starts on valve 1 and finishes on valve 8
+    """
+    internal_name = "steamwood_number_valves"
+    display_name = "Steamwood Number of Valves"
+    range_start = 1
+    range_end = 8
+    default = 8
+
+class SteamwoodRandomizeValveOrder(Toggle):
+    """
+    Whether to randomize valve order or not. Randomized on entering steamwood. The lowest number valve that has a red light is the next valve to be completed.
+    """
+    internal_name = "steamwood_random_valves"
+    display_name = "Steamwood Randomize Valve Order"
+
+class SteamwoodPressureRiseRate(Choice):
+    """
+    Adjust the rate of pressure gain on some valves
+    Vanilla - No adjustments
+    Faster - Valves 1 through 4 will have the same pressure rise as vanilla valve 5
+    Slower - Valves 5 through 8 will have slightly lower pressure rise
+    Even - All valves have the same pressure rise as vanilla valve 4
+    """
+    internal_name = "steamwood_pressure_rise_rate"
+    display_name = "Steamwood Pressure Rise Rate"
+    option_vanilla = 1
+    option_Faster = 2
+    option_Slower = 3
+    option_Even = 4
+    default = 1
+
+class SteamwoodAdjustProgressLost(Range):
+    """
+    The amount of progress lost when confirming while in the red range
+    -96 -> all progress lost
+    -16 -> vanilla progress lost
+    >0 -> gain progress instead
+    """
+    internal_name = "steamwood_progress_lost"
+    display_name = "Steamwood Adjust Progress Lost"
+    range_start = -96
+    range_end = 8
+    default = -16
+
+class SteamwoodWidthOfOkPressure(Range):
+    """
+    The width in pixels of acceptable range for pressure
+    10 - slightly narrower acceptable range
+    12 - vanilla
+    96 - the entire range is green
+    """
+    internal_name = "steamwood_width_of_ok_pressure"
+    display_name = "Steamwood Width of Okay Pressure"
+    range_start = 10
+    range_end = 96
+    default = 12
+
+class SteamwoodValveProgressModifier(Range):
+    """
+    Modify the amount of progressed gained when selecting within the acceptable pressure range
+    50 -> 50% gain half progress when succeeding
+    100 -> 100% vanilla
+    200 -> 200% gain double progress when succeeding
+    """
+    internal_name = "steamwood_valve_progress_modifier"
+    display_name = "Steamwood Valve Progress Modifier"
+    range_start = 50
+    range_end = 200
+    default = 100
+
+class SteamwoodNoFailOverPressure(Toggle):
+    """
+    Vanilla overpressure resets bar to 0, if enabled will keep pressure level within acceptable levels 
+    effectively making it have no failure state after letting pressure rise
+    """
+    internal_name = "steamwood_no_fail_over_pressure"
+    display_name = "Steamwood No fail Over Pressure"
+
+class SteamwoodElevatorLogic(Choice):
+    """
+    Adjust the logic for the elevator
+    Vanilla - No adjustments
+    Patient - Elevator will wait until you step on it before proceeding to the next floor (may need to cycle up and down first)
+    Troll - Elevator will wait until you step on it before proceeding downwards (may need to cycle up and down first)
+    """
+    internal_name = "steamwood_elevator_logic"
+    display_name = "Steamwood Elevator Logic"
+    option_vanilla = 1
+    option_patient = 2
+    option_troll = 3
+    default = 1
+
+class AqualinTimerModifier(Range):
+    """
+    Modify how fast the 12 hour timer for collecting Aqualin ticks down
+    1 -> 1% of the vanilla time (roughly IRL time)
+    100 -> 100% vanilla
+    150 -> 150% timer ticks down 50% faster
+    """
+    internal_name = "aqualin_timer"
+    display_name = "Aqualin Timer Modifier"
+    range_start = 1
+    range_end = 150
+    default = 100
+
+class RestaurantTeleportMazeNoFail(Toggle):
+    """
+    Vanilla logic for picking the wrong teleporter is to send Musashi back to the start or much earlier part of the dungeon
+    Enabling this makes picking the wrong teleport send Musashi back to the start of the same room until the correct teleport is selected
+    """
+    internal_name = "restaurant_teleport_maze_no_fail"
+    display_name = "Restaurant Teleport Maze No Fail"
+
+class ChurchFightTimeModifier(Range):
+    """
+    Modify how fast the day timer for collecting Aqualin ticks down
+    50 -> 50% time progresses at half speed
+    100 -> 100% vanilla
+    600 -> 600% time progresses 6x faster than vanilla (may still need to move to not lose)
+    """
+    internal_name = "church_fight_time_modifier"
+    display_name = "Church Fight Time Modifier"
+    range_start = 50
+    range_end = 600
+    default = 100
+
+class SkipTownOnFireMinigame(Toggle):
+    """
+    Skip over the minigame to extinguish the town's fire with water scroll
+    """
+    internal_name = "skip_minigame_town_on_fire"
+    display_name = "Skip Minigame Town On Fire"
+
+class SkipToFrostPalace(DefaultOnToggle):
+    """
+    If enabled, after reaching Frost Palace for the first time, Musashi can skip Meandering Forest Maze by going up on the first screen to get to Frost Palace
+    """
+    internal_name = "skip_to_frost_palace"
+    display_name = "Skip to Frost Palace"
+
 class SkipMinigameAntGondola(Toggle):
     """
-    Skip over the minigame get through the mines to reach the Wind Crest Guardian (still need to turn on the power and hop in the basket)
+    Skip over the minigame to get through the mines to reach the Wind Crest Guardian (still need to turn on the power and hop in the basket)
     """
     internal_name = "skip_minigame_ant_gondola"
     display_name = "Skip Minigame Ant Gondola"
+
+class SkipSodaFountainCalendarMaze(Toggle):
+    """
+    If enabled, skip over the rotating door maze in Soda Fountain where Musashi needs to reference the calendar to find the right path (loading a save might still bring you to the begining of the maze)
+    """
+    internal_name = "skip_over_calendar_maze"
+    display_name = "Skip Over Calendar Maze"
+
+class SodaFountainBossRush(Toggle):
+    """
+    If enabled, skip over all areas that are not a boss fight (no extra healing from chests or enemy drops)
+    cutscene intro -> Ben Fight -> Ed Fight -> Topo Fight? -> ToD -> DL
+    don't mash through cutscene or it wont apply the fix to connect to Ben
+    """
+    internal_name = "soda_fountain_boss_rush"
+    display_name = "Soda Fountain Boss Rush"
 
 class FastWalk(Toggle):
     """
@@ -261,8 +537,33 @@ class BFMOptions(PerGameCommonOptions):
     level_bundles: LevelBundles
     stat_gain_modifier: StatGainModifier
     xp_gain: XPGain
+    xp_gain_mind: XPGainMind
     early_skullpion: EarlySkullpion
+    boulder_chase_zoom: BoulderChaseZoomLevel
+    leno_sniff_modifier: LenoSniffModifier
+    skip_minigame_follow_leno: SkipMinigameFollowLeno
+    raft_hp: RaftStartingHP
+    raft_difficulty: RaftDifficulty
+    raft_regrow: RaftRegrow
+    steamwood_timer: SteamwoodTimerModifier
+    steamwood_valve_timer: SteamwoodValveTimeModifier
+    steamwood_disable_countdown: SteamwoodDisableValveCountdown
+    steamwood_number_valves: SteamwoodNumberOfValves
+    steamwood_random_valves: SteamwoodRandomizeValveOrder
+    steamwood_pressure_rise_rate: SteamwoodPressureRiseRate
+    steamwood_progress_lost: SteamwoodAdjustProgressLost
+    steamwood_width_of_ok_pressure: SteamwoodWidthOfOkPressure
+    steamwood_valve_progress_modifier: SteamwoodValveProgressModifier
+    steamwood_no_fail_over_pressure: SteamwoodNoFailOverPressure
+    steamwood_elevator_logic: SteamwoodElevatorLogic
+    aqualin_timer: AqualinTimerModifier
+    restaurant_teleport_maze_no_fail: RestaurantTeleportMazeNoFail
+    church_fight_time_modifier: ChurchFightTimeModifier
+    skip_minigame_town_on_fire: SkipTownOnFireMinigame
+    skip_to_frost_palace: SkipToFrostPalace
     skip_minigame_ant_gondola: SkipMinigameAntGondola
+    skip_over_calendar_maze: SkipSodaFountainCalendarMaze
+    soda_fountain_boss_rush: SodaFountainBossRush
     death_link: DeathLink
     fast_walk: FastWalk
     hair_color_selection: HairColor
