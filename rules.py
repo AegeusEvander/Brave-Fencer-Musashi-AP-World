@@ -187,7 +187,7 @@ def set_region_rules(world: "BFMWorld") -> None:
     world.get_entrance("Upper Mines -> Upper Mines Behind Posion").access_rule = \
         lambda state: has_wind_scroll(state, world)
     world.get_entrance("Steamwood Forest -> Sky Island").access_rule = \
-        lambda state: has_earth_scroll(state, world) and has_water_scroll(state, world) and has_fire_scroll(state, world) and has_wind_scroll(state, world) and has_wind_boss_core(state, world) and has_earth_boss_core(state, world) and (can_double_jump(state, world) or has_sky_scroll(state, world))
+        lambda state: has_earth_scroll(state, world) and has_water_scroll(state, world) and has_fire_scroll(state, world) and has_wind_scroll(state, world) and has_wind_boss_core(state, world) and has_earth_boss_core(state, world) and state.has("Bracelet", player) and (can_double_jump(state, world) or has_sky_scroll(state, world))
     world.get_entrance("Sky Island -> Soda Fountain").access_rule = \
         lambda state: has_all_scrolls(state, world) and can_double_jump(state, world) and has_lumina(state, world) and state.has("Bracelet", player) and has_hp_for_soda_fountain(state, world) and has_ex_drink(state, world)         
 
@@ -208,7 +208,7 @@ def set_location_rules(world: "BFMWorld") -> None:
     set_rule(world.get_location("Minku - Twinpeak End of Stream"),
         lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     set_rule(world.get_location("Minku - Steamwood Forest"),
-        lambda state: has_earth_boss_core(state, world) and has_earth_scroll(state, world))
+        lambda state: has_earth_boss_core(state, world) and has_earth_scroll(state, world) and state.has("Bracelet", player))
     set_rule(world.get_location("Minku - Somnolent Forest"),
         lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     if(options.bakery_sanity.value == True):

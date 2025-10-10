@@ -1696,7 +1696,10 @@ class BFMClient(BizHawkClient):
                             else:
                                 write_instructions.append((0x184ed0, valve_timers, MAIN_RAM)) #fix steamwood 2 valve timer
                         if(ctx.slot_data["steamwood_disable_countdown"] == True):
-                            write_instructions.append((0x17ed0c, [0x0, 0x0], MAIN_RAM)) #remove valve countdown
+                            if(curr_location == 0x301d):#steamwood 1
+                                write_instructions.append((0x17ed0c, [0x0, 0x0], MAIN_RAM)) #remove valve countdown
+                            else:
+                                write_instructions.append((0x17f4d8, [0x0, 0x0], MAIN_RAM)) #remove valve countdown
                         if(ctx.slot_data["steamwood_pressure_rise_rate"] == 2): #Faster
                             if(curr_location == 0x301d):
                                 write_instructions.append((0x183a28, [0x4] * 4, MAIN_RAM)) #steamwood 1 pressure rise
@@ -1868,8 +1871,44 @@ class BFMClient(BizHawkClient):
                                 ctx.bizhawk_ctx,
                                 [(0x188904, [0x8d, 0x30, 0x00, 0x00], MAIN_RAM)] #0x0000308d topo fight
                             )
-                            """
                     if(curr_location == 0x308d): #topo fight
+                        if(ctx.slot_data["topo_dance_battle_logic"] != 1):
+                            topo_moves: List[int] = []
+                            if(ctx.slot_data["topo_dance_battle_logic"] == 2):
+                                #new_core_checks: List[bool] = [val & 0b10000000 == 0b10000000 for val in save_data] 
+                                simple_moves = [2, 0, 3, 1] * 6
+                                for _ in range(3):
+                                    flip = random.randint(0, 3)
+                                    if(flip > 0):
+                                        simple_moves.reverse()
+                                        #logger.info("reverse %s", simple_moves)
+                                    offset = random.randint(0, 3)
+                                    topo_moves = topo_moves + simple_moves[offset:offset+17]
+                            else:
+                                topo_moves = [random.randint(0,3) for _ in range(51)]
+                            
+                            topo_addresses = [
+                                0x188a7c,
+                                0x188b34,
+                                0x188bec
+                            ]
+                            musashi_addresses = [
+                                0x188aa4,
+                                0x188b5c,
+                                0x188c14
+                            ]
+                            write_instructions = []
+                            for i in range(3):
+                                for j in range(17):
+                                    write_instructions.append((topo_addresses[i]+j*2, [topo_moves[i*17+j]], MAIN_RAM))
+                                    write_instructions.append((musashi_addresses[i]+j*8, [topo_moves[i*17+j]], MAIN_RAM))
+                            #logger.info("all moves %s", topo_moves)
+                            logger.info("writing Topo Dance Moves")
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                write_instructions
+                            )
+                            """
                         if(ctx.slot_data["soda_fountain_boss_rush"] == True):
                             await bizhawk.write(
                                 ctx.bizhawk_ctx,

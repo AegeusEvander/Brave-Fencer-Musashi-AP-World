@@ -209,6 +209,7 @@ class BFMWorld(World):
             "skip_to_frost_palace": self.options.skip_to_frost_palace.value,
             "skip_minigame_ant_gondola": self.options.skip_minigame_ant_gondola.value,
             "skip_over_calendar_maze": self.options.skip_over_calendar_maze.value,
+            "topo_dance_battle_logic": self.options.topo_dance_battle_logic.value,
             "soda_fountain_boss_rush": self.options.soda_fountain_boss_rush.value,
             "fast_walk": self.options.fast_walk.value
         }

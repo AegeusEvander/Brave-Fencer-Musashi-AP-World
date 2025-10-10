@@ -476,6 +476,20 @@ class SkipSodaFountainCalendarMaze(Toggle):
     internal_name = "skip_over_calendar_maze"
     display_name = "Skip Over Calendar Maze"
 
+class TopoDanceBattleLogic(Choice):
+    """
+    Adjust the logic the pattern used by Topo
+    Vanilla - No adjustments
+    Simple - Easy pattern that is just clockwise or counter-clockwise
+    Random - A completely random sequence will be generated on entering room
+    """
+    internal_name = "topo_dance_battle_logic"
+    display_name = "Topo Dance Battle Logic"
+    option_vanilla = 1
+    option_simple = 2
+    option_random = 3
+    default = 1
+
 class SodaFountainBossRush(Toggle):
     """
     If enabled, skip over all areas that are not a boss fight (no extra healing from chests or enemy drops)
@@ -563,6 +577,7 @@ class BFMOptions(PerGameCommonOptions):
     skip_to_frost_palace: SkipToFrostPalace
     skip_minigame_ant_gondola: SkipMinigameAntGondola
     skip_over_calendar_maze: SkipSodaFountainCalendarMaze
+    topo_dance_battle_logic: TopoDanceBattleLogic
     soda_fountain_boss_rush: SodaFountainBossRush
     death_link: DeathLink
     fast_walk: FastWalk
