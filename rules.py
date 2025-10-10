@@ -206,11 +206,11 @@ def set_location_rules(world: "BFMWorld") -> None:
     add_rule(world.get_location("Weaver Bincho - Twinpeak Second Peak"),
         lambda state: can_fight_skullpion(state, world) or has_sky_scroll_simple(state, world)) 
     set_rule(world.get_location("Minku - Twinpeak End of Stream"),
-        lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
+        lambda state: has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     set_rule(world.get_location("Minku - Steamwood Forest"),
         lambda state: has_earth_boss_core(state, world) and has_earth_scroll(state, world) and state.has("Bracelet", player))
     set_rule(world.get_location("Minku - Somnolent Forest"),
-        lambda state: can_fight_skullpion(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
+        lambda state: has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     if(options.bakery_sanity.value == True):
         set_rule(world.get_location("Item 6 (JamBread) - Bakery"),
             lambda state: can_fight_skullpion(state, world) and has_water_scroll(state, world))
@@ -239,7 +239,7 @@ def set_location_rules(world: "BFMWorld") -> None:
     set_rule(world.get_location("Bracelet Chest - Twinpeak Entrance"),
         lambda state: has_lumina(state, world) and (has_bread(state, world) or state.has("Bracelet", player)) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     set_rule(world.get_location("200 Drans Chest - Twinpeak Path to Skullpion"),
-        lambda state: ((has_water_scroll(state, world) or has_sky_scroll_simple(state, world)) and has_earth_scroll(state, world)) or has_sky_scroll_complex(state, world))
+        lambda state: ((has_water_scroll(state, world) or has_sky_scroll_simple(state, world)) and has_earth_scroll(state, world)) or has_sky_scroll_complex(state, world) or (has_lumina(state, world) and (has_bread(state, world) or state.has("Bracelet", player)) and has_earth_scroll(state,world)))
     set_rule(world.get_location("Glasses Chest - Somnolent Forest"),
         lambda state: has_water_scroll(state, world) and has_water_boss_core(state, world))
     set_rule(world.get_location("Minku - Grillin Reservoir"),
@@ -251,6 +251,8 @@ def set_location_rules(world: "BFMWorld") -> None:
     if(options.toy_sanity.value == True):
         set_rule(world.get_location("Skullpion - Toy Shop"),
             lambda state: can_fight_skullpion(state, world))
+        set_rule(world.get_location("Relic Keeper - Toy Shop"),
+            lambda state: has_water_scroll(state, world))
         set_rule(world.get_location("Frost Dragon - Toy Shop"),
             lambda state: can_fight_frost_dragon(state, world))
         set_rule(world.get_location("Slow Guy - Toy Shop"),
