@@ -44,7 +44,7 @@ class BFMWorld(World):
     game: str = Constants.GAME_NAME
     options_dataclass =  BFMOptions
     options: BFMOptions
-    required_client_version = (0, 0, 9)
+    required_client_version = (0, 2, 5)
     web = BFMWeb()
     hair_selection: str = hair_color_options[2]
 

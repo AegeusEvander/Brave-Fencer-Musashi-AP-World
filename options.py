@@ -240,7 +240,7 @@ class LenoSniffModifier(Range):
     display_name = "Leno Sniff Modifier"
     range_start = 10
     range_end = 200
-    default = 100
+    default = 80
 
 class SkipMinigameFollowLeno(Toggle):
     """
@@ -297,7 +297,7 @@ class SteamwoodTimerModifier(Range):
     display_name = "Steamwood Timer Modifier"
     range_start = 1
     range_end = 150
-    default = 100
+    default = 50
 
 class SteamwoodValveTimeModifier(Range):
     """
@@ -310,7 +310,7 @@ class SteamwoodValveTimeModifier(Range):
     display_name = "Steamwood Valve Time Modifier"
     range_start = 90
     range_end = 165
-    default = 100
+    default = 130
 
 class SteamwoodDisableValveCountdown(Toggle):
     """
@@ -351,7 +351,7 @@ class SteamwoodPressureRiseRate(Choice):
     option_Faster = 2
     option_Slower = 3
     option_Even = 4
-    default = 1
+    default = 4
 
 class SteamwoodAdjustProgressLost(Range):
     """
@@ -364,7 +364,7 @@ class SteamwoodAdjustProgressLost(Range):
     display_name = "Steamwood Adjust Progress Lost"
     range_start = -96
     range_end = 8
-    default = -16
+    default = -8
 
 class SteamwoodWidthOfOkPressure(Range):
     """
@@ -377,7 +377,7 @@ class SteamwoodWidthOfOkPressure(Range):
     display_name = "Steamwood Width of Okay Pressure"
     range_start = 10
     range_end = 96
-    default = 12
+    default = 18
 
 class SteamwoodValveProgressModifier(Range):
     """
@@ -412,7 +412,7 @@ class SteamwoodElevatorLogic(Choice):
     option_vanilla = 1
     option_patient = 2
     option_troll = 3
-    default = 1
+    default = 2
 
 class AqualinTimerModifier(Range):
     """
@@ -425,9 +425,9 @@ class AqualinTimerModifier(Range):
     display_name = "Aqualin Timer Modifier"
     range_start = 1
     range_end = 150
-    default = 100
+    default = 50
 
-class RestaurantTeleportMazeNoFail(Toggle):
+class RestaurantTeleportMazeNoFail(DefaultOnToggle):
     """
     Vanilla logic for picking the wrong teleporter is to send Musashi back to the start or much earlier part of the dungeon
     Enabling this makes picking the wrong teleport send Musashi back to the start of the same room until the correct teleport is selected
@@ -487,7 +487,7 @@ class TopoDanceBattleLogic(Choice):
     display_name = "Topo Dance Battle Logic"
     option_vanilla = 1
     option_simple = 2
-    option_random = 3
+    option_randomly = 3
     default = 1
 
 class SodaFountainBossRush(Toggle):

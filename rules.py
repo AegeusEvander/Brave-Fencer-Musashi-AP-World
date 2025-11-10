@@ -257,7 +257,7 @@ def set_location_rules(world: "BFMWorld") -> None:
             lambda state: can_fight_frost_dragon(state, world))
         set_rule(world.get_location("Slow Guy - Toy Shop"),
             lambda state: state.has_any({"Red Eye", "Blue Eye", "Red Shoes"}, player) or has_sky_scroll_complex(state, world))
-        set_rule(world.get_location("Steel Golem - Toy Shop"),
+        set_rule(world.get_location("Stomp Golem - Toy Shop"),
             lambda state: state.has_any({"Red Eye", "Red Shoes"}, player) or has_sky_scroll_complex(state, world))
         set_rule(world.get_location("GiAnt - Toy Shop"),
             lambda state: has_wind_scroll(state, world) and has_fire_boss_core(state, world))
