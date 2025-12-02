@@ -21,7 +21,7 @@ Once you have installed BizHawk, open `EmuHawk.exe` and change the following set
 - Consider clearing keybinds in `Config > Hotkeys…` if you don't intend to use them. Select the keybind and press Esc to clear it.
 - Under `Tools > Lua Console` and on the new Lua Console window `Settings > check Autoload with EmuHawk`
 
-## Patching the BIN file
+## Patching the BIN file (Optional as of v0.3.0)
 
 1. launch `Delta Patcher`
 2. For original file select an unmodified `Brave Fencer Musashi (USA) (Track 1).bin`
@@ -46,7 +46,7 @@ Once you have installed BizHawk, open `EmuHawk.exe` and change the following set
 7. To connect the client to the server, enter your room's address and port (e.g. `archipelago.gg:38281`) into the top text field of the client and click Connect.
 8. The client will ask for a `slot name`. This is the text after "name: " in the YAML file (Defaults to "Player1")
 
-You should now be able to receive and send items. You'll need to do these steps every time you want to reconnect. After selecting the script once you can instead use `File > Recent Scripts`. It is safe to do most things if the client is not connected but it is expected that the client is connected to make progress and prevent some soft locks. If client gets disconnected try reconnecting/reloading as soon as able. It will be needed to be connected to receive items and for shop randomization; everything will re-sync when you reconnect.
+You should now be able to receive and send items. You'll need to do these steps every time you want to reconnect. After selecting the script once you can instead use `File > Recent Scripts`. It is safe to do most things if the client is not connected (if manually patched) but it is expected that the client is connected to make progress and prevent some soft locks. If client gets disconnected try reconnecting/reloading as soon as able. It will be needed to be connected to receive items and for shop randomization; everything will re-sync when you reconnect.
 
 ## A Note to New Players of Brave Fencer Musashi
 

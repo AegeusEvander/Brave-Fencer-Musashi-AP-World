@@ -2,12 +2,17 @@ from typing import Dict, NamedTuple, Set, Optional, List
 
 MAIN_RAM: str = "MainRAM"
 
-level_memory_ids=[
+level_memory_ids=[[
     (0x078ee4, 1, MAIN_RAM), #Body
     (0x078eec, 1, MAIN_RAM), #Mind
     (0x078ef4, 1, MAIN_RAM), #Fusion
     (0x078efc, 1, MAIN_RAM)  #Lumina
-]
+],[
+    (0x078044, 1, MAIN_RAM), #Body
+    (0x07804c, 1, MAIN_RAM), #Mind
+    (0x078054, 1, MAIN_RAM), #Fusion
+    (0x07805c, 1, MAIN_RAM)  #Lumina
+]]
 
 body_xp: List[int] = [
     32,

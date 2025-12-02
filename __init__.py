@@ -1,8 +1,8 @@
 from typing import Dict, List, Any, Tuple, TypedDict, ClassVar, Union, Set, TextIO
 from logging import warning
 from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState
-from .items import item_name_to_id, item_table, item_name_groups, slot_data_item_names
-from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one
+from .items import item_name_to_id, item_table, item_name_groups, slot_data_item_names, jp_id_offset, item_base_id, item_id_to_name
+from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, en_standard_location_name_to_id
 from .rules import saved_everyone, set_region_rules, set_location_rules, can_fight_skullpion, has_all_scrolls, has_ex_drink, has_water_scroll, can_identify_gondola_gizmo, can_fight_frost_dragon, has_wind_scroll, can_enter_frozen_palace, has_earth_boss_core, has_wind_boss_core, has_fire_boss_core
 from .regions import bfm_regions
 from .options import BFMOptions
@@ -68,7 +68,7 @@ class BFMWorld(World):
     player_item_link_locations: Dict[str, List[Location]]
 
     #taken from Tunic for UT
-    using_ut: bool  # so we can check if we're using UT only once
+    using_ut: bool = False  # so we can check if we're using UT only once
     passthrough: Dict[str, Any]
     ut_can_gen_without_yaml = True  # class var that tells it to ignore the player yaml
     #tracker_world: ClassVar = ut_stuff.tracker_world
@@ -76,7 +76,17 @@ class BFMWorld(World):
     def generate_early(self) -> None:
         ut_stuff.setup_options_from_slot_data(self)
 
-        self.player_location_table = standard_location_name_to_id.copy()
+        self.player_location_table = en_standard_location_name_to_id.copy()
+        """
+        if(self.using_ut == True):
+            item_id_to_name: Dict[int, str] = {(item_base_id * (data.item_group == "NPC") + data.item_id_offset): name for name, data in item_table.items()}
+            jp_item_id_to_name: Dict[int, str] = {(item_base_id * (data.item_group == "NPC") + data.item_id_offset + jp_id_offset): name for name, data in item_table.items()}
+            item_id_to_name.update(jp_item_id_to_name)
+
+            item_name_to_id: Dict[str, int] = {name: item_base_id * (data.item_group == "NPC") + data.item_id_offset for name, data in item_table.items()}
+            jp_item_name_to_id: Dict[str, int] = {data.jp_name: item_base_id * (data.item_group == "NPC") + data.item_id_offset for name, data in item_table.items()}
+            item_name_to_id.update(jp_item_name_to_id)
+            self.item_name_to_id = item_name_to_id"""
 
         if(self.options.lumina_randomzied.value == False):
             del self.player_location_table["Lumina - Spiral Tower"]
@@ -119,9 +129,10 @@ class BFMWorld(World):
 
         if(self.options.starting_hp.value == 1):
             self.options.death_link.value = False
+        #if(self.options.set_lang.value == 2):
+            #temp_locations: Dict[str, int] = {location_table[location_name].jp_name: location_id for location_name, location_id in self.player_location_table.items()}
+            #self.player_location_table = temp_locations
         
-
-
     def create_regions(self) -> None:
         
         for region_name in bfm_regions:
@@ -134,7 +145,15 @@ class BFMWorld(World):
 
         for location_name, location_id in self.player_location_table.items():
             region = self.get_region(location_table[location_name].region)
-            location = BFMLocation(self.player, location_name, location_id, region)
+            final_location_name = location_name
+            #if(self.options.set_lang.value == 2):
+            #    if(self.options.spoiler_items_in_english.value == True):
+            #        return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name], self.player)
+            #return BFMItem(name, itemclass, self.item_name_to_id[name], self.player)
+            if(self.options.set_lang.value == 2):
+                if(self.options.spoiler_items_in_english.value == False or self.using_ut == True):
+                    final_location_name = location_table[location_name].jp_name
+            location = BFMLocation(self.player, final_location_name, location_id + ((self.options.set_lang.value == 2) * jp_id_offset), region)
             region.locations.append(location)
 
         if(self.options.goal.value == 1): #save all NPCs
@@ -162,6 +181,7 @@ class BFMWorld(World):
     def fill_slot_data(self) -> Dict[str, Any]:
         slot_data: Dict[str, Any] = {
             "version": __version__,
+            "set_lang": self.options.set_lang.value,
             "goal": self.options.goal.value,
             "npc_goal": self.options.npc_goal.value,
             "starting_hp": self.options.starting_hp.value,
@@ -216,11 +236,27 @@ class BFMWorld(World):
         return slot_data
 
     def create_item(self, name: str, classification: ItemClassification = None) -> BFMItem:
-        item_data = item_table[name]
+        if(not name in item_table):
+            item_data = item_table[self.item_id_to_name[self.item_name_to_id[name]-jp_id_offset]]
+        else:
+            item_data = item_table[name]
         # evaluate alternate classifications based on options
         # it'll choose whichever classification isn't None first in this if else tree
         itemclass: ItemClassification = item_data.classification
+        #if(self.using_ut == True):
+        #    return BFMItem(name, itemclass, self.item_name_to_id[name], self.player)
+        #if(self.options.set_lang.value == 2):
+        #    print(item_data.jp_name)
+        #    return BFMItem(item_data.jp_name, itemclass, self.item_name_to_id[item_data.jp_name], self.player)
+        #print(name)
+        if(self.using_ut == True):
+            if(not name in item_table):
+                return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name]-jp_id_offset, self.player)
+        if(self.options.set_lang.value == 2):
+            if(self.options.spoiler_items_in_english.value == True):
+                return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name], self.player)
         return BFMItem(name, itemclass, self.item_name_to_id[name], self.player)
+        #return BFMItem(item_data.jp_name, itemclass, self.item_name_to_id[name], self.player)
 
     def create_items(self) -> None:
         bfm_items: List[BFMItem] = []
@@ -231,38 +267,50 @@ class BFMWorld(World):
             del items_to_create["Lumina"]
         if(self.options.bakery_sanity.value == False):
             del items_to_create["Progressive Bread"]
+        #print(item_name_groups)
         if(self.options.restaurant_sanity.value == False):
             for name in item_name_groups["Restaurant"]:
-                del items_to_create[name] 
+                if(name in item_table):
+                    del items_to_create[name] 
         if(self.options.grocery_sanity.value == False):
             for name in item_name_groups["Grocery"]:
-                del items_to_create[name] 
+                if(name in item_table):
+                    del items_to_create[name] 
         if(self.options.toy_sanity.value == False):
             for name in item_name_groups["Toy Shop"]:
-                del items_to_create[name] 
+                if(name in item_table):
+                    del items_to_create[name] 
         if(self.options.tech_sanity.value == False):
             for name in item_name_groups["Tech"]:
-                del items_to_create[name] 
+                if(name in item_table):
+                    del items_to_create[name] 
         if(self.options.scroll_sanity.value == False):
             for name in item_name_groups["Scroll"]:
-                del items_to_create[name] 
+                if(name in item_table):
+                    del items_to_create[name] 
         if(self.options.core_sanity.value == False):
             for name in item_name_groups["Core"]:
-                del items_to_create[name] 
+                if(name in item_table):
+                    del items_to_create[name] 
         if(self.options.level_sanity.value == False or self.options.xp_gain.value == 1):
             for name in item_name_groups["Level"]:
-                del items_to_create[name] 
+                if(name in item_table):
+                    del items_to_create[name] 
 
         if(self.options.level_sanity.value == True and self.options.xp_gain.value != 1 and self.options.level_bundles.value != 29):
             for name in item_name_groups["Level"]:
-                items_to_create[name] = self.options.level_bundles.value
+                if(name in item_table):
+                    items_to_create[name] = self.options.level_bundles.value
 
         if(self.options.starting_hp.value == 1):
             items_to_create["Longevity Berry"] = 0
 
         for item, quantity in items_to_create.items():
             for _ in range(quantity):
-                bfm_items.append(self.create_item(item))
+                if(self.options.set_lang.value == 2):
+                    bfm_items.append(self.create_item(item_table[item].jp_name))
+                else:
+                    bfm_items.append(self.create_item(item))
 
         total_locations = len(self.multiworld.get_unfilled_locations(self.player))
 
@@ -276,22 +324,33 @@ class BFMWorld(World):
         self.multiworld.itempool += bfm_items
 
         if (self.options.early_skullpion.value == True):
-            self.multiworld.early_items[self.player]["SoldierA"] = 1
-            self.multiworld.early_items[self.player]["MercenC"] = 1
-            self.multiworld.early_items[self.player]["CarpentA"] = 1
-            self.multiworld.early_items[self.player]["KnightB"] = 1
-            if(self.options.lumina_randomzied.value == True):
-                self.multiworld.early_items[self.player]["Lumina"] = 1
+            if(self.options.set_lang.value == 2 and self.options.spoiler_items_in_english.value == False):
+                self.multiworld.early_items[self.player][item_table["SoldierA"].jp_name] = 1
+                self.multiworld.early_items[self.player][item_table["MercenC"].jp_name] = 1
+                self.multiworld.early_items[self.player][item_table["CarpentA"].jp_name] = 1
+                self.multiworld.early_items[self.player][item_table["KnightB"].jp_name] = 1
+                if(self.options.lumina_randomzied.value == True):
+                    self.multiworld.early_items[self.player][item_table["Lumina"].jp_name] = 1
+            else:
+                self.multiworld.early_items[self.player]["SoldierA"] = 1
+                self.multiworld.early_items[self.player]["MercenC"] = 1
+                self.multiworld.early_items[self.player]["CarpentA"] = 1
+                self.multiworld.early_items[self.player]["KnightB"] = 1
+                if(self.options.lumina_randomzied.value == True):
+                    self.multiworld.early_items[self.player]["Lumina"] = 1
 
     def get_filler_item_name(self) -> str:
         return "1000 Drans"
 
     def create_filler(self) -> "Item":
+        if(self.options.set_lang.value == 2):
+            return self.create_item(item_table[self.get_filler_item_name()].jp_name)
         return self.create_item(self.get_filler_item_name())
 
     def set_rules(self) -> None:
+        print(self.options.set_lang.value)
         set_region_rules(self)
-        set_location_rules(self)
+        set_location_rules(self, self.options.set_lang.value == 2 and (self.options.spoiler_items_in_english.value == False or self.using_ut == True))
 
     # Taken from Tunic APWorld https://github.com/ArchipelagoMW/Archipelago/blob/main/worlds/tunic/__init__.py#L713
     # for the universal tracker, doesn't get called in standard gen

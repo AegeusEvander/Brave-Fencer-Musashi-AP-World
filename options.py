@@ -5,6 +5,26 @@ import logging
 if TYPE_CHECKING:
     from . import BFMWorld
 
+class SetLang(Choice):
+    """
+    Select which language of items and locations to send to the multiworld (not the version of the game to be played)
+    en- English
+    jp- 日本語
+    """
+    internal_name = "set_lang"
+    display_name = "Set Language"
+    option_en = 1
+    option_jp = 2
+    default = 1
+
+class SpoilerItemsInEnglish(DefaultOnToggle):
+    """
+    Only considered if Set Language is JP (also is not saved to slot data)
+    Spoiler log shows progression with Japanese locations but English items
+    """
+    internal_name = "spoiler_items_in_english"
+    display_name = "Spoiler Items Displayed in English"
+
 class SetGoal(Choice):
     """
     Select which Goal in order to win this game of Brave Fencer Musashi
@@ -532,6 +552,8 @@ class CustomHairColor(FreeText):
 
 @dataclass
 class BFMOptions(PerGameCommonOptions):
+    set_lang: SetLang
+    spoiler_items_in_english: SpoilerItemsInEnglish
     goal: SetGoal
     npc_goal: NPCGoal
     starting_hp: StartingMaxHP

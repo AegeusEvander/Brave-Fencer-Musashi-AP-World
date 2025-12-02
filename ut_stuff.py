@@ -12,6 +12,7 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
         if "Brave Fencer Musashi" in world.multiworld.re_gen_passthrough:
             world.using_ut = True
             world.passthrough = world.multiworld.re_gen_passthrough["Brave Fencer Musashi"]
+            world.options.set_lang.value = world.passthrough["set_lang"]
             world.options.goal.value = world.passthrough["goal"]
             world.options.npc_goal.value = world.passthrough["npc_goal"]
             world.options.starting_hp.value = world.passthrough["starting_hp"]
