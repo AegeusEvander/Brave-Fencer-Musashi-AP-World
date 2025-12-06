@@ -1073,6 +1073,19 @@ class BFMClient(BizHawkClient):
                     self.old_location = curr_location
                     self.level_transition = 0
                     self.check_for_logs = 0
+                    #if("Tracker" in ctx.tags):
+                    if(True):
+                        #{player}_{team}_bfm_area
+                        #logger.info("tags : %s", ctx.tags)
+                        #logger.info("auto tabbing to %x", curr_location)
+                        await ctx.send_msgs([{
+                            "cmd": "Set", 
+                            "key": f"{ctx.slot}_{ctx.team}_bfm_area", 
+                            "default": 0,
+                            "want_reply": False,
+                            "operations":
+                                [{"operation": "replace", "value": curr_location}],
+                        }])
                     if(curr_location in dialog_location_table): 
                         for loc_id, dialog_id in dialog_location_table[curr_location].items():
                             if(loc_id in ctx.locations_info or loc_id + jp_id_offset in ctx.locations_info):

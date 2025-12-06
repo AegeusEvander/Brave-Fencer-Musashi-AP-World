@@ -1,0 +1,30 @@
+[
+    {
+        "name": "grillin_village",
+        "location_size": 18,
+        "location_border_thickness": 1,
+        "location_icon_size": 13,
+        "img": "images/maps/grillin_village.png"
+    },
+    {
+        "name": "somnolent_forest",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/somnolent_forest.png"
+    },
+    {
+        "name": "steamwood_forest",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/steamwood_forest.png"
+    },
+    {
+        "name": "island_of_dragons",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/island_of_dragons.png"
+    }
+]

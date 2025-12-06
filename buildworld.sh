@@ -30,6 +30,7 @@ cp "${files[@]}" "$temp_dir/bfm"
 cp -r "$folder/docs" "$temp_dir/bfm/docs"
 cp -r "$folder/test" "$temp_dir/bfm/test"
 cp -r "$folder/patch" "$temp_dir/bfm/patch"
+cp -r "$folder/tracker" "$temp_dir/bfm/tracker"
 
 cd "$temp_dir" || exit
 

@@ -1,0 +1,13 @@
+﻿{
+    "name": "BFM AP Tracker",
+    "game_name": "Brave Fencer Musashi",
+    "package_version": "0.4.0",
+    "package_uid": "ap_bfm",
+    "author": "AegeusEvander",
+    "variants": {
+        "standard": {
+            "display_name": "Map Tracker",
+            "flags": ["ap"]
+        }
+    }
+}

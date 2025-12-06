@@ -15,6 +15,7 @@ from .utils import Constants
 from .client import BFMClient  # type: ignore  # noqa
 from .version import __version__
 from . import ut_stuff
+from .tracker import UTMxin
 import string
 
 class BFMWeb(WebWorld):
@@ -39,7 +40,7 @@ class BFMItem(Item):
 class BFMLocation(Location):
     game: str = Constants.GAME_NAME
 
-class BFMWorld(World):
+class BFMWorld(UTMxin, World):
     """Brave Fencer Musashi is a PlayStation RPG where you must rescue the Allucaneat Kingdom from the tyranny of the Thirstquencher Empire."""
     game: str = Constants.GAME_NAME
     options_dataclass =  BFMOptions

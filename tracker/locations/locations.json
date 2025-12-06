@@ -1,0 +1,2031 @@
+[
+    {
+        "name": "Grillin Village",
+        "children": [
+            {
+                "name": "Bakery",
+                "sections": [
+                    {
+                        "name": "Item 1 - Bakery"
+                    },
+                    {
+                        "name": "Item 2 - Bakery"
+                    },
+                    {
+                        "name": "Item 3 - Bakery"
+                    },
+                    {
+                        "name": "Item 4 - Bakery"
+                    },
+                    {
+                        "name": "Item 5 - Bakery"
+                    },
+                    {
+                        "name": "Item 6 (JamBread) - Bakery"
+                    },
+                    {
+                        "name": "Item 7 (Biscuit) - Bakery"
+                    },
+                    {
+                        "name": "アイテム 1 - ふっくらパン屋ブレッド"
+                    },
+                    {
+                        "name": "アイテム 2 - ふっくらパン屋ブレッド"
+                    },
+                    {
+                        "name": "アイテム 3 - ふっくらパン屋ブレッド"
+                    },
+                    {
+                        "name": "アイテム 4 - ふっくらパン屋ブレッド"
+                    },
+                    {
+                        "name": "アイテム 5 - ふっくらパン屋ブレッド"
+                    },
+                    {
+                        "name": "アイテム 6 - ふっくらパン屋ブレッド"
+                    },
+                    {
+                        "name": "アイテム 7 - ふっくらパン屋ブレッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 245,
+                        "y": 320
+                    }
+                ]
+            },
+            {
+                "name": "Restaurant",
+                "sections": [
+                    {
+                        "name": "Item 1 - Restaurant"
+                    },
+                    {
+                        "name": "Item 2 - Restaurant"
+                    },
+                    {
+                        "name": "Item 3 - Restaurant"
+                    },
+                    {
+                        "name": "Item 4 - Restaurant"
+                    },
+                    {
+                        "name": "Item 5 - Restaurant"
+                    },
+                    {
+                        "name": "Item 6 - Restaurant"
+                    },
+                    {
+                        "name": "Item 7 - Restaurant"
+                    },
+                    {
+                        "name": "アイテム 1 - ダクレイズ バー"
+                    },
+                    {
+                        "name": "アイテム 2 - ダクレイズ バー"
+                    },
+                    {
+                        "name": "アイテム 3 - ダクレイズ バー"
+                    },
+                    {
+                        "name": "アイテム 4 - ダクレイズ バー"
+                    },
+                    {
+                        "name": "アイテム 5 - ダクレイズ バー"
+                    },
+                    {
+                        "name": "アイテム 6 - ダクレイズ バー"
+                    },
+                    {
+                        "name": "アイテム 7 - ダクレイズ バー"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 257,
+                        "y": 111
+                    }
+                ]
+            },
+            {
+                "name": "Grocery",
+                "sections": [
+                    {
+                        "name": "Item 1 - Grocery"
+                    },
+                    {
+                        "name": "Item 2 - Grocery"
+                    },
+                    {
+                        "name": "Item 3 - Grocery"
+                    },
+                    {
+                        "name": "Item 4 - Grocery"
+                    },
+                    {
+                        "name": "Item 5 - Grocery"
+                    },
+                    {
+                        "name": "Item 6 - Grocery"
+                    },
+                    {
+                        "name": "Item 7 - Grocery"
+                    },
+                    {
+                        "name": "Item 8 (Orange) - Grocery"
+                    },
+                    {
+                        "name": "Item 9 (EX-Drink) - Grocery"
+                    },
+                    {
+                        "name": "Item 10 (H-Mint) - Grocery"
+                    },
+                    {
+                        "name": "Item 11 (Riceball) - Grocery"
+                    },
+                    {
+                        "name": "Item 12 (Neat Ball) - Grocery"
+                    },
+                    {
+                        "name": "アイテム 1 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 2 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 3 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 4 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 5 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 6 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 7 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 8 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 9 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 10 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 11 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "アイテム 12 - 雑貨屋アイのみせ"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 337,
+                        "y": 200
+                    }
+                ]
+            },
+            {
+                "name": "Toy Shop",
+                "sections": [
+                    {
+                        "name": "Musashi - Toy Shop"
+                    },
+                    {
+                        "name": "Bee Plant - Toy Shop"
+                    },
+                    {
+                        "name": "Soldier1 - Toy Shop"
+                    },
+                    {
+                        "name": "Soldier2 - Toy Shop"
+                    },
+                    {
+                        "name": "Rootrick - Toy Shop"
+                    },
+                    {
+                        "name": "Steam Knight - Toy Shop"
+                    },
+                    {
+                        "name": "Soldier3 - Toy Shop"
+                    },
+                    {
+                        "name": "Herb Plant - Toy Shop"
+                    },
+                    {
+                        "name": "King Man Eater - Toy Shop"
+                    },
+                    {
+                        "name": "Magician - Toy Shop"
+                    },
+                    {
+                        "name": "Sleepie - Toy Shop"
+                    },
+                    {
+                        "name": "Skullpion - Toy Shop"
+                    },
+                    {
+                        "name": "Relic Vambee - Toy Shop"
+                    },
+                    {
+                        "name": "Vambee Soldier - Toy Shop"
+                    },
+                    {
+                        "name": "Bowler - Toy Shop"
+                    },
+                    {
+                        "name": "Cure Worm - Toy Shop"
+                    },
+                    {
+                        "name": "Bubbles - Toy Shop"
+                    },
+                    {
+                        "name": "Relic Keeper - Toy Shop"
+                    },
+                    {
+                        "name": "Penguin - Toy Shop"
+                    },
+                    {
+                        "name": "Haya Wolf - Toy Shop"
+                    },
+                    {
+                        "name": "Slow Guy - Toy Shop"
+                    },
+                    {
+                        "name": "Stomp Golem - Toy Shop"
+                    },
+                    {
+                        "name": "Gingerelle - Toy Shop"
+                    },
+                    {
+                        "name": "Frost Dragon - Toy Shop"
+                    },
+                    {
+                        "name": "GiAnt - Toy Shop"
+                    },
+                    {
+                        "name": "Toad Stool - Toy Shop"
+                    },
+                    {
+                        "name": "Ed & Ben - Toy Shop"
+                    },
+                    {
+                        "name": "Topo - Toy Shop"
+                    },
+                    {
+                        "name": "Colonel Capricola - Toy Shop"
+                    },
+                    {
+                        "name": "Queen Ant - Toy Shop"
+                    },
+                    {
+                        "name": "ムサシ - トーイざんす"
+                    },
+                    {
+                        "name": "ビー・プラント - トーイざんす"
+                    },
+                    {
+                        "name": "ル・コアールヘい1 - トーイざんす"
+                    },
+                    {
+                        "name": "ル・コアールヘい2 - トーイざんす"
+                    },
+                    {
+                        "name": "ボルドーしょうい - トーイざんす"
+                    },
+                    {
+                        "name": "スチーム・ナイト - トーイざんす"
+                    },
+                    {
+                        "name": "ル・コアールヘい3 - トーイざんす"
+                    },
+                    {
+                        "name": "ハーブ・プラント - トーイざんす"
+                    },
+                    {
+                        "name": "キングマンイーター - トーイざんす"
+                    },
+                    {
+                        "name": "マジシャン - トーイざんす"
+                    },
+                    {
+                        "name": "スリーピー - トーイざんす"
+                    },
+                    {
+                        "name": "スカル゠ピオン - トーイざんす"
+                    },
+                    {
+                        "name": "レリクスヴヌンビ - トーイざんす"
+                    },
+                    {
+                        "name": "ヴヌンビへい - トーイざんす"
+                    },
+                    {
+                        "name": "ボウラー - トーイざんす"
+                    },
+                    {
+                        "name": "キュアワーム - トーイざんす"
+                    },
+                    {
+                        "name": "リキュールちゃうい - トーイざんす"
+                    },
+                    {
+                        "name": "レリクスキーパー - トーイざんす"
+                    },
+                    {
+                        "name": "フェイクペンギン - トーイざんす"
+                    },
+                    {
+                        "name": "カラテウルフ - トーイざんす"
+                    },
+                    {
+                        "name": "スローガイ - トーイざんす"
+                    },
+                    {
+                        "name": "ストンプゴーレム - トーイざんす"
+                    },
+                    {
+                        "name": "ブランディたいい - トーイざんす"
+                    },
+                    {
+                        "name": "フロストドラグーン - トーイざんす"
+                    },
+                    {
+                        "name": "ジャイアント - トーイざんす"
+                    },
+                    {
+                        "name": "トードストゥール - トーイざんす"
+                    },
+                    {
+                        "name": "エドとベーン - トーイざんす"
+                    },
+                    {
+                        "name": "トポ - トーイざんす"
+                    },
+                    {
+                        "name": "ウォッカたいき - トーイざんす"
+                    },
+                    {
+                        "name": "アントヒルクィーン - トーイざんす"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 416,
+                        "y": 200
+                    }
+                ]
+            },
+            {
+                "name": "Castle",
+                "sections": [
+                    {
+                        "name": "Improved Fusion (Artisan) - Allucaneet Castle"
+                    },
+                    {
+                        "name": "Dashing Pierce (Maid) - Allucaneet Castle"
+                    },
+                    {
+                        "name": "Shish Kebab (Clown) - Allucaneet Castle"
+                    },
+                    {
+                        "name": "Crosswise Cut (KnightB) - Allucaneet Castle"
+                    },
+                    {
+                        "name": "Tenderize (KnightA) - Allucaneet Castle"
+                    },
+                    {
+                        "name": "Desperado Attack (KnightC) - Allucaneet Castle"
+                    },
+                    {
+                        "name": "Rumparoni Special (KnightD) - Allucaneet Castle"
+                    },
+                    {
+                        "name": "真雷光丸 - ヤクイニック城"
+                    },
+                    {
+                        "name": "ダッシュつき - ヤクイニック城"
+                    },
+                    {
+                        "name": "くしざし - ヤクイニック城"
+                    },
+                    {
+                        "name": "じうもんじぎり - ヤクイニック城"
+                    },
+                    {
+                        "name": "まきわりダイナマイト - ヤクイニック城"
+                    },
+                    {
+                        "name": "デスペラードアタック - ヤクイニック城"
+                    },
+                    {
+                        "name": "タンシオーネ・クロスアタック - ヤクイニック城"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 474,
+                        "y": 390
+                    }
+                ]
+            },
+            {
+                "name": "Restaurant Basement",
+                "sections": [
+                    {
+                        "name": "Baliff Bincho - Restaurant Basement Behind Pole Jumps"
+                    },
+                    {
+                        "name": "Taster Bincho - Restaurant Basement Path to Crest Guardian"
+                    },
+                    {
+                        "name": "CarpentB Bincho - Restaurant Basement Dark Platform Maze 2"
+                    },
+                    {
+                        "name": "SoldierB Bincho - Restaurant Basement Planks Over Lava"
+                    },
+                    {
+                        "name": "MercenB Bincho - Restaurant Basement Bowling 2"
+                    },
+                    {
+                        "name": "MercenA Bincho - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "KnightC Bincho - Restaurant Basement Dark Platform Maze 3"
+                    },
+                    {
+                        "name": "Librarian Bincho - Restaurant Basement Near Rotating Platforms"
+                    },
+                    {
+                        "name": "Shield Chest - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "Odd Hat Chest - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "Old Sword Chest - Restaurant Basement"
+                    },
+                    {
+                        "name": "300 Drans Chest - Restaurant Basement"
+                    },
+                    {
+                        "name": "Old Pipe Chest - Restaurant Basement Planks Over Lava"
+                    },
+                    {
+                        "name": "Powder Chest - Restaurant Basement Teleport Maze"
+                    },
+                    {
+                        "name": "Helmet Chest - Restaurant Basement Dark Platform Maze 3"
+                    },
+                    {
+                        "name": "Cloth Chest - Restaurant Basement"
+                    },
+                    {
+                        "name": "Defeat Water Crest Guardian - Relic Keeper Arena"
+                    },
+                    {
+                        "name": "グラムだいかんのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "9だいめどくみやくのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "だいくニコミテールのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "へいしバーベックのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ようへいカルビのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ようへいロースウのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "きしコブクローネのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ゾウモッツしょきのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ふるびたタテのはこ - バーの地下"
+                    },
+                    {
+                        "name": "ひびわれ・かめんのはこ - バーの地下"
+                    },
+                    {
+                        "name": "さびたつるぎのはこ - バーの地下"
+                    },
+                    {
+                        "name": "300ドランのはこ - バーの地下"
+                    },
+                    {
+                        "name": "あなあきこんぼうのはこ - バーの地下"
+                    },
+                    {
+                        "name": "しろいこなのはこ - バーの地下"
+                    },
+                    {
+                        "name": "ゆがんだツボのはこ - バーの地下"
+                    },
+                    {
+                        "name": "あつでのまきぬののはこ - バーの地下"
+                    },
+                    {
+                        "name": "倒すレリクスキーパー - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 218,
+                        "y": 111
+                    }
+                ]
+            },
+            {
+                "name": "Well",
+                "sections": [
+                    {
+                        "name": "Water Scroll - Grillin Reservoir"
+                    },
+                    {
+                        "name": "ミズのまき - アミヤクイ村貯水池"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 344,
+                        "y": 426
+                    }
+                ]
+            },
+            {
+                "name": "Mine",
+                "sections": [
+                    {
+                        "name": "Minku - Grillin Reservoir"
+                    },
+                    {
+                        "name": "Old Shirt Chest - Grillin Reservoir"
+                    },
+                    {
+                        "name": "Used Boot Chest - Grillin Reservoir"
+                    },
+                    {
+                        "name": "Armor Chest - Reservoir Tunnel"
+                    },
+                    {
+                        "name": "Minku - Near Wind Scroll"
+                    },
+                    {
+                        "name": "Wind Scroll - Grillin Volcano"
+                    },
+                    {
+                        "name": "KnightA Bincho - Mine Conveyor Belt Room"
+                    },
+                    {
+                        "name": "CarpentC Bincho - Mine Conveyor Belt Room"
+                    },
+                    {
+                        "name": "CookA Bincho - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "Chief Bincho - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "Minku - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "Old Glove Chest - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "ミンクー - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "よれよれシャツのはこ - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "よれよれながぐつのはこ - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "ヘこんだヨロイのはこ - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "ミンクー - アミヤクイ村の火山"
+                    },
+                    {
+                        "name": "カゼのまき - アミヤクイ村の火山"
+                    },
+                    {
+                        "name": "きしニックのビンチョ - ビンチョタイト採掘場"
+                    },
+                    {
+                        "name": "おやかたマーダレーのビンチョ - ビンチョタイト採掘場"
+                    },
+                    {
+                        "name": "しょくじがかりリブのビンチョ - 地底湖"
+                    },
+                    {
+                        "name": "ビールかんとくのビンチョ - 地底湖"
+                    },
+                    {
+                        "name": "ミンクー - 地底湖"
+                    },
+                    {
+                        "name": "ほつれたてぶくろのはこ - 地底湖"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 410,
+                        "y": 74
+                    }
+                ]
+            },
+            {
+                "name": "Upper Village",
+                "sections": [
+                    {
+                        "name": "Minku - Grillin Village Near Twinpeak"
+                    },
+                    {
+                        "name": "Minku - Grillin Village Above Gondola"
+                    },
+                    {
+                        "name": "ミンクー - アミヤクイ村"
+                    },
+                    {
+                        "name": "ミンクー - ゴンドラの上"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 120,
+                        "y": 34
+                    }
+                ]
+            },
+            {
+                "name": "Twinpeak",
+                "sections": [
+                    {
+                        "name": "SoldierA Bincho - Twinpeak Entrance"
+                    },
+                    {
+                        "name": "MercenC Bincho - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "CarpentA Bincho - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "KnightB Bincho - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Shepherd Bincho - Twinpeak Rope Bridge"
+                    },
+                    {
+                        "name": "Weaver Bincho - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Knitter Bincho - Twinpeak Path to Skullpion"
+                    },
+                    {
+                        "name": "Doctor Bincho - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "Minku - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "Minku - Skullpion Arena"
+                    },
+                    {
+                        "name": "Minku - Twinpeak End of Stream"
+                    },
+                    {
+                        "name": "200 Drans Chest - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "Old Book Chest - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "Rock Chest - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Dagger Chest - Twinpeak Rope Bridge"
+                    },
+                    {
+                        "name": "Bracelet Chest - Twinpeak Entrance"
+                    },
+                    {
+                        "name": "200 Drans Chest - Twinpeak Path to Skullpion"
+                    },
+                    {
+                        "name": "Earth Scroll - Twinpeak First Peak"
+                    },
+                    {
+                        "name": "Defeat Earth Crest Guardian - Skullpion Arena"
+                    },
+                    {
+                        "name": "ヘいしバラニックのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "ようへいミーノのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "だいくツケコンデルのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "きしラドのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "うまやばんバッサシのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "つむぎてエイランチのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "ぬのがかりビセットのビンチョ - ヘルズバレー"
+                    },
+                    {
+                        "name": "モルホンいしのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "ミンクー - ふたご山"
+                    },
+                    {
+                        "name": "ミンクー - ヘルズバレー"
+                    },
+                    {
+                        "name": "ミンクー - ふたご山の川"
+                    },
+                    {
+                        "name": "200ドランのはこ - ふたご山"
+                    },
+                    {
+                        "name": "しめったしょもつのはこ - ふたご山"
+                    },
+                    {
+                        "name": "かがやくいしのはこ - ふたご山"
+                    },
+                    {
+                        "name": "ふるびたたんけんのはこ - ふたご山"
+                    },
+                    {
+                        "name": "おおきなうでわのはこ - ふたご山"
+                    },
+                    {
+                        "name": "200ドランのはこ - ヘルズバレー"
+                    },
+                    {
+                        "name": "チのまき - ふたご山"
+                    },
+                    {
+                        "name": "倒すスカル゠ピオン - ヘルズバレー"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 150,
+                        "y": 34
+                    }
+                ]
+            },
+            {
+                "name": "Upper Mines",
+                "sections": [
+                    {
+                        "name": "CookB Bincho - Upper Mines"
+                    },
+                    {
+                        "name": "Conductor Bincho - Upper Mines Ant Parade"
+                    },
+                    {
+                        "name": "KnightD Bincho - Upper Mines Before Digging"
+                    },
+                    {
+                        "name": "Minku - Upper Mines Below Big Fan"
+                    },
+                    {
+                        "name": "Minku - Upper Mines"
+                    },
+                    {
+                        "name": "Large Tool Chest - Upper Mines"
+                    },
+                    {
+                        "name": "Odd Bone Chest - Upper Mines"
+                    },
+                    {
+                        "name": "Defeat Wind Crest Guardian - Queen Ant Arena"
+                    },
+                    {
+                        "name": "ムッシュ・ワギュウのビンチョ - アリの巣"
+                    },
+                    {
+                        "name": "おんがくだんちょうのビンチョ - アリの巣"
+                    },
+                    {
+                        "name": "きしだんちょうのビンチョ - アリの巣"
+                    },
+                    {
+                        "name": "ミンクー - アリの巣"
+                    },
+                    {
+                        "name": "ミンクー - アリの巣の入り口"
+                    },
+                    {
+                        "name": "スルドイどうぐのはこ - アリの巣"
+                    },
+                    {
+                        "name": "しんぴのほねぐみのはこ - アリの巣"
+                    },
+                    {
+                        "name": "倒すアントヒルクィーン - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 180,
+                        "y": 34
+                    }
+                ]
+            },
+            {
+                "name": "Spiral Tower",
+                "sections": [
+                    {
+                        "name": "Lumina - Spiral Tower"
+                    },
+                    {
+                        "name": "レイガンド - らせんの塔"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 210,
+                        "y": 34
+                    }
+                ]
+            },
+            {
+                "name": "Body",
+                "sections": [
+                    {
+                        "name": "lvl 2 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 3 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 4 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 5 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 6 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 7 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 8 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 9 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 10 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 11 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 12 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 13 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 14 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 15 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 16 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 17 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 18 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 19 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 20 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 21 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 22 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 23 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 24 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 25 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 26 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 27 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 28 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 29 Body - Menu"
+                    },
+                    {
+                        "name": "lvl 30 Body - Menu"
+                    },
+                    {
+                        "name": "LV 2 ちから"
+                    },
+                    {
+                        "name": "LV 3 ちから"
+                    },
+                    {
+                        "name": "LV 4 ちから"
+                    },
+                    {
+                        "name": "LV 5 ちから"
+                    },
+                    {
+                        "name": "LV 6 ちから"
+                    },
+                    {
+                        "name": "LV 7 ちから"
+                    },
+                    {
+                        "name": "LV 8 ちから"
+                    },
+                    {
+                        "name": "LV 9 ちから"
+                    },
+                    {
+                        "name": "LV 10 ちから"
+                    },
+                    {
+                        "name": "LV 11 ちから"
+                    },
+                    {
+                        "name": "LV 12 ちから"
+                    },
+                    {
+                        "name": "LV 13 ちから"
+                    },
+                    {
+                        "name": "LV 14 ちから"
+                    },
+                    {
+                        "name": "LV 15 ちから"
+                    },
+                    {
+                        "name": "LV 16 ちから"
+                    },
+                    {
+                        "name": "LV 17 ちから"
+                    },
+                    {
+                        "name": "LV 18 ちから"
+                    },
+                    {
+                        "name": "LV 19 ちから"
+                    },
+                    {
+                        "name": "LV 20 ちから"
+                    },
+                    {
+                        "name": "LV 21 ちから"
+                    },
+                    {
+                        "name": "LV 22 ちから"
+                    },
+                    {
+                        "name": "LV 23 ちから"
+                    },
+                    {
+                        "name": "LV 24 ちから"
+                    },
+                    {
+                        "name": "LV 25 ちから"
+                    },
+                    {
+                        "name": "LV 26 ちから"
+                    },
+                    {
+                        "name": "LV 27 ちから"
+                    },
+                    {
+                        "name": "LV 28 ちから"
+                    },
+                    {
+                        "name": "LV 29 ちから"
+                    },
+                    {
+                        "name": "LV 30 ちから"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 34
+                    }
+                ]
+            },
+            {
+                "name": "Mind",
+                "sections": [
+                    {
+                        "name": "lvl 2 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 3 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 4 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 5 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 6 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 7 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 8 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 9 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 10 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 11 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 12 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 13 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 14 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 15 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 16 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 17 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 18 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 19 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 20 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 21 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 22 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 23 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 24 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 25 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 26 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 27 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 28 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 29 Mind - Menu"
+                    },
+                    {
+                        "name": "lvl 30 Mind - Menu"
+                    },
+                    {
+                        "name": "LV 2 こころ"
+                    },
+                    {
+                        "name": "LV 3 こころ"
+                    },
+                    {
+                        "name": "LV 4 こころ"
+                    },
+                    {
+                        "name": "LV 5 こころ"
+                    },
+                    {
+                        "name": "LV 6 こころ"
+                    },
+                    {
+                        "name": "LV 7 こころ"
+                    },
+                    {
+                        "name": "LV 8 こころ"
+                    },
+                    {
+                        "name": "LV 9 こころ"
+                    },
+                    {
+                        "name": "LV 10 こころ"
+                    },
+                    {
+                        "name": "LV 11 こころ"
+                    },
+                    {
+                        "name": "LV 12 こころ"
+                    },
+                    {
+                        "name": "LV 13 こころ"
+                    },
+                    {
+                        "name": "LV 14 こころ"
+                    },
+                    {
+                        "name": "LV 15 こころ"
+                    },
+                    {
+                        "name": "LV 16 こころ"
+                    },
+                    {
+                        "name": "LV 17 こころ"
+                    },
+                    {
+                        "name": "LV 18 こころ"
+                    },
+                    {
+                        "name": "LV 19 こころ"
+                    },
+                    {
+                        "name": "LV 20 こころ"
+                    },
+                    {
+                        "name": "LV 21 こころ"
+                    },
+                    {
+                        "name": "LV 22 こころ"
+                    },
+                    {
+                        "name": "LV 23 こころ"
+                    },
+                    {
+                        "name": "LV 24 こころ"
+                    },
+                    {
+                        "name": "LV 25 こころ"
+                    },
+                    {
+                        "name": "LV 26 こころ"
+                    },
+                    {
+                        "name": "LV 27 こころ"
+                    },
+                    {
+                        "name": "LV 28 こころ"
+                    },
+                    {
+                        "name": "LV 29 こころ"
+                    },
+                    {
+                        "name": "LV 30 こころ"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 64
+                    }
+                ]
+            },
+            {
+                "name": "Fus",
+                "sections": [
+                    {
+                        "name": "lvl 2 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 3 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 4 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 5 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 6 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 7 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 8 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 9 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 10 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 11 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 12 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 13 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 14 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 15 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 16 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 17 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 18 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 19 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 20 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 21 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 22 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 23 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 24 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 25 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 26 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 27 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 28 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 29 Fus - Menu"
+                    },
+                    {
+                        "name": "lvl 30 Fus - Menu"
+                    },
+                    {
+                        "name": "LV 2 らいこう丸"
+                    },
+                    {
+                        "name": "LV 3 らいこう丸"
+                    },
+                    {
+                        "name": "LV 4 らいこう丸"
+                    },
+                    {
+                        "name": "LV 5 らいこう丸"
+                    },
+                    {
+                        "name": "LV 6 らいこう丸"
+                    },
+                    {
+                        "name": "LV 7 らいこう丸"
+                    },
+                    {
+                        "name": "LV 8 らいこう丸"
+                    },
+                    {
+                        "name": "LV 9 らいこう丸"
+                    },
+                    {
+                        "name": "LV 10 らいこう丸"
+                    },
+                    {
+                        "name": "LV 11 らいこう丸"
+                    },
+                    {
+                        "name": "LV 12 らいこう丸"
+                    },
+                    {
+                        "name": "LV 13 らいこう丸"
+                    },
+                    {
+                        "name": "LV 14 らいこう丸"
+                    },
+                    {
+                        "name": "LV 15 らいこう丸"
+                    },
+                    {
+                        "name": "LV 16 らいこう丸"
+                    },
+                    {
+                        "name": "LV 17 らいこう丸"
+                    },
+                    {
+                        "name": "LV 18 らいこう丸"
+                    },
+                    {
+                        "name": "LV 19 らいこう丸"
+                    },
+                    {
+                        "name": "LV 20 らいこう丸"
+                    },
+                    {
+                        "name": "LV 21 らいこう丸"
+                    },
+                    {
+                        "name": "LV 22 らいこう丸"
+                    },
+                    {
+                        "name": "LV 23 らいこう丸"
+                    },
+                    {
+                        "name": "LV 24 らいこう丸"
+                    },
+                    {
+                        "name": "LV 25 らいこう丸"
+                    },
+                    {
+                        "name": "LV 26 らいこう丸"
+                    },
+                    {
+                        "name": "LV 27 らいこう丸"
+                    },
+                    {
+                        "name": "LV 28 らいこう丸"
+                    },
+                    {
+                        "name": "LV 29 らいこう丸"
+                    },
+                    {
+                        "name": "LV 30 らいこう丸"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 94
+                    }
+                ]
+            },
+            {
+                "name": "Lum",
+                "sections": [
+                    {
+                        "name": "lvl 2 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 3 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 4 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 5 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 6 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 7 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 8 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 9 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 10 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 11 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 12 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 13 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 14 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 15 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 16 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 17 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 18 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 19 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 20 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 21 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 22 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 23 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 24 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 25 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 26 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 27 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 28 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 29 Lum - Menu"
+                    },
+                    {
+                        "name": "lvl 30 Lum - Menu"
+                    },
+                    {
+                        "name": "LV 2 レイガンド"
+                    },
+                    {
+                        "name": "LV 3 レイガンド"
+                    },
+                    {
+                        "name": "LV 4 レイガンド"
+                    },
+                    {
+                        "name": "LV 5 レイガンド"
+                    },
+                    {
+                        "name": "LV 6 レイガンド"
+                    },
+                    {
+                        "name": "LV 7 レイガンド"
+                    },
+                    {
+                        "name": "LV 8 レイガンド"
+                    },
+                    {
+                        "name": "LV 9 レイガンド"
+                    },
+                    {
+                        "name": "LV 10 レイガンド"
+                    },
+                    {
+                        "name": "LV 11 レイガンド"
+                    },
+                    {
+                        "name": "LV 12 レイガンド"
+                    },
+                    {
+                        "name": "LV 13 レイガンド"
+                    },
+                    {
+                        "name": "LV 14 レイガンド"
+                    },
+                    {
+                        "name": "LV 15 レイガンド"
+                    },
+                    {
+                        "name": "LV 16 レイガンド"
+                    },
+                    {
+                        "name": "LV 17 レイガンド"
+                    },
+                    {
+                        "name": "LV 18 レイガンド"
+                    },
+                    {
+                        "name": "LV 19 レイガンド"
+                    },
+                    {
+                        "name": "LV 20 レイガンド"
+                    },
+                    {
+                        "name": "LV 21 レイガンド"
+                    },
+                    {
+                        "name": "LV 22 レイガンド"
+                    },
+                    {
+                        "name": "LV 23 レイガンド"
+                    },
+                    {
+                        "name": "LV 24 レイガンド"
+                    },
+                    {
+                        "name": "LV 25 レイガンド"
+                    },
+                    {
+                        "name": "LV 26 レイガンド"
+                    },
+                    {
+                        "name": "LV 27 レイガンド"
+                    },
+                    {
+                        "name": "LV 28 レイガンド"
+                    },
+                    {
+                        "name": "LV 29 レイガンド"
+                    },
+                    {
+                        "name": "LV 30 レイガンド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 124
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Somnolent Forest",
+        "children": [
+            {
+                "name": "Guard Bincho - Somnolent Forest",
+                "sections": [
+                    {
+                        "name": "Guard Bincho - Somnolent Forest"
+                    },
+                    {
+                        "name": "みはりのナミロスのビンチョ - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 139,
+                        "y": 419
+                    }
+                ]
+            },
+            {
+                "name": "Seer Bincho - Somnolent Forest",
+                "sections": [
+                    {
+                        "name": "Seer Bincho - Somnolent Forest"
+                    },
+                    {
+                        "name": "うらないしギアラのビンチョ - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 169,
+                        "y": 150
+                    }
+                ]
+            },
+            {
+                "name": "Hawker Bincho - Somnolent Forest Deadend",
+                "sections": [
+                    {
+                        "name": "Hawker Bincho - Somnolent Forest Deadend"
+                    },
+                    {
+                        "name": "たかじょうトクセンのビンチョ - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 324,
+                        "y": 637
+                    }
+                ]
+            },
+            {
+                "name": "Behind Steam",
+                "sections": [
+                    {
+                        "name": "Maid Bincho - Somnolent Forest Behind Steam"
+                    },
+                    {
+                        "name": "500 Drans Chest - Somnolent Forest Behind Steam"
+                    },
+                    {
+                        "name": "そうじふジョミーノのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "500ドランのはこ - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 297,
+                        "y": 583
+                    }
+                ]
+            },
+            {
+                "name": "Old Crown Chest - Somnolent Forest",
+                "sections": [
+                    {
+                        "name": "Old Crown Chest - Somnolent Forest"
+                    },
+                    {
+                        "name": "しめったしょもつのはこ - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 100,
+                        "y": 216
+                    }
+                ]
+            },
+            {
+                "name": "Glasses Chest - Somnolent Forest",
+                "sections": [
+                    {
+                        "name": "Glasses Chest - Somnolent Forest"
+                    },
+                    {
+                        "name": "ひびわれメガネのはこ - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 225,
+                        "y": 494
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Somnolent Forest Hidden Path",
+                "sections": [
+                    {
+                        "name": "Minku - Somnolent Forest Hidden Path"
+                    },
+                    {
+                        "name": "ミンクー - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 154,
+                        "y": 345
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Somnolent Forest",
+                "sections": [
+                    {
+                        "name": "Minku - Somnolent Forest"
+                    },
+                    {
+                        "name": "ミンクー - すいまの森の川"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 332,
+                        "y": 330
+                    }
+                ]
+            },
+            {
+                "name": "Frozen Palace",
+                "sections": [
+                    {
+                        "name": "Janitor Bincho - Frozen Palace Blue Eye Door"
+                    },
+                    {
+                        "name": "MusicianC Bincho - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "Chef Bincho - Frozen Palace Crate Pile"
+                    },
+                    {
+                        "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony"
+                    },
+                    {
+                        "name": "Alchemist Bincho - Frozen Palace Red Eye Maze"
+                    },
+                    {
+                        "name": "Red Eye Chest - Frozen Palace Red Eye Room"
+                    },
+                    {
+                        "name": "Blue Eye Chest - Frozen Palace Red Eye Maze"
+                    },
+                    {
+                        "name": "Green Eye Chest - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "Red Shoes Chest - Frozen Palace Atrium Left Balcony"
+                    },
+                    {
+                        "name": "Long Tube Chest - Frozen Palace Red Eye Door"
+                    },
+                    {
+                        "name": "White Cloth Chest - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "Red Cloth Chest - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "Black Cloth Chest - Frost Dragon Door"
+                    },
+                    {
+                        "name": "Defeat Fire Crest Guardian - Frost Dragon Arena"
+                    },
+                    {
+                        "name": "ベんじょのニクジルのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "ビビンバッハガくしのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "クーパー・シェフのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "にくきりハーラミンのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "れんきんじゃつしのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "レッドアイのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "ブルーアイのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "グリーンアイのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "まっかなボロぐつのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "とんがりばうのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "しろいぬのきれのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "あかいぬのきれのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "くろいぬのきれのはこ - フリーズパレス"
+                    },
+                    {
+                        "name": "倒すフロストドラグーン - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "somnolent_forest",
+                        "x": 158,
+                        "y": 62
+                    },
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 540
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Island of Dragons",
+        "children": [
+            {
+                "name": "Artisan Bincho - Island of Dragons",
+                "sections": [
+                    {
+                        "name": "Artisan Bincho - Island of Dragons"
+                    },
+                    {
+                        "name": "かじやのトックのビンチョ - ガンリュー島"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "island_of_dragons",
+                        "x": 112,
+                        "y": 68
+                    }
+                ]
+            },
+            {
+                "name": "500 Drans Chest - Island of Dragons",
+                "sections": [
+                    {
+                        "name": "500 Drans Chest - Island of Dragons"
+                    },
+                    {
+                        "name": "500ドランのはこ - ガンリュー島"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "island_of_dragons",
+                        "x": 98,
+                        "y": 115
+                    }
+                ]
+            },
+            {
+                "name": "Fire Scroll - Island of Dragons",
+                "sections": [
+                    {
+                        "name": "Fire Scroll - Island of Dragons"
+                    },
+                    {
+                        "name": "ヒのまき - ガンリュー島"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "island_of_dragons",
+                        "x": 126,
+                        "y": 177
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Steamwood Forest",
+        "children": [
+            {
+                "name": "MusicianB Bincho - Steamwood Forest",
+                "sections": [
+                    {
+                        "name": "MusicianB Bincho - Steamwood Forest"
+                    },
+                    {
+                        "name": "フーソッシモがくしのビンチョ - スチームウッドの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood_forest",
+                        "x": 51,
+                        "y": 240
+                    }
+                ]
+            },
+            {
+                "name": "Acrobat Bincho - Steamwood Forest",
+                "sections": [
+                    {
+                        "name": "Acrobat Bincho - Steamwood Forest"
+                    },
+                    {
+                        "name": "きょくげいしナムルのビンチョ - スチームウッドの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood_forest",
+                        "x": 169,
+                        "y": 223
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Steamwood Forest",
+                "sections": [
+                    {
+                        "name": "Minku - Steamwood Forest"
+                    },
+                    {
+                        "name": "Sky Scroll - Sky Island"
+                    },
+                    {
+                        "name": "ミンクー - スチームウッドの森"
+                    },
+                    {
+                        "name": "ソラのまき - 空の巻の地"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood_forest",
+                        "x": 92,
+                        "y": 162
+                    }
+                ]
+            },
+            {
+                "name": "Aged Coin Chest - Steamwood Forest",
+                "sections": [
+                    {
+                        "name": "Aged Coin Chest - Steamwood Forest"
+                    },
+                    {
+                        "name": "あなあきコインのはこ - スチームウッドの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood_forest",
+                        "x": 178,
+                        "y": 70
+                    }
+                ]
+            }
+        ]
+    }
+]
