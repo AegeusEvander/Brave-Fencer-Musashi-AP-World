@@ -7,6 +7,13 @@
         "img": "images/maps/grillin_village.png"
     },
     {
+        "name": "upper_grillin_village",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 13,
+        "img": "images/maps/upper_grillin_village.png"
+    },
+    {
         "name": "somnolent_forest",
         "location_size": 18,
         "location_border_thickness": 2,
@@ -26,5 +33,47 @@
         "location_border_thickness": 2,
         "location_icon_size": 25,
         "img": "images/maps/island_of_dragons.png"
+    },
+    {
+        "name": "hells_valley_arena",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/hells_valley_arena.png"
+    },
+    {
+        "name": "valley",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/valley.png"
+    },
+    {
+        "name": "frozen_palace_entrance",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/frozen_palace_entrance.png"
+    },
+    {
+        "name": "frozen_palace_wolf_room",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/frozen_palace_wolf_room.png"
+    },
+    {
+        "name": "frozen_palace_green_eye_maze",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/frozen_palace_green_eye_maze.png"
+    },
+    {
+        "name": "frozen_palace_ramp_hallway",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/frozen_palace_ramp_hallway.png"
     }
 ]

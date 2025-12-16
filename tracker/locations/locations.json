@@ -863,6 +863,11 @@
                         "map": "grillin_village",
                         "x": 180,
                         "y": 34
+                    },
+                    {
+                        "map": "upper_grillin_village",
+                        "x": 256,
+                        "y": 66
                     }
                 ]
             },
@@ -1631,6 +1636,47 @@
         ]
     },
     {
+        "name": "Upper Grillin Village",
+        "children": [
+            {
+                "name": "Minku - Grillin Village Near Twinpeak",
+                "sections": [
+                    {
+                        "name": "Minku - Grillin Village Near Twinpeak"
+                    },
+                    {
+                        "name": "ミンクー - アミヤクイ村"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "upper_grillin_village",
+                        "x": 43,
+                        "y": 158
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Grillin Village Above Gondola",
+                "sections": [
+                    {
+                        "name": "Minku - Grillin Village Above Gondola"
+                    },
+                    {
+                        "name": "ミンクー - ゴンドラの上"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "upper_grillin_village",
+                        "x": 256,
+                        "y": 101
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "name": "Somnolent Forest",
         "children": [
             {
@@ -1684,6 +1730,11 @@
                         "map": "somnolent_forest",
                         "x": 324,
                         "y": 637
+                    },
+                    {
+                        "map": "grillin_village",
+                        "x": 444,
+                        "y": 698
                     }
                 ]
             },
@@ -1780,6 +1831,78 @@
                         "map": "somnolent_forest",
                         "x": 332,
                         "y": 330
+                    }
+                ]
+            },
+            {
+                "name": "Somnolent Forest Middle",
+                "sections": [
+                    {
+                        "name": "Guard Bincho - Somnolent Forest"
+                    },
+                    {
+                        "name": "みはりのナミロスのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "Maid Bincho - Somnolent Forest Behind Steam"
+                    },
+                    {
+                        "name": "500 Drans Chest - Somnolent Forest Behind Steam"
+                    },
+                    {
+                        "name": "そうじふジョミーノのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "500ドランのはこ - すいまの森"
+                    },
+                    {
+                        "name": "Glasses Chest - Somnolent Forest"
+                    },
+                    {
+                        "name": "ひびわれメガネのはこ - すいまの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 298,
+                        "y": 698
+                    }
+                ]
+            },
+            {
+                "name": "Somnolent Forest Upper",
+                "sections": [
+                    {
+                        "name": "Seer Bincho - Somnolent Forest"
+                    },
+                    {
+                        "name": "うらないしギアラのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "Old Crown Chest - Somnolent Forest"
+                    },
+                    {
+                        "name": "しめったしょもつのはこ - すいまの森"
+                    },
+                    {
+                        "name": "Minku - Somnolent Forest Hidden Path"
+                    },
+                    {
+                        "name": "ミンクー - すいまの森"
+                    },
+                    {
+                        "name": "Minku - Somnolent Forest"
+                    },
+                    {
+                        "name": "ミンクー - すいまの森の川"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 600
                     }
                 ]
             },
@@ -2023,6 +2146,282 @@
                         "map": "steamwood_forest",
                         "x": 178,
                         "y": 70
+                    }
+                ]
+            },
+            {
+                "name": "Steamwood Forest",
+                "sections": [
+                    {
+                        "name": "MusicianB Bincho - Steamwood Forest"
+                    },
+                    {
+                        "name": "フーソッシモがくしのビンチョ - スチームウッドの森"
+                    },
+                    {
+                        "name": "Acrobat Bincho - Steamwood Forest"
+                    },
+                    {
+                        "name": "きょくげいしナムルのビンチョ - スチームウッドの森"
+                    },
+                    {
+                        "name": "Minku - Steamwood Forest"
+                    },
+                    {
+                        "name": "Sky Scroll - Sky Island"
+                    },
+                    {
+                        "name": "ミンクー - スチームウッドの森"
+                    },
+                    {
+                        "name": "ソラのまき - 空の巻の地"
+                    },
+                    {
+                        "name": "Aged Coin Chest - Steamwood Forest"
+                    },
+                    {
+                        "name": "あなあきコインのはこ - スチームウッドの森"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 570
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Hells Valley",
+        "children": [
+            {
+                "name": "Hells Valley",
+                "sections": [
+                    {
+                        "name": "Minku - Skullpion Arena"
+                    },
+                    {
+                        "name": "Defeat Earth Crest Guardian - Skullpion Arena"
+                    },
+                    {
+                        "name": "ミンクー - ヘルズバレー"
+                    },
+                    {
+                        "name": "倒すスカル゠ピオン - ヘルズバレー"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "hells_valley_arena",
+                        "x": 25,
+                        "y": 25
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Valley",
+        "children": [
+            {
+                "name": "Knitter Bincho - Twinpeak Path to Skullpion",
+                "sections": [
+                    {
+                        "name": "Knitter Bincho - Twinpeak Path to Skullpion"
+                    },
+                    {
+                        "name": "ぬのがかりビセットのビンチョ - ヘルズバレー"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "valley",
+                        "x": 63,
+                        "y": 180
+                    }
+                ]
+            },
+            {
+                "name": "200 Drans Chest - Twinpeak Path to Skullpion",
+                "sections": [
+                    {
+                        "name": "200 Drans Chest - Twinpeak Path to Skullpion"
+                    },
+                    {
+                        "name": "200ドランのはこ - ヘルズバレー"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "valley",
+                        "x": 40,
+                        "y": 171
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Frozen Palace Entrance",
+        "children": [
+            {
+                "name": "Red Shoes Chest - Frozen Palace Atrium Left Balcony",
+                "sections": [
+                    {
+                        "name": "Red Shoes Chest - Frozen Palace Atrium Left Balcony"
+                    },
+                    {
+                        "name": "まっかなボロぐつのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_entrance",
+                        "x": 83,
+                        "y": 63
+                    }
+                ]
+            },
+            {
+                "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony",
+                "sections": [
+                    {
+                        "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony"
+                    },
+                    {
+                        "name": "にくきりハーラミンのビンチョ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_entrance",
+                        "x": 243,
+                        "y": 44
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Frozen Palace Wolf Room",
+        "children": [
+            {
+                "name": "Chef Bincho - Frozen Palace Crate Pile",
+                "sections": [
+                    {
+                        "name": "Chef Bincho - Frozen Palace Crate Pile"
+                    },
+                    {
+                        "name": "クーパー・シェフのビンチョ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_wolf_room",
+                        "x": 95,
+                        "y": 178
+                    }
+                ]
+            },
+            {
+                "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony",
+                "sections": [
+                    {
+                        "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony"
+                    },
+                    {
+                        "name": "にくきりハーラミンのビンチョ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_entrance",
+                        "x": 243,
+                        "y": 44
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Frozen Palace Green Eye Maze",
+        "children": [
+            {
+                "name": "MusicianC Bincho - Frozen Palace Green Eye Maze",
+                "sections": [
+                    {
+                        "name": "MusicianC Bincho - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "ビビンバッハガくしのビンチョ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_green_eye_maze",
+                        "x": 200,
+                        "y": 114
+                    }
+                ]
+            },
+            {
+                "name": "Green Eye Chest - Frozen Palace Green Eye Maze",
+                "sections": [
+                    {
+                        "name": "Green Eye Chest - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "グリーンアイのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_green_eye_maze",
+                        "x": 79,
+                        "y": 307
+                    }
+                ]
+            },
+            {
+                "name": "White Cloth Chest - Frozen Palace Green Eye Maze",
+                "sections": [
+                    {
+                        "name": "White Cloth Chest - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "しろいぬのきれのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_green_eye_maze",
+                        "x": 154,
+                        "y": 69
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Frozen Palace Ramp Hallway",
+        "children": [
+            {
+                "name": "Red Cloth Chest - Frozen Palace Green Eye Maze",
+                "sections": [
+                    {
+                        "name": "Red Cloth Chest - Frozen Palace Green Eye Maze"
+                    },
+                    {
+                        "name": "あかいぬのきれのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_ramp_hallway",
+                        "x": 182,
+                        "y": 154
                     }
                 ]
             }

@@ -15,15 +15,36 @@ def map_page_index(data: Any) -> int:
     if not isinstance(data, int):
         return 0
 
+    if data in [0x1011, 0x1053, 0x1078, 0x1095]: #chapter 2, 3, 4, and 5/6
+        # upper village
+        return 1
     if data == 0x3014:
         # somnolent forest
-        return 1
+        return 2
     if data == 0x301c:
         # steamwood forest
-        return 2
+        return 3
     if data == 0x3021:
         # island of dragons
-        return 3
+        return 4
+    if data == 0x3024:
+        # skullpion arena
+        return 5
+    if data == 0x302b:
+        # path to skullpion
+        return 6
+    if data == 0x305c:
+        # frost palace entrance
+        return 7
+    if data == 0x305f:
+        # frost palace wolf room
+        return 8
+    if data == 0x3060:
+        # frost palace green eye maze
+        return 9
+    if data == 0x3061:
+        # frost palace ramp hallway
+        return 10
     return 0
     
 def location_icon_coords(index: int | None, coords: dict[str, Any]) -> tuple[int, int, str] | None:
