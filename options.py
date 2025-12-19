@@ -457,7 +457,7 @@ class RestaurantTeleportMazeNoFail(DefaultOnToggle):
 
 class ChurchFightTimeModifier(Range):
     """
-    Modify how fast the day timer for collecting Aqualin ticks down
+    Modify how fast the day timer progresses during the church fight
     50 -> 50% time progresses at half speed
     100 -> 100% vanilla
     600 -> 600% time progresses 6x faster than vanilla (may still need to move to not lose)

@@ -53,27 +53,69 @@
         "location_size": 18,
         "location_border_thickness": 2,
         "location_icon_size": 25,
-        "img": "images/maps/frozen_palace_entrance.png"
+        "img": "images/maps/FrozenPalace/frozen_palace_entrance.png"
+    },
+    {
+        "name": "frozen_palace_blue_eye_hallway",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/FrozenPalace/frozen_palace_blue_eye_hallway.png"
+    },
+    {
+        "name": "frozen_palace_red_eye_room",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/FrozenPalace/frozen_palace_red_eye_room.png"
     },
     {
         "name": "frozen_palace_wolf_room",
         "location_size": 18,
         "location_border_thickness": 2,
         "location_icon_size": 25,
-        "img": "images/maps/frozen_palace_wolf_room.png"
+        "img": "images/maps/FrozenPalace/frozen_palace_wolf_room.png"
     },
     {
         "name": "frozen_palace_green_eye_maze",
         "location_size": 18,
         "location_border_thickness": 2,
         "location_icon_size": 25,
-        "img": "images/maps/frozen_palace_green_eye_maze.png"
+        "img": "images/maps/FrozenPalace/frozen_palace_green_eye_maze.png"
     },
     {
         "name": "frozen_palace_ramp_hallway",
         "location_size": 18,
         "location_border_thickness": 2,
         "location_icon_size": 25,
-        "img": "images/maps/frozen_palace_ramp_hallway.png"
+        "img": "images/maps/FrozenPalace/frozen_palace_ramp_hallway.png"
+    },
+    {
+        "name": "frozen_palace_red_eye_maze",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/FrozenPalace/frozen_palace_red_eye_maze.png"
+    },
+    {
+        "name": "frozen_palace_red_eye_hallway",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/FrozenPalace/frozen_palace_red_eye_hallway.png"
+    },
+    {
+        "name": "frozen_palace_spike_bridge",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/FrozenPalace/frozen_palace_spike_bridge.png"
+    },
+    {
+        "name": "frozen_palace_ramp_to_dragon_church",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/FrozenPalace/frozen_palace_ramp_to_dragon_church.png"
     }
 ]

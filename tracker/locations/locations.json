@@ -2305,6 +2305,52 @@
         ]
     },
     {
+        "name": "Frozen Palace Blue Eye Hallway",
+        "children": [
+            {
+                "name": "Janitor Bincho - Frozen Palace Blue Eye Door",
+                "sections": [
+                    {
+                        "name": "Janitor Bincho - Frozen Palace Blue Eye Door"
+                    },
+                    {
+                        "name": "ベんじょのニクジルのビンチョ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_blue_eye_hallway",
+                        "x": 98,
+                        "y": 114
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Frozen Palace Red Eye Room",
+        "children": [
+            {
+                "name": "Red Eye Chest - Frozen Palace Red Eye Room",
+                "sections": [
+                    {
+                        "name": "Red Eye Chest - Frozen Palace Red Eye Room"
+                    },
+                    {
+                        "name": "レッドアイのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_red_eye_room",
+                        "x": 153,
+                        "y": 106
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "name": "Frozen Palace Wolf Room",
         "children": [
             {
@@ -2422,6 +2468,93 @@
                         "map": "frozen_palace_ramp_hallway",
                         "x": 182,
                         "y": 154
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Frozen Palace Red Eye Maze",
+        "children": [
+            {
+                "name": "Alchemist Bincho - Frozen Palace Red Eye Maze",
+                "sections": [
+                    {
+                        "name": "Alchemist Bincho - Frozen Palace Red Eye Maze"
+                    },
+                    {
+                        "name": "れんきんじゃつしのビンチョ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_red_eye_maze",
+                        "x": 112,
+                        "y": 206
+                    }
+                ]
+            },
+            {
+                "name": "Blue Eye Chest - Frozen Palace Red Eye Maze",
+                "sections": [
+                    {
+                        "name": "Blue Eye Chest - Frozen Palace Red Eye Maze"
+                    },
+                    {
+                        "name": "ブルーアイのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_red_eye_maze",
+                        "x": 56,
+                        "y": 111
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Frozen Palace Red Eye Hallway",
+        "children": [
+            {
+                "name": "Long Tube Chest - Frozen Palace Red Eye Door",
+                "sections": [
+                    {
+                        "name": "Long Tube Chest - Frozen Palace Red Eye Door"
+                    },
+                    {
+                        "name": "とんがりばうのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_red_eye_hallway",
+                        "x": 60,
+                        "y": 164
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Ramp to Dragon Church",
+        "children": [
+            {
+                "name": "Black Cloth Chest - Frost Dragon Door",
+                "sections": [
+                    {
+                        "name": "Black Cloth Chest - Frost Dragon Door"
+                    },
+                    {
+                        "name": "くろいぬのきれのはこ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frozen_palace_ramp_to_dragon_church",
+                        "x": 195,
+                        "y": 116
                     }
                 ]
             }
