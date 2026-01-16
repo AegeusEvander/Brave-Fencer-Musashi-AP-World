@@ -13,6 +13,8 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.using_ut = True
             world.passthrough = world.multiworld.re_gen_passthrough["Brave Fencer Musashi"]
             world.options.set_lang.value = world.passthrough["set_lang"]
+            world.options.playthrough_method.value = world.passthrough["playthrough_method"]
+            world.options.skip_over_bosses.value = world.passthrough["skip_over_bosses"]
             world.options.goal.value = world.passthrough["goal"]
             world.options.npc_goal.value = world.passthrough["npc_goal"]
             world.options.starting_hp.value = world.passthrough["starting_hp"]
@@ -25,10 +27,12 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.options.toy_sanity.value = world.passthrough["toy_sanity"]
             world.options.tech_sanity.value = world.passthrough["tech_sanity"]
             world.options.scroll_sanity.value = world.passthrough["scroll_sanity"]
+            world.options.wind_scroll_logic.value = world.passthrough["wind_scroll_logic"]
             world.options.sky_scroll_logic.value = world.passthrough["sky_scroll_logic"]
             world.options.core_sanity.value = world.passthrough["core_sanity"]
             world.options.level_sanity.value = world.passthrough["level_sanity"]
             world.options.xp_gain.value = world.passthrough["xp_gain"]
+            world.options.quest_item_sanity.value = world.passthrough["quest_item_sanity"]
             world.options.early_skullpion.value = world.passthrough["early_skullpion"]
         else:
             world.using_ut = False

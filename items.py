@@ -16,6 +16,7 @@ item_action_figure_id = 0x100
 scroll_base_id = 0x200
 core_base_id = 0x300
 level_base_id = 0x400
+quest_base_id = 0x500
 jp_id_offset = 0x0c0000
 
 item_table: Dict[str, BFMItemData] = {
@@ -154,6 +155,26 @@ item_table: Dict[str, BFMItemData] = {
     "Mind Stat Up": BFMItemData(IC.useful, 29, 0x2 + level_base_id, "Level", jp_name = "こころ アップ"),
     "Fusion Stat Up": BFMItemData(IC.useful, 29, 0x3 + level_base_id, "Level", jp_name = "らいこうまる アップ"),
     "Lumina Stat Up": BFMItemData(IC.useful, 29, 0x4 + level_base_id, "Level", jp_name = "レイガンド アップ"),
+    "Ugly Belt": BFMItemData(IC.progression, 1, 0x1 + quest_base_id, "Quest", jp_name = "きたないべルト"),
+    "Well H20": BFMItemData(IC.progression, 1, 0x2 + quest_base_id, "Quest", jp_name = "いど みず"),
+    "Jon's Key": BFMItemData(IC.progression, 1, 0x3 + quest_base_id, "Quest", jp_name = "ジャンのカギ"),
+    "Log": BFMItemData(IC.progression, 4, 0x4 + quest_base_id, "Quest", jp_name = "まるた"),
+    "Manual": BFMItemData(IC.progression, 1, 0x5 + quest_base_id, "Quest", jp_name = "ウッドのメモ"),
+    "Misteria": BFMItemData(IC.progression, 1, 0x6 + quest_base_id, "Quest", jp_name = "まばろしのはな"),
+    "Aqualin": BFMItemData(IC.progression, 1, 0x7 + quest_base_id, "Quest", jp_name = "いやしのみず"),
+    "Rope": BFMItemData(IC.progression, 1, 0x8 + quest_base_id, "Quest", jp_name = "かぎづめロープ"),
+    "Key": BFMItemData(IC.progression, 1, 0x9 + quest_base_id, "Quest", jp_name = "はいこうのカギ"),
+    "Angel Statue": BFMItemData(IC.progression, 1, 0xa + quest_base_id, "Quest", jp_name = "てんしのぞう"),
+    "Handle #0": BFMItemData(IC.progression, 1, 0xb + quest_base_id, "Quest", jp_name = "0ばんハンドル"),
+    "Handle #1": BFMItemData(IC.progression, 1, 0xc + quest_base_id, "Quest", jp_name = "1ばんハンドル"),
+    "Handle #4": BFMItemData(IC.progression, 1, 0xd + quest_base_id, "Quest", jp_name = "4ばんハンドル"),
+    "Handle #8": BFMItemData(IC.progression, 1, 0xe + quest_base_id, "Quest", jp_name = "8ばんハンドル"),
+    "Calendar": BFMItemData(IC.filler, 1, 0xf + quest_base_id, "Quest", jp_name = "カレンダー"),
+    "Rock Salt": BFMItemData(IC.progression, 1, 0x10 + quest_base_id, "Quest", jp_name = "あらじお"),
+    "Gondola Gizmo?": BFMItemData(IC.filler, 3, 0x11 + quest_base_id, "Quest", jp_name = "ゴンドラパーツ?"),
+    "Gondola Gizmo": BFMItemData(IC.progression, 1, 0x12 + quest_base_id, "Quest", jp_name = "ゴンドラパーツ"),
+    "Profits": BFMItemData(IC.progression, 1, 0x13 + quest_base_id, "Quest", jp_name = "うりあげきん"),
+    "Note": BFMItemData(IC.filler, 1, 0x14 + quest_base_id, "Quest", jp_name = "ジャンのメモ"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints

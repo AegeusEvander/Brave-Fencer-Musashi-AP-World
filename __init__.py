@@ -116,6 +116,9 @@ class BFMWorld(UTMxin, World):
             self.options.level_sanity.value = False
             for name in location_name_groups["Level"]:
                 del self.player_location_table[name]
+        if(self.options.quest_item_sanity.value == False):
+            for name in location_name_groups["Quest"]:
+                del self.player_location_table[name]
         
         if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
@@ -183,6 +186,8 @@ class BFMWorld(UTMxin, World):
         slot_data: Dict[str, Any] = {
             "version": __version__,
             "set_lang": self.options.set_lang.value,
+            "playthrough_method": self.options.playthrough_method.value,
+            "skip_over_bosses": self.options.skip_over_bosses.value,
             "goal": self.options.goal.value,
             "npc_goal": self.options.npc_goal.value,
             "starting_hp": self.options.starting_hp.value,
@@ -198,6 +203,7 @@ class BFMWorld(UTMxin, World):
             "toy_sanity": self.options.toy_sanity.value,
             "tech_sanity": self.options.tech_sanity.value,
             "scroll_sanity": self.options.scroll_sanity.value,
+            "wind_scroll_logic": self.options.wind_scroll_logic.value,
             "sky_scroll_logic": self.options.sky_scroll_logic.value,
             "core_sanity": self.options.core_sanity.value,
             "level_sanity": self.options.level_sanity.value,
@@ -205,6 +211,7 @@ class BFMWorld(UTMxin, World):
             "stat_gain_modifier": self.options.stat_gain_modifier.value,
             "xp_gain": self.options.xp_gain.value,
             "xp_gain_mind": self.options.xp_gain_mind.value,
+            "quest_item_sanity": self.options.quest_item_sanity.value,
             "early_skullpion": self.options.early_skullpion.value,
             "boulder_chase_zoom": self.options.boulder_chase_zoom.value,
             "leno_sniff_modifier": self.options.leno_sniff_modifier.value,
@@ -302,6 +309,10 @@ class BFMWorld(UTMxin, World):
             for name in item_name_groups["Level"]:
                 if(name in item_table):
                     items_to_create[name] = self.options.level_bundles.value
+        if(self.options.quest_item_sanity.value == False):
+            for name in item_name_groups["Quest"]:
+                if(name in item_table):
+                    del items_to_create[name] 
 
         if(self.options.starting_hp.value == 1):
             items_to_create["Longevity Berry"] = 0
@@ -339,6 +350,13 @@ class BFMWorld(UTMxin, World):
                 self.multiworld.early_items[self.player]["KnightB"] = 1
                 if(self.options.lumina_randomzied.value == True):
                     self.multiworld.early_items[self.player]["Lumina"] = 1
+        
+        self.get_region("Skullpion Arena").add_event("Earth Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Relic Keeper Arena").add_event("Water Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Frost Dragon Arena").add_event("Fire Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Queen Ant Arena").add_event("Wind Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        #final_boss_room.add_event(
+        #"Final Boss Defeated", "Victory", location_type=APQuestLocation, item_type=items.APQuestItem)
 
     def get_filler_item_name(self) -> str:
         return "1000 Drans"
@@ -352,6 +370,9 @@ class BFMWorld(UTMxin, World):
         print(self.options.set_lang.value)
         set_region_rules(self)
         set_location_rules(self, self.options.set_lang.value == 2 and (self.options.spoiler_items_in_english.value == False or self.using_ut == True))
+        if(self.options.quest_item_sanity.value == True):
+            self.multiworld.register_indirect_condition(self.get_region("Twinpeak Second Peak"), self.get_entrance("Twinpeak Waterfall Cave 2 -> Twinpeak Second Peak"))
+        self.multiworld.register_indirect_condition(self.get_region("Grillin Reservoir"), self.get_entrance("Grillin Village -> Grillin Reservoir"))
 
     # Taken from Tunic APWorld https://github.com/ArchipelagoMW/Archipelago/blob/main/worlds/tunic/__init__.py#L713
     # for the universal tracker, doesn't get called in standard gen

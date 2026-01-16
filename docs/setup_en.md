@@ -4,8 +4,8 @@
 - [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases). Please use version 0.4.4 or later for integrated
 BizHawk support.
 - Brave Fencer Musashi NTSC: BIN(s)/CUE. 
-- Delta Patcher program that handles xdelta [Releases page](https://github.com/marco-calautti/DeltaPatcher/releases/latest). 
-Alternatively if on Linux download the `Delta Patcher` on flatpak
+- ~~Delta Patcher program that handles xdelta [Releases page](https://github.com/marco-calautti/DeltaPatcher/releases/latest). 
+Alternatively if on Linux download the `Delta Patcher` on flatpak~~ No longer needed
 - [BizHawk](https://tasvideos.org/BizHawk/ReleaseHistory) 2.7 or later. Other emulators are not supported.
 - The latest `bfm.apworld` file. You can find this on the [Releases page](https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases). Put this in your `Archipelago/custom_worlds` folder, if on windows and archipelago is installed double clicking on bfm.apworld should do this for you.
 - Brave Fencer Musashi AP Randomizer xdelta patch file [Releases page](https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases)

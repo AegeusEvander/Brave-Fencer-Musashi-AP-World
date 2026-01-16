@@ -28,11 +28,85 @@ import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
 from pathlib import Path
 import os
+import Utils
 import zipfile
 
 if TYPE_CHECKING:
-    from worlds._bizhawk.context import BizHawkClientContext
+    from worlds._bizhawk.context import BizHawkClientContext, BizHawkClientCommandProcessor
     from NetUtils import JSONMessagePart
+
+#command taken from Ape Escape AP World
+def cmd_deathlink(self: "BizHawkClientCommandProcessor", status = "") -> None:
+    from CommonClient import logger
+    """Toggle Deathlink on and off"""
+    from worlds._bizhawk.context import BizHawkClientContext
+    if self.ctx.game != "Brave Fencer Musashi":
+        logger.warning("This command can only be used when playing Brave Fencer Musashi.")
+        return
+    if not self.ctx.server or not self.ctx.slot:
+        logger.warning("You must be connected to a server to use this command.")
+        return
+
+    ctx = self.ctx
+    assert isinstance(ctx, BizHawkClientContext)
+    client = ctx.client_handler
+    assert isinstance(client, BFMClient)
+    if status == "":
+        if client.deathlink == 1 or (client.deathlink == -1 and ctx.slot_data["deathlink"]):
+            msg = "ON"
+        else:
+            msg = "OFF"
+        logger.info(f"Deathlink: {msg}\n"
+                    f"    To change the status, use the command like so: /deathlink [on/off]")
+        return
+    elif status.lower() == "on":
+        client.previous_death_link = ctx.last_death_link
+        client.deathlink = 1
+    elif status.lower() == "off":
+        client.deathlink = 0
+    else:
+        logger.info(f"Invalid argument for function ""deathlink""\n")
+        return
+    
+    if client.deathlink == 1:
+        Utils.async_start(ctx.update_death_link(True))
+        msg = "ON"
+    else:
+        Utils.async_start(ctx.update_death_link(False))
+        msg = "OFF"
+
+    logger.info(f"Deathlink is now {msg}\n")
+
+def cmd_goal(self: "BizHawkClientCommandProcessor", status = "") -> None:
+    from CommonClient import logger
+    """check Goal"""
+    from worlds._bizhawk.context import BizHawkClientContext
+    if self.ctx.game != "Brave Fencer Musashi":
+        logger.warning("This command can only be used when playing Brave Fencer Musashi.")
+        return
+    if not self.ctx.server or self.ctx.server.socket.closed or not self.ctx.slot:
+        logger.warning("You must be connected to a server to use this command.")
+        return
+
+    ctx = self.ctx
+    assert isinstance(ctx, BizHawkClientContext)
+    client = ctx.client_handler
+    assert isinstance(client, BFMClient)
+    npc_num = ctx.slot_data["npc_goal"]
+    goal_names = [
+        "rescue all npcs",
+        f'rescue {npc_num} npcs',
+        "defeat earth crest guardian",
+        "defeat water crest guardian",
+        "defeat fire crest guardian",
+        "defeat wind crest guardian",
+        "defeat sky crest guardian",
+        "defeat final boss"
+    ]
+    string_message = f"Your current goal: {goal_names[ctx.slot_data["goal"] - 1]}"
+    logger.info(string_message)
+    Utils.async_start(bizhawk.display_message(ctx.bizhawk_ctx, string_message))
+
 
 MAIN_RAM: typing.Final[str] = "MainRAM"
 PLAYER_CURR_HP_MEMORY: typing.Final[int] = 0x078EB4
@@ -56,6 +130,7 @@ class BFMClient(BizHawkClient):
     tech_checks = [False] * 7
     scroll_checks = [False] * 5
     core_checks = [False] * 4
+    quest_checks = [False] * 26
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -109,6 +184,11 @@ class BFMClient(BizHawkClient):
     elevator_active = True
     jp_version = False
     table_ids_to_hint = []
+    deathlink = -1
+    Commands_Dict = {
+        "deathlink": "cmd_deathlink",
+        "goal": "cmd_goal",
+    }
 
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
@@ -125,6 +205,7 @@ class BFMClient(BizHawkClient):
         self.jp_version = False
         # = SLUS-00726MUSASHI in ASCII, code taken from AP Forbidden Memories
         bytes_expected: bytes = bytes.fromhex("534C55532D30303732364D555341534849")
+        Commands_List = list(self.Commands_Dict.keys())
         try:
             bytes_actual: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
                 bfm_identifier_ram_address, len(bytes_expected), MAIN_RAM
@@ -182,10 +263,16 @@ class BFMClient(BizHawkClient):
                                                                 0x0775a7, len(bytes_expected), MAIN_RAM
                                                             )]))[0]
                                                             if bytes_actual != bytes_expected:
+                                                                for command in Commands_List:
+                                                                    if command in ctx.command_processor.commands:
+                                                                        ctx.command_processor.commands.pop(command)
                                                                 return False
                                                         self.jp_version = True
                                                         logger.info("JP Version Detected")
         except Exception:
+            for command in Commands_List:
+                if command in ctx.command_processor.commands:
+                    ctx.command_processor.commands.pop(command)
             return False
 
         ctx.game = self.game
@@ -193,6 +280,11 @@ class BFMClient(BizHawkClient):
         ctx.want_slot_data = True
         #ctx.watcher_timeout = 0.125  # value taken from Forbiden Memories, taken from Pokemon Emerald's client
         ctx.watcher_timeout = 0.25  
+        for command in Commands_List:
+            if command not in ctx.command_processor.commands:
+                functionName = self.Commands_Dict[command]
+                linkedfunction = globals()[functionName]
+                ctx.command_processor.commands[command] = linkedfunction
         #self.random = Random()  # used for silly random deathlink messages
         logger.info(f"Brave Fencer Musashi Client v{__version__}. For updates:")
         logger.info("https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases")
@@ -333,6 +425,9 @@ class BFMClient(BizHawkClient):
                 new_mind_lvl = self.curr_mind_lvl
                 new_fus_lvl = self.curr_fus_lvl
                 new_lum_lvl = self.curr_lum_lvl
+
+            if(ctx.slot_data["quest_item_sanity"] == True):
+                indexes_to_read = []
 
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
@@ -2759,7 +2854,7 @@ class BFMClient(BizHawkClient):
                     "create_as_hint": 0
                 }])
 
-            if(ctx.slot_data["deathlink"]):
+            if((ctx.slot_data["deathlink"] and self.deathlink == -1) or self.deathlink == 1):
                 if self.death_link_timer > 0 and self.has_died == 0:
                     self.death_link_timer -= 1
                     if self.death_link_timer == 0:

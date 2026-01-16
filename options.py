@@ -25,6 +25,28 @@ class SpoilerItemsInEnglish(DefaultOnToggle):
     internal_name = "spoiler_items_in_english"
     display_name = "Spoiler Items Displayed in English"
 
+class PlaythroughMethod(Choice):
+    """
+    Select how you would like the game to progress storywise
+
+    Linear - Vanilla playthrough, go through the chapters in linear order
+    Open World - Most things can be done in any order as long as requirements are met to unlock
+    """
+    internal_name = "playthrough_method"
+    display_name = "Playthrough Method"
+    option_linear = 1
+    option_open_world = 2
+    default = 1
+
+class SkipOverBosses(Toggle):
+    """
+    Only used when set to a linear playthrough
+
+    Allows starting the next chapter without killing the crest guardian (can be fought later)
+    """
+    internal_name = "skip_over_bosses"
+    display_name = "Skip Over Bosses"
+
 class SetGoal(Choice):
     """
     Select which Goal in order to win this game of Brave Fencer Musashi
@@ -142,6 +164,22 @@ class ScrollSanity(Toggle):
     internal_name = "scroll_sanity"
     display_name = "Scroll Sanity"
 
+class WindScrollLogic(Choice):
+    """
+    Only Considered when Scroll Sanity is On. Changes what is considered in logic when Wind Scroll is available
+
+    Vanilla - Using Wind Scroll is only required for traversal that it is needed in Vanilla logic
+    Simple - Wind Scroll jump maybe required in areas that need double jump height and are easy to do
+    Complex - Wind Scroll jump maybe rquired in areas that need double jump height and have precise jumping timings or landings require swapping scrolls (still need double jump for everything Soda Fountain)
+              Wind Scroll may also be expected to use as a replacement in some boss battles
+    """
+    internal_name = "wind_scroll_logic"
+    display_name = "Wind Scroll Logic"
+    option_vanilla = 1
+    option_simple = 2
+    option_complex = 3
+    default = 1
+
 class SkyScrollLogic(Choice):
     """
     Only Considered when Scroll Sanity is On. Changes what is considered in logic when Sky Scroll is available
@@ -230,6 +268,13 @@ class XPGainMind(Choice):
     option_ten_fold = 6
     option_one_hundred_fold = 7
     default = 1
+
+class QuestItemSanity(Toggle):
+    """
+    Randomize the items needed to progress the story (i.e. Jon's Key, Logs, Steamwood handles, etc.)
+    """
+    internal_name = "quest_item_sanity"
+    display_name = "Quest Item Sanity"
 
 class EarlySkullpion(Toggle):
     """
@@ -554,6 +599,8 @@ class CustomHairColor(FreeText):
 class BFMOptions(PerGameCommonOptions):
     set_lang: SetLang
     spoiler_items_in_english: SpoilerItemsInEnglish
+    playthrough_method: PlaythroughMethod
+    skip_over_bosses: SkipOverBosses
     goal: SetGoal
     npc_goal: NPCGoal
     starting_hp: StartingMaxHP
@@ -567,6 +614,7 @@ class BFMOptions(PerGameCommonOptions):
     toy_sanity: ToySanity
     tech_sanity: TechSanity
     scroll_sanity: ScrollSanity
+    wind_scroll_logic: WindScrollLogic
     sky_scroll_logic: SkyScrollLogic
     core_sanity: CoreSanity
     level_sanity: LevelSanity
@@ -574,6 +622,7 @@ class BFMOptions(PerGameCommonOptions):
     stat_gain_modifier: StatGainModifier
     xp_gain: XPGain
     xp_gain_mind: XPGainMind
+    quest_item_sanity: QuestItemSanity
     early_skullpion: EarlySkullpion
     boulder_chase_zoom: BoulderChaseZoomLevel
     leno_sniff_modifier: LenoSniffModifier
