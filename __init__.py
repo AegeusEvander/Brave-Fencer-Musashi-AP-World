@@ -11,6 +11,7 @@ from Options import PlandoConnection, OptionError
 from settings import Group, Bool
 from .hair_color import hair_color_options, new_hair_color
 from .utils import Constants
+from Utils import visualize_regions
 # This registers the client. The comment ignores "unused import" linter messages
 from .client import BFMClient  # type: ignore  # noqa
 from .version import __version__
@@ -262,7 +263,8 @@ class BFMWorld(UTMxin, World):
                 return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name]-jp_id_offset, self.player)
         if(self.options.set_lang.value == 2):
             if(self.options.spoiler_items_in_english.value == True):
-                return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name], self.player)
+                if(not name in item_table):
+                    return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name], self.player)
         return BFMItem(name, itemclass, self.item_name_to_id[name], self.player)
         #return BFMItem(item_data.jp_name, itemclass, self.item_name_to_id[name], self.player)
 
@@ -350,11 +352,11 @@ class BFMWorld(UTMxin, World):
                 self.multiworld.early_items[self.player]["KnightB"] = 1
                 if(self.options.lumina_randomzied.value == True):
                     self.multiworld.early_items[self.player]["Lumina"] = 1
-        
-        self.get_region("Skullpion Arena").add_event("Earth Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
-        self.get_region("Relic Keeper Arena").add_event("Water Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
-        self.get_region("Frost Dragon Arena").add_event("Fire Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
-        self.get_region("Queen Ant Arena").add_event("Wind Crest Guadian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        warning("adding boss killed events")
+        self.get_region("Skullpion Arena").add_event("Earth Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Relic Keeper Arena").add_event("Water Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Frost Dragon Arena").add_event("Fire Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Queen Ant Arena").add_event("Wind Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         #final_boss_room.add_event(
         #"Final Boss Defeated", "Victory", location_type=APQuestLocation, item_type=items.APQuestItem)
 
@@ -371,9 +373,15 @@ class BFMWorld(UTMxin, World):
         set_region_rules(self)
         set_location_rules(self, self.options.set_lang.value == 2 and (self.options.spoiler_items_in_english.value == False or self.using_ut == True))
         if(self.options.quest_item_sanity.value == True):
-            self.multiworld.register_indirect_condition(self.get_region("Twinpeak Second Peak"), self.get_entrance("Twinpeak Waterfall Cave 2 -> Twinpeak Second Peak"))
+            warning(" quest sanity is on !?!?!")
+        warning("registering indirect connections")
+        self.multiworld.register_indirect_condition(self.get_region("Twinpeak Second Peak"), self.get_entrance("Twinpeak Waterfall Cave 2 -> Twinpeak Second Peak"))
         self.multiworld.register_indirect_condition(self.get_region("Grillin Reservoir"), self.get_entrance("Grillin Village -> Grillin Reservoir"))
-
+        self.multiworld.register_indirect_condition(self.get_region("Skullpion Arena"), self.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena"))
+        self.multiworld.register_indirect_condition(self.get_region("Relic Keeper Arena"), self.get_entrance("Restaurant Basement Path to Crest Guardian -> Relic Keeper Arena"))
+        self.multiworld.register_indirect_condition(self.get_region("Frost Dragon Arena"), self.get_entrance("Frost Dragon Door -> Frost Dragon Arena"))
+        self.multiworld.register_indirect_condition(self.get_region("Queen Ant Arena"), self.get_entrance("Upper Mines Poison Elevators -> Queen Ant Arena"))
+        visualize_regions(self.multiworld.get_region("Menu", self.player), "my_world.puml")
     # Taken from Tunic APWorld https://github.com/ArchipelagoMW/Archipelago/blob/main/worlds/tunic/__init__.py#L713
     # for the universal tracker, doesn't get called in standard gen
     # docs: https://github.com/FarisTheAncient/Archipelago/blob/tracker/worlds/tracker/docs/re-gen-passthrough.md

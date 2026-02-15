@@ -104,7 +104,7 @@ def has_ex_drink(state: CollectionState, world: "BFMWorld") -> bool:
 
 def has_raft(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.quest_item_sanity.value == True):
-        return state.has(check_item_name("Log", world), world.player, 4) and state.can_reach_region("Twinpeak Second Peak", world.player)
+        return state.has(check_item_name("Log", world), world.player, 4) #TODO Re-add| and state.can_reach_region("Twinpeak Second Peak", world.player)
     else:
         return has_lumina(state, world) and has_bread(state, world) 
 
@@ -127,7 +127,7 @@ def has_aqualin(state: CollectionState, world: "BFMWorld") -> bool:
     return True
 
 def has_rescued_tim(state: CollectionState, world: "BFMWorld") -> bool:
-    return (has_earth_scroll(state, world) and (has_lumina(state, world) or has_sky_scroll_complex(state, world)) or (can_double_jump(state, world) and has_sky_scroll_complex(state, world))) and has_completed_chapter_2(state, world) and has_misteria(state, world) and has_aqualin(state, world) and state.can_reach_region("Twinpeak Second Peak", world.player)
+    return (has_earth_scroll(state, world) and (has_lumina(state, world) or has_sky_scroll_complex(state, world)) or (can_double_jump(state, world) and has_sky_scroll_complex(state, world))) and has_completed_chapter_2(state, world) and has_misteria(state, world) and has_aqualin(state, world) #TODO Re-add| and state.can_reach_region("Twinpeak Second Peak", world.player)
 
 def can_complete_steamwood_1(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.quest_item_sanity.value == True):
@@ -298,7 +298,7 @@ def set_region_rules(world: "BFMWorld") -> None:
     world.get_entrance("Twinpeak Entrance -> Twinpeak Path to Skullpion").access_rule = \
         lambda state: has_earth_scroll(state, world) or has_sky_scroll_simple(state, world)
     world.get_entrance("Twinpeak Entrance -> Twinpeak Around the Bend").access_rule = \
-        lambda state: has_bread(state,world) and has_jon_key(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world) or can_double_jump(state, world)
+        lambda state: (has_bread(state,world) and has_jon_key(state, world)) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world) or can_double_jump(state, world)
     world.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena").access_rule = \
         lambda state: can_fight_skullpion(state, world)
     world.get_entrance("Restaurant Basement -> Restaurant Basement Path to Crest Guardian").access_rule = \
@@ -386,13 +386,15 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         set_rule(world.get_location(check_location_name("Return Bell - Grillin Village", lang)),
             lambda state: has_rescued_tim(state, world) and can_double_jump(state, world) and can_enter_mine(state, world) and (has_water_scroll(state, world) or has_sky_scroll_simple(state, world)))
         set_rule(world.get_location(check_location_name("Mrs Govern's Pie - Grillin Village", lang)),
-            lambda state: has_completed_chapter_3(state, world) and has_water_boss_core(state, world))
+            lambda state: has_completed_chapter_3(state, world) and has_fixed_well(state, world))
         set_rule(world.get_location(check_location_name("Reward #1 After Extinguishing Village - Grillin Village", lang)),
             lambda state: has_completed_chapter_3(state, world) and has_fixed_gondola(state, world))
         set_rule(world.get_location(check_location_name("Reward #2 After Extinguishing Village - Grillin Village", lang)),
             lambda state: has_completed_chapter_3(state, world) and has_fixed_gondola(state, world))
         set_rule(world.get_location(check_location_name("Jon's Note - Somnolent Forest Deadend", lang)),
             lambda state: state.can_reach_region("Queen Ant Arena", player) and has_wind_boss_core(state, world))
+        set_rule(world.get_location(check_location_name("Ugly Belt - Restaurant Basement", lang)),
+            lambda state: has_lumina(state, world))#eventually will need to add requirements for four eyes
     add_rule(world.get_location(check_location_name("Weaver Bincho - Twinpeak Second Peak", lang)),
         lambda state: can_double_jump(state, world) or has_sky_scroll_simple(state, world)) 
     set_rule(world.get_location(check_location_name("Minku - Twinpeak End of Stream", lang)),
@@ -438,14 +440,14 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         lambda state: ((has_water_scroll(state, world) or has_sky_scroll_simple(state, world)) and has_earth_scroll(state, world)) or has_sky_scroll_complex(state, world) or (has_raft(state, world) and has_earth_scroll(state,world)))
     set_rule(world.get_location(check_location_name("Glasses Chest - Somnolent Forest", lang)),
         lambda state: has_water_scroll(state, world) and has_water_boss_core(state, world))
-    set_rule(world.get_location(check_location_name("Ugly Belt - Restaurant Basement", lang)),
-        lambda state: has_lumina(state, world))#eventually will need to add requirements for four eyes
     set_rule(world.get_location(check_location_name("Minku - Grillin Reservoir", lang)),
         lambda state: (has_water_scroll(state, world) and has_water_boss_core(state, world)) or has_sky_scroll_simple(state, world))     
     set_rule(world.get_location(check_location_name("Old Shirt Chest - Grillin Reservoir", lang)),
         lambda state: (has_water_scroll(state, world) and has_water_boss_core(state, world)) or has_sky_scroll_simple(state, world))    
     set_rule(world.get_location(check_location_name("Used Boot Chest - Grillin Reservoir", lang)),
         lambda state: has_water_scroll(state, world) and has_water_boss_core(state, world))
+    set_rule(world.get_location(check_location_name("Chef Bincho - Frozen Palace Crate Pile", lang)),
+        lambda state: can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world))
     set_rule(world.get_location(check_location_name("White Cloth Chest - Frozen Palace Green Eye Maze", lang)),
         lambda state: can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world))
     add_rule(world.get_location(check_location_name("MusicianC Bincho - Frozen Palace Green Eye Maze", lang)),

@@ -308,6 +308,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Handle #4 - Steamwood 2": BFMLocationData("Steamwood 2",location_group = "Quest", jp_name = "4ばんハンドル - スチームウッド"),
     "Handle #8 - Steamwood 2": BFMLocationData("Steamwood 2",location_group = "Quest", jp_name = "8ばんハンドル - スチームウッド"),
     "Profits - Steamwood 2": BFMLocationData("Steamwood 2",location_group = "Quest", jp_name = "うりあげきん - スチームウッド"),
+    "Accept or Reject Profits - Grillin Village": BFMLocationData("Steamwood 2",location_group = "Quest", jp_name = "うりあげきん - アミヤクイ村"),
     "Jon's Note - Somnolent Forest Deadend": BFMLocationData("Somnolent Forest Deadend",location_group = "Quest", jp_name = "ジャンのメモ - すいまの森"),
 }
 

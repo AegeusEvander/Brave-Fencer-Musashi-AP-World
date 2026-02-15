@@ -42,15 +42,17 @@ rsync -avq --delete "$temp_dir/bfm/" "$HOME/Documents/ArchipelagoSource/Archipel
 # Clean up temporary directory
 rm -rf "$temp_dir"
 
-cd "$HOME/Documents/ArchipelagoSource/Archipelago/"
+cd "$HOME/Documents/ArchipelagoSource/"
+#cd "$HOME/Documents/ArchipelagoSource/Archipelago/"
 
 python3 -m venv venv
 source venv/bin/activate
+cd "Archipelago/"
 python3 -m pip install --upgrade pip
 python3 ModuleUpdate.py --yes --force
 python3 Launcher.py "Build APWorlds" -- "Brave Fencer Musashi"
 
-cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.5/Archipelago/custom_worlds"
+cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.6/Archipelago/custom_worlds"
 
 cd "$folder"
 

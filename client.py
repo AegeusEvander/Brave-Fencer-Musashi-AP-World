@@ -20,6 +20,8 @@ from .items import npc_ids, item_id_to_name, item_name_to_id, item_name_groups, 
 from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations, toy_shop_locations, toy_shop_fix, toy_shop_dialog, toy_shop_dialog_length, tech_fix, tech_check_locations, appraisal_items_buy_cost, appraisal_l_armor_buy_cost, key_item_buy_cost, store_sanity_buy_cost
 from .stats import body_xp, mind_xp, lumina_xp, fusion_xp, body_stat, mind_stat, lumina_stat, fusion_stat, level_memory_ids
 from .jp_encoding import jp_encoding
+from .quest_items import quest_item_locations, well_water_id
+from .portals import bfm_portals
 import math
 import random
 from NetUtils import ClientStatus
@@ -37,8 +39,8 @@ if TYPE_CHECKING:
 
 #command taken from Ape Escape AP World
 def cmd_deathlink(self: "BizHawkClientCommandProcessor", status = "") -> None:
-    from CommonClient import logger
     """Toggle Deathlink on and off"""
+    from CommonClient import logger
     from worlds._bizhawk.context import BizHawkClientContext
     if self.ctx.game != "Brave Fencer Musashi":
         logger.warning("This command can only be used when playing Brave Fencer Musashi.")
@@ -77,9 +79,9 @@ def cmd_deathlink(self: "BizHawkClientCommandProcessor", status = "") -> None:
 
     logger.info(f"Deathlink is now {msg}\n")
 
-def cmd_goal(self: "BizHawkClientCommandProcessor", status = "") -> None:
-    from CommonClient import logger
+def cmd_goal(self: "BizHawkClientCommandProcessor") -> None:
     """check Goal"""
+    from CommonClient import logger
     from worlds._bizhawk.context import BizHawkClientContext
     if self.ctx.game != "Brave Fencer Musashi":
         logger.warning("This command can only be used when playing Brave Fencer Musashi.")
@@ -130,7 +132,7 @@ class BFMClient(BizHawkClient):
     tech_checks = [False] * 7
     scroll_checks = [False] * 5
     core_checks = [False] * 4
-    quest_checks = [False] * 26
+    quest_item_checks = [False] * 29
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -285,9 +287,10 @@ class BFMClient(BizHawkClient):
                 functionName = self.Commands_Dict[command]
                 linkedfunction = globals()[functionName]
                 ctx.command_processor.commands[command] = linkedfunction
-        #self.random = Random()  # used for silly random deathlink messages
         logger.info(f"Brave Fencer Musashi Client v{__version__}. For updates:")
         logger.info("https://github.com/AegeusEvander/Brave-Fencer-Musashi-AP-World/releases")
+        logger.info("test: %s",bfm_portals[0x3000].region)
+        logger.info("test: %s",bfm_portals[0x3000].connections[0].door)
         #logger.info(f"This Archipelago slot was generated with v{ctx.slot_data["version"]}")
         return True
     
@@ -314,10 +317,19 @@ class BFMClient(BizHawkClient):
             return
         try:
             check_game_state: bytes = bytes.fromhex("0b")
-            game_state: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
-                0x0b99de + (self.jp_version * -0xea0) , 1, MAIN_RAM
-            )]))[0]
-            if check_game_state != game_state:
+            #game_state: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(
+            #    0x0b99de + (self.jp_version * -0xea0) , 1, MAIN_RAM
+            #)]))[0]
+            game_state: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [
+                (0x0b99de + (self.jp_version * -0xea0), 1, MAIN_RAM), #is in main menu
+                (0x0ae671 + (self.jp_version * -0xea0), 9, MAIN_RAM), #bincho sanity
+                (0x0ae650 + (self.jp_version * -0xea0), 2, MAIN_RAM), #minku sanity
+                (0x0ae651 + (self.jp_version * -0xea0), 5, MAIN_RAM), #chest sanity
+                (0x0ba21b + (self.jp_version * -0xea0), 43, MAIN_RAM), #toy sanity
+            ] + tech_check_locations[self.jp_version] + level_memory_ids[self.jp_version] + quest_item_locations[self.jp_version] +
+            [(0x0b9a08 + (self.jp_version * -0xea0), 2, MAIN_RAM)]    
+            ))
+            if check_game_state != game_state[0]:
                 self.received_count = 0
                 self.hair_color_updated = 0
                 self.old_step_count = 0
@@ -327,12 +339,13 @@ class BFMClient(BizHawkClient):
                 return
             #global bincho_checks
             from CommonClient import logger
-
+            #logger.info("data dump %s", game_state)
             received_list: List[int] = [received_item[0] - ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) for received_item in ctx.items_received]
-            save_data: bytes = (await bizhawk.read(
-                ctx.bizhawk_ctx,
-                [(0x0ae671 + (self.jp_version * -0xea0), 9, MAIN_RAM)] #jp version 0x0ad7d1
-            ))[0]
+            save_data: bytes = game_state[1]
+            #save_data: bytes = (await bizhawk.read(
+            #    ctx.bizhawk_ctx,
+            #    [(0x0ae671 + (self.jp_version * -0xea0), 9, MAIN_RAM)] #jp version 0x0ad7d1
+            #))[0]
             holdint = [save_data[0],save_data[1],save_data[2],save_data[3]]
             new_bincho_checks = self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 32)
             #logger.info("What was read 0 in 0aae671 %s",self.bincho_checks)
@@ -354,18 +367,19 @@ class BFMClient(BizHawkClient):
                 new_grocery_checks = self.grocery_checks
             holdint = [save_data[7],save_data[8]]
             new_scroll_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 10, [0,1,2,3,4])
-
-            save_data = (await bizhawk.read(
-                ctx.bizhawk_ctx,
-                [(0x0ae650 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
-            ))[0]
+            save_data = game_state[2]
+            #save_data = (await bizhawk.read(
+            #    ctx.bizhawk_ctx,
+            #    [(0x0ae650 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
+            #))[0]
             holdint = [save_data[0],save_data[1]]
             new_minku_checks = self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 13)
             
-            save_data: bytes = (await bizhawk.read(
-                ctx.bizhawk_ctx,
-                [(0x0ae651 + (self.jp_version * -0xea0), 5, MAIN_RAM)]
-            ))[0]
+            save_data = game_state[3]
+            #save_data: bytes = (await bizhawk.read(
+            #    ctx.bizhawk_ctx,
+            #    [(0x0ae651 + (self.jp_version * -0xea0), 5, MAIN_RAM)]
+            #))[0]
             holdint = [save_data[0],save_data[1],save_data[2],save_data[3]]
             new_chest_checks = self.decode_booleans_with_exclusions(int.from_bytes(holdint, byteorder='little'), 32, self.chest_indices_to_skip)
             #logger.info("What was read 0 in 0aae671 %s",self.bincho_checks)
@@ -374,10 +388,11 @@ class BFMClient(BizHawkClient):
 
             save_data_toys: bytes = bytes()
             if(ctx.slot_data["toy_sanity"] == True or ctx.slot_data["core_sanity"] == True or ctx.slot_data["goal"] > 2):
-                save_data_toys = (await bizhawk.read(
-                    ctx.bizhawk_ctx,
-                    [(0x0ba21b + (self.jp_version * -0xea0), 43, MAIN_RAM)]
-                ))[0]
+                save_data_toys = game_state[4]
+            #    save_data_toys = (await bizhawk.read(
+            #        ctx.bizhawk_ctx,
+            #        [(0x0ba21b + (self.jp_version * -0xea0), 43, MAIN_RAM)]
+            #    ))[0]
 
             if(ctx.slot_data["toy_sanity"] == True):
                 save_data: bytes = save_data_toys[:30]
@@ -407,7 +422,8 @@ class BFMClient(BizHawkClient):
                 new_core_checks = self.core_checks
 
             if(ctx.slot_data["tech_sanity"] == True):
-                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, tech_check_locations[self.jp_version]))
+                save_data = game_state[5:12]
+            #    save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, tech_check_locations[self.jp_version]))
                 new_tech_checks: List[bool] = []
                 for i in range(len(save_data)):
                     new_tech_checks = new_tech_checks + [int.from_bytes(save_data[i], "little")>(2+(i==2))]
@@ -415,7 +431,8 @@ class BFMClient(BizHawkClient):
                 new_tech_checks = self.tech_checks
 
             if(ctx.slot_data["level_sanity"] == True):
-                save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, level_memory_ids[self.jp_version]))
+                save_data = game_state[12:16]
+            #    save_data: bytes = (await bizhawk.read(ctx.bizhawk_ctx, level_memory_ids[self.jp_version]))
                 new_body_lvl: int = int.from_bytes(save_data[0], byteorder='little')
                 new_mind_lvl: int = int.from_bytes(save_data[1], byteorder='little')
                 new_fus_lvl: int = int.from_bytes(save_data[2], byteorder='little')
@@ -426,8 +443,81 @@ class BFMClient(BizHawkClient):
                 new_fus_lvl = self.curr_fus_lvl
                 new_lum_lvl = self.curr_lum_lvl
 
+            self.progression_state = int.from_bytes(game_state[16], byteorder='little')
+            #curr_location_data: bytes = (await bizhawk.read(
+            #    ctx.bizhawk_ctx,
+            #    [(0x0b9a08 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
+            #))[0]
+            curr_location_data: bytes = game_state[25]
+            curr_location = int.from_bytes(curr_location_data,byteorder='little')
             if(ctx.slot_data["quest_item_sanity"] == True):
-                indexes_to_read = []
+                #save_data = game_state[17:25]
+                new_quest_item_checks = [False] * 29
+                if(self.quest_item_checks[0] == False): #Well water
+                    well_H20 = 0x4c
+                    if(well_H20 in game_state[19]):
+                        #logger.info("well water found")
+                        new_quest_item_checks[0] = True
+                        if(not item_name_to_id["Well H20"] in received_list):
+                            new_inventory: List[int] = [val * (well_H20 != val) for val in game_state[19]] 
+                            #new_inventory: List[int] = [val for val in save_data[19]] 
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba1e7 + (self.jp_version * -0xea0), new_inventory, MAIN_RAM),
+                                (well_water_id[curr_location], [0x0], MAIN_RAM)]
+                            )
+                else:
+                    new_quest_item_checks[0] = True
+                #Jon's Key
+                new_quest_item_checks[1] = game_state[17][11] & 0b1000000 == 0b1000000
+                #Logs
+                num_logs = game_state[22].count(0b11)
+                new_quest_item_checks[2] = num_logs > 0
+                new_quest_item_checks[3] = num_logs > 1
+                new_quest_item_checks[4] = num_logs > 2
+                new_quest_item_checks[5] = num_logs > 3
+                #Manual (moved to mayor cutscene)
+                new_quest_item_checks[6] = game_state[17][12] & 0b10000 == 0b10000
+                #Mayor Berry
+                new_quest_item_checks[7] = game_state[17][12] & 0b10000000 == 0b10000000
+                #Key from Wid
+                new_quest_item_checks[8] = int.from_bytes(game_state[24], byteorder='little') >= 0x77
+                #Misteria
+                new_quest_item_checks[9] = self.progression_state == 0xe6 or (game_state[17][14] & 0b10 == 0b10)
+                #Aqualin
+                new_quest_item_checks[10] = self.progression_state == 0x10e or (game_state[17][14] & 0b10 == 0b10)
+                #save tim/orange
+                new_quest_item_checks[11] = game_state[17][14] & 0b1000 == 0b1000
+                #Ugly Belt
+                new_quest_item_checks[12] = self.progression_state == 0x17c
+                #Rope
+                new_quest_item_checks[13] = game_state[20][0] & 0b10000000 == 0b10000000
+                #Angel Statue
+                new_quest_item_checks[14] = int.from_bytes(game_state[18], byteorder='little') == 0x1052
+                #Pie
+                new_quest_item_checks[15] = self.progression_state == 0x280
+                #Gondola Gizmo
+                gizmo_state = int.from_bytes(game_state[23], byteorder='little')
+                new_quest_item_checks[16] = gizmo_state == 4
+                new_quest_item_checks[17] = gizmo_state == 3
+                new_quest_item_checks[18] = gizmo_state == 2
+                new_quest_item_checks[19] = gizmo_state == 1
+                #Calendar/Rocksalt
+                new_quest_item_checks[20] = self.progression_state == 0x2bc
+                new_quest_item_checks[21] = self.progression_state == 0x2bc
+                #Handles
+                new_quest_item_checks[22] = self.progression_state == 0x3ca or (game_state[17][6] & 0b100000 == 0b100000)
+                new_quest_item_checks[23] = game_state[17][6] & 0b1000000 == 0b1000000
+                new_quest_item_checks[24] = game_state[17][6] & 0b10000000 == 0b10000000
+                new_quest_item_checks[25] = game_state[17][7] & 0b1 == 0b1
+                #profits
+                new_quest_item_checks[26] = game_state[21][0] & 0b10000000 == 0b10000000
+                #Musashi's share of the profits
+                new_quest_item_checks[27] = game_state[17][20] & 0b100000 == 0b100000
+                #Jon's Note
+                new_quest_item_checks[28] = game_state[17][22] & 0b1 == 0b1
+            else:
+                new_quest_item_checks = self.quest_item_checks
 
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
@@ -552,12 +642,7 @@ class BFMClient(BizHawkClient):
                 for i in range(len(new_core_checks)):
                     if(new_core_checks[i]):
                         locations_to_send_to_server.append(standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
-
-            curr_location_data: bytes = (await bizhawk.read(
-                ctx.bizhawk_ctx,
-                [(0x0b9a08 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
-            ))[0]
-            curr_location = int.from_bytes(curr_location_data,byteorder='little')
+            
 
             if(new_scroll_checks != self.scroll_checks):
                 for i in range(len(new_scroll_checks)):
@@ -641,6 +726,11 @@ class BFMClient(BizHawkClient):
                     ctx.bizhawk_ctx,
                     stats_to_write
                 )
+            if(new_quest_item_checks != self.quest_item_checks):
+                for i in range(len(new_quest_item_checks)):
+                    if(new_quest_item_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Well H20 - Grillin Village"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
+
 
             #if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks or new_core_checks != self.core_checks):
             if(len(locations_to_send_to_server) > 0):
@@ -662,11 +752,12 @@ class BFMClient(BizHawkClient):
                 self.curr_mind_lvl = new_mind_lvl
                 self.curr_fus_lvl = new_fus_lvl
                 self.curr_lum_lvl = new_lum_lvl
+                self.quest_item_checks = new_quest_item_checks
 
             
             if(curr_location == 0x3005): #main menu/first moon cutscene
                 self.level_transition = 1
-            if(curr_location == 0x3012): #waking up from nightmare
+            if(curr_location in [0x3012, 0x3054, 0x3079, 0x3096]): #waking up from nightmare
                 self.level_transition = 1
                 self.received_count = 0
                 self.old_step_count = 0
@@ -1254,7 +1345,7 @@ class BFMClient(BizHawkClient):
                         #logger.info("bakery inventory len bytes %s",bytes(len(self.bakery_inventory)))
                         if(len(self.bakery_inventory_expansion)>1):
                             self.bakery_inventory_expansion.sort(reverse=True)
-                        await self.update_progression(ctx)
+                        #await self.update_progression(ctx)
                         if(ctx.slot_data["bakery_sanity"] == True):
                             self.update_list_of_received_items(ctx)
                             self.bakery_dialog = []
@@ -1434,7 +1525,7 @@ class BFMClient(BizHawkClient):
                                 )
                     if(curr_location in grocery_locations): # 0x2015chapter 2 Jam, also changes to 0x2056 chapter 3
                         if(ctx.slot_data["grocery_sanity"] == True):
-                            await self.update_progression(ctx)
+                            #await self.update_progression(ctx)
                             self.update_list_of_received_items(ctx)
                             self.grocery_dialog = []
                             self.cursor_pos = -1
@@ -1727,7 +1818,7 @@ class BFMClient(BizHawkClient):
                                 [(0x18446c + (self.jp_version * 0x138), [0x74], MAIN_RAM)]
                             )
                     if(curr_location == 0x304e): #in well
-                        await self.update_progression(ctx)
+                        #await self.update_progression(ctx)
                         if(ctx.slot_data["core_sanity"] == True or ctx.slot_data["scroll_sanity"] == True):
                             await bizhawk.write(
                                 ctx.bizhawk_ctx,
@@ -1812,7 +1903,7 @@ class BFMClient(BizHawkClient):
                             ))[0]
                             water_level_changed: bool = save_data[0] & 0b1 == 0b1
                             if(water_level_changed):
-                                await self.update_progression(ctx)
+                                #await self.update_progression(ctx)
                                 if(self.progression_state >= 0x19a and self.progression_state < 0x1ae): #getting rope reward
                                     logger.info("removing rope to prevent soft lock")
                                     await bizhawk.write(
@@ -1838,7 +1929,7 @@ class BFMClient(BizHawkClient):
                                     )
                     if(curr_location == 0x3023): #at volcano near wind scroll
                         if(ctx.slot_data["core_sanity"] == True):
-                            await self.update_progression(ctx)
+                            #await self.update_progression(ctx)
                             if(self.progression_state < 0x3d4): #before steamwood 2
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
@@ -1850,7 +1941,7 @@ class BFMClient(BizHawkClient):
                                 )
                     if(curr_location == 0x1094): #Chapter 5 town
                         if(ctx.slot_data["core_sanity"] == True):
-                            await self.update_progression(ctx)
+                            #await self.update_progression(ctx)
                             if(self.progression_state > 0x3d4 and self.progression_state < 0x460): #after steamwood 2
                                 if(self.found_wind_scroll): #already went to wind scroll
                                     await bizhawk.write(
@@ -1901,7 +1992,7 @@ class BFMClient(BizHawkClient):
                             )
                     if(curr_location == 0x1010 or curr_location == 0x1011 or curr_location == 0x301c or curr_location == 0x301d or curr_location == 0x301e or curr_location == 0x3020):
                         if(ctx.slot_data["steamwood_timer"] != 100):
-                            await self.update_progression(ctx)
+                            #await self.update_progression(ctx)
                             if((self.progression_state < 0x0082 and self.progression_state >= 0x0078) or (self.progression_state < 0x03d4 and self.progression_state >= 0x03ca)):
                                 time_modifier = math.ceil(ctx.slot_data["steamwood_timer"] * 0x1555 / 100.0)
                                 if(ctx.slot_data["steamwood_timer"] == 1):
@@ -2036,7 +2127,7 @@ class BFMClient(BizHawkClient):
                         )
                     if(curr_location == 0x302c or curr_location == 0x3029):
                         if(ctx.slot_data["aqualin_timer"] != 100):
-                            await self.update_progression(ctx)
+                            #await self.update_progression(ctx)
                             if(self.progression_state < 0x012c and self.progression_state >= 0x00f0):
                                 time_modifier = math.ceil(ctx.slot_data["aqualin_timer"] * 0x1555 / 100.0)
                                 if(ctx.slot_data["aqualin_timer"] == 1):
@@ -2069,7 +2160,7 @@ class BFMClient(BizHawkClient):
                             )
                     if(curr_location == 0x3000): #path to castle
                         if(ctx.slot_data["skip_minigame_town_on_fire"] == True):
-                            await self.update_progression(ctx)
+                            #await self.update_progression(ctx)
                             if(self.progression_state < 0x2b2 and self.progression_state >= 0x294):
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
@@ -2077,7 +2168,7 @@ class BFMClient(BizHawkClient):
                                 )
                     if(curr_location == 0x301b): #meandering forest
                         if(ctx.slot_data["skip_to_frost_palace"] == True):
-                            await self.update_progression(ctx)
+                            #await self.update_progression(ctx)
                             if(self.progression_state >= 0x2f0):
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
@@ -2145,6 +2236,55 @@ class BFMClient(BizHawkClient):
                                 [(0x1886a4, [0x8f, 0x30, 0x00, 0x00], MAIN_RAM)] #0x0000308f tod fight
                             )"""
                     #if(curr_location == 0x2017)
+
+                    if(ctx.slot_data["quest_item_sanity"] == True):
+                        write_instructions = []
+                        if(curr_location in [0x1010, 0x1077, 0x1094]): #in chapter 2/4/5/6 town
+                            if(not item_name_to_id["Well H20"] in received_list and self.quest_item_checks[0]):
+                                write_instructions.append((well_water_id[curr_location], [0x0], MAIN_RAM)) #remove water from the well
+                        if(curr_location == 0x3022): #at graveyard
+                            write_instructions.append((0x17d844, [0x0], MAIN_RAM)) #remove jon's key
+                        if(curr_location == 0x3029): #at second peak
+                            write_instructions.append((0x18e294, [0x0], MAIN_RAM)) #remove first log
+                            write_instructions.append((0x18e298, [0x0], MAIN_RAM)) #remove second log
+                            write_instructions.append((0x18e29c, [0x0], MAIN_RAM)) #remove third log
+                            write_instructions.append((0x18e2a0, [0x0], MAIN_RAM)) #remove fourth log
+                        if(curr_location == 0x1052): #at Chapter 3 town
+                            write_instructions.append((0x18f068, [0x0], MAIN_RAM)) #remove Key
+                            write_instructions.append((0x18f7b0, [0x0], MAIN_RAM)) #remove Rope
+                            write_instructions.append((0x18fa84, [0x0], MAIN_RAM)) #remove Angel Statue
+                        if(curr_location == 0x3047): #at underground lake
+                            write_instructions.append((0x188aa0, [0x0], MAIN_RAM)) #remove Misteria
+                        if(curr_location == 0x3057): #at Chapter 3 grocery
+                            write_instructions.append((0x1e3804, [0x0], MAIN_RAM)) #remove free Orange
+                        if(curr_location == 0x3034): #at Basement Lobby
+                            write_instructions.append((0x189178, [0x0], MAIN_RAM)) #remove Ugly Belt
+                        if(curr_location == 0x304b): #at Scrap Depository
+                            write_instructions.append((0x17d648, [0x0, 0x0, 0x5], MAIN_RAM)) #remove first Gondola Gizmo
+                            write_instructions.append((0x17d6d0, [0x0, 0x0, 0x5], MAIN_RAM)) #remove replacement Gondola Gizmo
+                        if(curr_location == 0x1077): #at Chapter 4 town
+                            write_instructions.append((0x1910dc, [0x0], MAIN_RAM)) #remove Calendar
+                            write_instructions.append((0x1910f8, [0x0], MAIN_RAM)) #remove Rock Salt
+                        if(curr_location == 0x301e): #at outside steamwood
+                            write_instructions.append((0x185858, [0x0], MAIN_RAM)) #remove Handle #0
+                        if(curr_location == 0x3020): #at steamwood 2
+                            write_instructions.append((0x184d5c, [0x0], MAIN_RAM)) #remove Handle #1
+                            write_instructions.append((0x184dc8, [0x0], MAIN_RAM)) #remove Handle #4
+                            write_instructions.append((0x184e24, [0x0], MAIN_RAM)) #remove Handle #8
+                            write_instructions.append((0x184f98, [0x0], MAIN_RAM)) #remove Profits
+                        if(curr_location == 0x1094): #at Chapter 5 town
+                            write_instructions.append((0x183df8, [0x0], MAIN_RAM)) #remove Musashi's share of the profits
+                        if(curr_location == 0x3014): #at Somnolent Forest
+                            write_instructions.append((0x190db0, [0x0], MAIN_RAM)) #remove Jon's Note
+                        if(len(write_instructions) > 0):
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                write_instructions
+                            )
+
+
+
+                        
 
                                     
 
@@ -2253,7 +2393,7 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(0x186cf8, [0x10, 0xab], MAIN_RAM)]
                         )"""
-                    elif(curr_location == 0x2018): #chapter 2 Conners
+                    if(curr_location == 0x2018): #chapter 2 Conners
                         await self.check_if_bracelet_needs_removed(ctx)
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -2263,7 +2403,7 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(0x18c578 + (self.jp_version * 0x258), [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
                         )
-                    elif(curr_location == 0x2059): #chapter 3 Conners
+                    if(curr_location == 0x2059): #chapter 3 Conners
                         await self.check_if_bracelet_needs_removed(ctx)
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -2273,7 +2413,7 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(0x189298 + (self.jp_version * 0x21c), [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
                         )
-                    elif(curr_location == 0x207e): #chapter 4 Conners
+                    if(curr_location == 0x207e): #chapter 4 Conners
                         await self.check_if_bracelet_needs_removed(ctx)
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -2283,7 +2423,7 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(0x189b70 + (self.jp_version * 0x21c), [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
                         )
-                    elif(curr_location == 0x209b): #chapter 5 Conners
+                    if(curr_location == 0x209b): #chapter 5 Conners
                         await self.check_if_bracelet_needs_removed(ctx)
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
@@ -2293,8 +2433,8 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(0x189870 + (self.jp_version * 0x21c), [0x9, 0x0], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09
                         )
-                    elif(curr_location == 0x3029): #twinpeak second peak
-                        await self.update_progression(ctx)
+                    if(curr_location == 0x3029): #twinpeak second peak
+                        #await self.update_progression(ctx)
                         if(self.progression_state == 0xf0): #about to meet Hotelo at twinpeak
                             await bizhawk.write(
                                 ctx.bizhawk_ctx,
@@ -2685,6 +2825,21 @@ class BFMClient(BizHawkClient):
                                                 ctx.bizhawk_ctx,
                                                 [(0x115130 + (self.jp_version * 0xa70), [0xe8], MAIN_RAM)] #clear text box
                                             )
+                if(curr_location == 0x1011): #at upper town chapter 2
+                    if(self.progression_state == 0x78):
+                        if(game_state[19].count(0x4d) > 1):
+                            new_inventory: List[int] = []
+                            manual_counter = 0
+                            for val in game_state[19]:
+                                if(val == 0x4d):
+                                    manual_counter = manual_counter + 1
+                                if(manual_counter < 2 or val != 0x4d):
+                                    new_inventory.append(val) 
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba1e7 + (self.jp_version * -0xea0), new_inventory, MAIN_RAM)]
+                            )
+                            logger.info("removing extra manual")
 
                 """if(ctx.slot_data["bakery_sanity"] == True):
                     if(curr_location in bakery_locations):
