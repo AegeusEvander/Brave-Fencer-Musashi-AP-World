@@ -77,6 +77,10 @@ class BFMWorld(UTMxin, World):
 
     def generate_early(self) -> None:
         ut_stuff.setup_options_from_slot_data(self)
+        if(hasattr(self.multiworld, "generation_is_fake")):
+            warning("Fake GEN")
+        if(self.using_ut == True):
+            warning(" >UT Gen<")
 
         self.player_location_table = en_standard_location_name_to_id.copy()
         """
@@ -352,7 +356,9 @@ class BFMWorld(UTMxin, World):
                 self.multiworld.early_items[self.player]["KnightB"] = 1
                 if(self.options.lumina_randomzied.value == True):
                     self.multiworld.early_items[self.player]["Lumina"] = 1
-        warning("adding boss killed events")
+        #warning("adding boss killed events")
+        self.get_region("Twinpeak Around the Bend").add_event("Can Reach Twinpeak Around the Bend", "Can Cross Stream", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Twinpeak Second Peak").add_event("Can Reach Twinpeak Second Peak", "Can Reach Second Peak", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Skullpion Arena").add_event("Earth Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Relic Keeper Arena").add_event("Water Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Frost Dragon Arena").add_event("Fire Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
@@ -372,16 +378,17 @@ class BFMWorld(UTMxin, World):
         print(self.options.set_lang.value)
         set_region_rules(self)
         set_location_rules(self, self.options.set_lang.value == 2 and (self.options.spoiler_items_in_english.value == False or self.using_ut == True))
-        if(self.options.quest_item_sanity.value == True):
-            warning(" quest sanity is on !?!?!")
-        warning("registering indirect connections")
-        self.multiworld.register_indirect_condition(self.get_region("Twinpeak Second Peak"), self.get_entrance("Twinpeak Waterfall Cave 2 -> Twinpeak Second Peak"))
-        self.multiworld.register_indirect_condition(self.get_region("Grillin Reservoir"), self.get_entrance("Grillin Village -> Grillin Reservoir"))
-        self.multiworld.register_indirect_condition(self.get_region("Skullpion Arena"), self.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena"))
-        self.multiworld.register_indirect_condition(self.get_region("Relic Keeper Arena"), self.get_entrance("Restaurant Basement Path to Crest Guardian -> Relic Keeper Arena"))
-        self.multiworld.register_indirect_condition(self.get_region("Frost Dragon Arena"), self.get_entrance("Frost Dragon Door -> Frost Dragon Arena"))
-        self.multiworld.register_indirect_condition(self.get_region("Queen Ant Arena"), self.get_entrance("Upper Mines Poison Elevators -> Queen Ant Arena"))
-        visualize_regions(self.multiworld.get_region("Menu", self.player), "my_world.puml")
+        #if(self.options.quest_item_sanity.value == True):
+            #warning(" quest sanity is on !?!?!")
+        #warning("registering indirect connections")
+        #self.explicit_indirect_conditions = False
+        #self.multiworld.register_indirect_condition(self.get_region("Twinpeak Second Peak"), self.get_entrance("Twinpeak Waterfall Cave 2 -> Twinpeak Second Peak"))
+        #self.multiworld.register_indirect_condition(self.get_region("Grillin Reservoir"), self.get_entrance("Grillin Village -> Grillin Reservoir"))
+        #self.multiworld.register_indirect_condition(self.get_region("Skullpion Arena"), self.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena"))
+        #self.multiworld.register_indirect_condition(self.get_region("Relic Keeper Arena"), self.get_entrance("Restaurant Basement Path to Crest Guardian -> Relic Keeper Arena"))
+        #self.multiworld.register_indirect_condition(self.get_region("Frost Dragon Arena"), self.get_entrance("Frost Dragon Door -> Frost Dragon Arena"))
+        #self.multiworld.register_indirect_condition(self.get_region("Queen Ant Arena"), self.get_entrance("Upper Mines Poison Elevators -> Queen Ant Arena"))
+        #visualize_regions(self.multiworld.get_region("Menu", self.player), "my_world.puml")
     # Taken from Tunic APWorld https://github.com/ArchipelagoMW/Archipelago/blob/main/worlds/tunic/__init__.py#L713
     # for the universal tracker, doesn't get called in standard gen
     # docs: https://github.com/FarisTheAncient/Archipelago/blob/tracker/worlds/tracker/docs/re-gen-passthrough.md

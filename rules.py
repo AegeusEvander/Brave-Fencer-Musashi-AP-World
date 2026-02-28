@@ -104,7 +104,7 @@ def has_ex_drink(state: CollectionState, world: "BFMWorld") -> bool:
 
 def has_raft(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.quest_item_sanity.value == True):
-        return state.has(check_item_name("Log", world), world.player, 4) #TODO Re-add| and state.can_reach_region("Twinpeak Second Peak", world.player)
+        return state.has(check_item_name("Log", world), world.player, 4) and state.has("Can Reach Second Peak", world.player)#state.can_reach_region("Twinpeak Second Peak", world.player)
     else:
         return has_lumina(state, world) and has_bread(state, world) 
 
@@ -127,7 +127,7 @@ def has_aqualin(state: CollectionState, world: "BFMWorld") -> bool:
     return True
 
 def has_rescued_tim(state: CollectionState, world: "BFMWorld") -> bool:
-    return (has_earth_scroll(state, world) and (has_lumina(state, world) or has_sky_scroll_complex(state, world)) or (can_double_jump(state, world) and has_sky_scroll_complex(state, world))) and has_completed_chapter_2(state, world) and has_misteria(state, world) and has_aqualin(state, world) #TODO Re-add| and state.can_reach_region("Twinpeak Second Peak", world.player)
+    return (has_earth_scroll(state, world) and (has_lumina(state, world) or has_sky_scroll_complex(state, world)) or (can_double_jump(state, world) and has_sky_scroll_complex(state, world))) and has_completed_chapter_2(state, world) and has_misteria(state, world) and has_aqualin(state, world) and state.has("Can Reach Second Peak", world.player) #state.can_reach_region("Twinpeak Second Peak", world.player)
 
 def can_complete_steamwood_1(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.quest_item_sanity.value == True):
@@ -183,13 +183,13 @@ def has_earth_scroll(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
         return state.has(check_item_name("Earth Scroll", world), world.player)
     else:
-        return state.has(check_item_name("Bracelet", world), world.player) and has_lumina(state, world) and state.can_reach_region("Twinpeak Around the Bend", world.player) and can_complete_steamwood_1(state, world)
+        return state.has(check_item_name("Bracelet", world), world.player) and has_lumina(state, world) and can_complete_steamwood_1(state, world) and state.has("Can Cross Stream", world.player)#state.can_reach_region("Twinpeak Around the Bend", world.player)
 
 def has_water_scroll(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
         return state.has(check_item_name("Water Scroll", world), world.player)
     else:
-        return has_completed_chapter_2(state, world) and state.can_reach_region("Grillin Reservoir", world.player)
+        return has_completed_chapter_2(state, world) and has_rope(state, world) # state.can_reach_region("Grillin Reservoir", world.player)
 
 def has_fire_scroll(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
@@ -298,7 +298,7 @@ def set_region_rules(world: "BFMWorld") -> None:
     world.get_entrance("Twinpeak Entrance -> Twinpeak Path to Skullpion").access_rule = \
         lambda state: has_earth_scroll(state, world) or has_sky_scroll_simple(state, world)
     world.get_entrance("Twinpeak Entrance -> Twinpeak Around the Bend").access_rule = \
-        lambda state: (has_bread(state,world) and has_jon_key(state, world)) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world) or can_double_jump(state, world)
+        lambda state: has_freed_jon(state, world) or has_water_scroll(state, world) or has_sky_scroll_simple(state, world) or can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world)
     world.get_entrance("Twinpeak Path to Skullpion -> Skullpion Arena").access_rule = \
         lambda state: can_fight_skullpion(state, world)
     world.get_entrance("Restaurant Basement -> Restaurant Basement Path to Crest Guardian").access_rule = \

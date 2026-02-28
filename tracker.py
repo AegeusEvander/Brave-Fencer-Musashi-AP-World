@@ -62,41 +62,6 @@ def map_page_index(data: Any) -> int:
     mapping.update(alt_id_mapping)
 
     return mapping.get(data,0) 
-    """
-    if data in [0x1011, 0x1053, 0x1078, 0x1095]: #chapter 2, 3, 4, and 5/6
-        # upper village
-        return 1
-    if data == 0x3014:
-        # somnolent forest
-        return 2
-    if data == 0x301c:
-        # steamwood forest
-        return 3
-    if data == 0x3021:
-        # island of dragons
-        return 4
-    if data == 0x3024:
-        # skullpion arena
-        return 5
-    if data == 0x302b:
-        # path to skullpion
-        return 6
-    if data == 0x305c:
-        # frost palace entrance
-        return 7
-    if data == 0x305d:
-        # frost palace blue eye hallway
-        return 8
-    if data == 0x305f:
-        # frost palace wolf room
-        return 9
-    if data == 0x3060:
-        # frost palace green eye maze
-        return 10
-    if data == 0x3061:
-        # frost palace ramp hallway
-        return 11"""
-    return 0
     
 def location_icon_coords(index: int | None, coords: dict[str, Any]) -> tuple[int, int, str] | None:
     """Converts player coordinates provided by the game mod into image coordinates for the map page."""

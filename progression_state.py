@@ -87,54 +87,78 @@ progression_state_table = [
     0x0640: "DL3 fight",
     0x064a: "end of Credits (would you like to save)",
 ]
+def calc_progression_state(self, ctx: "BizHawkClientContext", loc_id: int, old_progression_state: int, progression_flags: List[bool], completed_progression_states: Set[int], received_list: List[int]) -> int:
+    if(loc_id == 0x3000): #Castle Outside 
+        if(old_progression_state in [0x0294, 0x29e]): #0x029e: "A fire starts in the village",
+            return 0
+        if(not 0x2a8 in completed_progression_states and 0x294 in completed_progression_states and ctx.slot_data["skip_minigame_town_on_fire"] == False): #02a8= Put out fire
+            return 0x29e #"A fire starts in the village",
+        if(0x3c0 in completed_progression_states and old_progression_state < 0x3c0):
+            return 0x3c0 #0x03c0: "go down fixed gondola",
+        if(0x3b6 in completed_progression_states and not 0x3b6 in completed_progression_states and old_progression_state != 0x3ac): #0x03b6: "The princess disappeared and took the village profits with her",
+            return 0x3ac #0x03ac: "Talk to a shop about the missing profits"
+    if(loc_id == 0x3003): #Castle Meeting Room 
+        if(not 0x96 in completed_progression_states and not 0xc8 in completed_progression_states): #0x00c8: "Acquire your first crest",
+            if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list):
+                return 0x8c #0x008c: "Talk to Geezer about opening hells valley",
+        if(not 0x028a in completed_progression_states and not 0x0294 in completed_progression_states): #0x0294: "Deliver the Gizmo Gondola",
+            if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["CarpentB"] in received_list and item_name_to_id["CarpentC"] in received_list):
+                return 0x0280 #0x0280: "The mayor's wife asks you to fix the Gondola Gizmo",
+        if(0x3ac in completed_progression_states and not 0x2ee in completed_progression_states and not 0x2f0 in completed_progression_states): #0x02f0: "Reach the frost palace gate for the first time",
+            if(item_name_to_id["MercenA"] in received_list and item_name_to_id["MercenB"] in received_list and item_name_to_id["MercenC"] in received_list):
+                return 0x03ac #0x03ac: "Talk to a shop about the missing profits",
+        #might need to add something for delivery gondola gizmo
+        if(0x96 in completed_progression_states and not 0xc8 in completed_progression_states and old_progression_state != 0x96): #0x00c8: "Acquire your first crest",
+            return 0x96 #0x0096: "have Geezer permission to face the Earth Crest Guardian",
+        if(0x280 in completed_progression_states and not 0x294 in completed_progression_states and old_progression_state != 0x280): #0x0294: "Deliver the Gizmo Gondola",
+            return 0x280 #0x0280: "The mayor's wife asks you to fix the Gondola Gizmo",
+        if(0x3b6 in completed_progression_states and not 0x2f0 in completed_progression_states and old_progression_state != 0x3b6): #0x02f0: "Reach the frost palace gate for the first time",
+            return 0x03b6 #0x03b6: "The princess disappeared and took the village profits with her",
 
-    0x3000: "Castle Outside", 
-        0x029e: "A fire starts in the village",
-        0x03b6: "The princess disappeared and took the village profits with her",
-        0x03c0: "go down fixed gondola",
-    0x3003: "Castle Meeting Room", 
-        0x008c: "Talk to Geezer about opening hells valley",
-        0x0096: "have Geezer permission to face the Earth Crest Guardian",
-        0x00c8: "Acquire your first crest",
-        0x0280: "The mayor's wife asks you to fix the Gondola Gizmo",
-        0x028a: "Carpenters inform you of the appearance of the item needed to fix the Gondola Gizmo",
-        0x0294: "Deliver the Gizmo Gondola",
-        0x02da: "Save the princess",
-        0x03ac: "Talk to a shop about the missing profits",
-        0x03b6: "The princess disappeared and took the village profits with her",
-    0x3004: "Castle Gondola", 
-        0x03b6: "The princess disappeared and took the village profits with her",
-        0x03c0: "go down fixed gondola",
-    0x3014: "Somnolent Forest", 
-        0x0032: "Feed Jon",
-        0x04b0: "Defeat Queen Ant",
-        0x04ba: "Go up to the sky for the first time",
-    0x301b: "Meandering Forest", 
-        0x0032: "Feed Jon",
-        0x02ee: "The mercenaries give you the location",
-        0x02f8: "Meet Gingerelle",
+    #0x3004: "Castle Gondola", 
+        #0x03b6: "The princess disappeared and took the village profits with her",
+        #0x03c0: "go down fixed gondola",
+    if(loc_id == 0x3014): #"Somnolent Forest", 
+        if(0x32 in completed_progression_states and not 0x3c in completed_progression_states and old_progression_state != 0x32): #0x003c: "Find Jon's Key",
+            return 0x32 #0x0032: "Feed Jon",
+        if(0x4b0 in completed_progression_states and progression_flags[17][22] & 0b1 != 0b1 and old_progression_state != 0x4b0): #0x04b0: "Defeat Queen Ant", get note
+            return 0x4b0 #0x04b0: "Defeat Queen Ant", 
+
+    if(loc_id == 0x301b): #"Meandering Forest", 
+        if(0x32 in completed_progression_states and not 0x3c in completed_progression_states and old_progression_state != 0x32): #0x003c: "Find Jon's Key",
+            return 0x32 #0x0032: "Feed Jon",
+        if((0x02e4 in completed_progression_states or ctx.slot_data["playthrough_method"] == 2) and old_progression_state != 0x2f0): #0x02f0: "Reach the frost palace gate for the first time",
+            if(item_name_to_id["MercenA"] in received_list and item_name_to_id["MercenB"] in received_list and item_name_to_id["MercenC"] in received_list):
+                return 0x02ee #0x02ee: "The mercenaries give you the location",
 	#0x301c: "Steamwood Forest", 
-    0x301e: "Steamwood Outside", 
-        0x0078: "Talk to Fores and start the Steamwood event",
-        0x0082: "Fix Steamwood",
-        0x03c0: "go down fixed gondola",
-        0x03ca: "Receive Handle 0",
+    if(loc_id == 0x301e): #"Steamwood Outside", 
+        if(old_progression_state in [0x78, 0x82]):
+            return 0
+        if((0x03c0 in completed_progression_states or ctx.slot_data["playthrough_method"] == 2) and not 0x3ca in completed_progression_states and old_progression_state != 0x3c0): #0x03ca: "Receive Handle 0",
+            if(ctx.slot_data["quest_item_sanity"] == True):
+                if(item_name_to_id["Manual"] in received_list and item_name_to_id["Bracelet"] in received_list and item_name_to_id["Handle #0"] in received_list and item_name_to_id["Handle #1"] in received_list and item_name_to_id["Handle #4"] in received_list and item_name_to_id["Handle #8"] in received_list and item_name_to_id["Profits"] in received_list and item_name_to_id["Ugly Belt"] in received_list):
+                    return 0x3c0 #0x03c0: "go down fixed gondola", #check for all handles, manual, bracelet, profits 
+            elif(0x82 in completed_progression_states and 0x181 in completed_progression_states):
+                return 0x3c0 #0x03c0: "go down fixed gondola"
+        
 	#0x3021: "Island of Dragons", 
-    0x3022: "Graveyard", 
-        0x0032: "Feed Jon",
-	0x3024: "Skullpion Arena", 
-        0x00a0: "Allies open the gate to Hell's Valley",
-        0x00c8: "Acquire your first crest",
-    0x3025: "Twinpeak Entrance", 
-        0x0014: "Rescue Leno",
-        0x001e: "Talk to the mayor after rescuing Leno",
-        0x0028: "Jon asks for food and water",
-        0x0032: "Feed Jon",
-        0x003c: "Find Jon's Key",
-        0x0046: "Free Jon",
-        0x00f0: "Give Misteria to Mayor and Mayor wonders if Hotelo is alright",
+    if(loc_id == 0x3022): #"Graveyard", 
+        if(old_progression_state !=  0x32):
+            return 0x32 #0x0032: "Feed Jon",
+	if(loc_id == 0x3024): #"Skullpion Arena", 
+        if(not 0xc8 in completed_progression_states and old_progression_state != 0xa0): #0x00c8: "Acquire your first crest",
+            if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list):
+                return 0xa0 #0x00a0: "Allies open the gate to Hell's Valley",
+            #TODO add entrance rando logic if not all npcs present
+    if(loc_id == 0x3025): #"Twinpeak Entrance", 
+        if(not 0x14 in completed_progression_states and old_progression_state != 0xa and progression_flags[17][10] & 0b10000000 == 0b10000000): #agree to rescue dog but have yet to do so
+            return 0xa #0x000a: "zipline down gondola",
+        if(not 0x46 in completed_progression_states and old_progression_state != 0x1e): #only allow lilypads after rescuing Jon
+            return 0x1e #0x001e: "Talk to the mayor after rescuing Leno",
+        if(old_progression_state in [0xd2, 0xdc, 0xe6] and 0x46 in completed_progression_states): #make it so Hotelo does not block exploration
+            return 0x46 #0x0046: "Free Jon",
     0x3026: "Twinpeak Around the Bend", 
-        0x0082: "Fix Steamwood",
+        0x0082: "Fix Steamwood", #or open world
         0x00f0: "Give Misteria to Mayor and Mayor wonders if Hotelo is alright",
     0x3029: "Twinpeak Second Peak", 
         0x0050: "Give Jon the 4 trees and understand about the five scrolls",
@@ -188,6 +212,8 @@ progression_state_table = [
 	#0x3081: "Sky Island",    
     0x1010: "Chapter 2 Grillin Village", 0x000a: "zipline down gondola",
         0x0014: "Rescue Leno",
+        if(0x14 in completed_progression_states and not 0x1e in completed_progression_states and old_progression_state != 0x14): #need to check with mayor after saving leno
+            return 0x14 #x0014: "Rescue Leno",
         0x001e: "Talk to the mayor after rescuing Leno",
         0x0028: "Jon asks for food and water",
         0x0032: "Feed Jon",
@@ -197,7 +223,7 @@ progression_state_table = [
         0x005a: "Find Bracelet",
         0x0064: "Equip L-Brace",
         0x006e: "Agree to help the mayor with Steamwood",
-        0x0078: "Talk to Fores and start the Steamwood event",
+        0x0078: "Talk to Fores and start the Steamwood event",#check for manual and bracelet
         0x0082: "Fix Steamwood",
         0x0085: "Collect the Earth Scroll",
         0x0087: "Meet Jon after collecting Earth Scroll",
@@ -250,8 +276,8 @@ progression_state_table = [
         0x02f8: "Meet Gingerelle",
         0x0302: "Melt boss door",
         0x030c: "Open and enter the big gate of the 3 eyes in the ice palace",
-        0x0384: "Defeat Frost Dragon",
 	0x1094: "Chapter 5/6 Grillin Village"
+        0x0384: "Defeat Frost Dragon",
         0x0398: "Complete 4 chapter",
         0x03a2: "Start 5 chapter mayor says to visit shops",
         0x03ac: "Talk to a shop about the missing profits",
@@ -285,4 +311,6 @@ progression_state_table = [
 	0x205b: "Chapter 3 Restaurant", #check if tim was saved
 	0x2080: "Chapter 4 Restaurant", 
     0x209d: "Chapter 5/6 Restaurant"
+
+    return 0
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Options import Choice, Toggle, PerGameCommonOptions, DeathLink, FreeText, DefaultOnToggle, Range
+from Options import Choice, Toggle, PerGameCommonOptions, DeathLink, FreeText, DefaultOnToggle, Range, Visibility
 from typing import Dict, Any, TYPE_CHECKING
 import logging
 if TYPE_CHECKING:
@@ -17,13 +17,14 @@ class SetLang(Choice):
     option_jp = 2
     default = 1
 
-class SpoilerItemsInEnglish(DefaultOnToggle):
+class SpoilerItemsInEnglish(Toggle):
     """
-    Only considered if Set Language is JP (also is not saved to slot data)
-    Spoiler log shows progression with Japanese locations but English items
+    Only considered if Set Language is JP (not saved to slot data)
+    Spoiler log shows progression with English Names
     """
     internal_name = "spoiler_items_in_english"
     display_name = "Spoiler Items Displayed in English"
+    visibility = Visibility.simple_ui | Visibility.complex_ui #| Visibility.template
 
 class PlaythroughMethod(Choice):
     """
