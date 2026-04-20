@@ -17,6 +17,7 @@ tracker_map_groups = [
     ("Island of Dragons", "island_of_dragons"),
     ("Twinpeak", [("Skullpion Arena", "hells_valley_arena"),
         ("Path to Skullpion", "valley")]),
+    ("Restaurant Basement", [("Basement Entrance", "basement_entrance")]),
     ("Frozen Palace", [("Entrance", "frozen_palace_entrance"),
         ("Blue Eye Hallway", "frozen_palace_blue_eye_hallway"),
         ("Red Eye Room", "frozen_palace_red_eye_room"),
@@ -37,6 +38,7 @@ map_order = [
     0x3021,# island of dragons
     0x3024,# skullpion arena
     0x302b,# path to skullpion
+    0x3034,# basement entrance
     0x305c,# frost palace entrance
     0x305d,# frost palace blue eye hallway
     0x305e,# frost palace red eye room
@@ -50,7 +52,8 @@ map_order = [
 ]
 
 alternate_map_ids = {
-    0x1011: [0x1053, 0x1078, 0x1095]
+    0x1011: [0x1053, 0x1078, 0x1095],
+    0x3034: [0x302d, 0x302e, 0x302f, 0x3030, 0x3031, 0x3032, 0x3033, 0x3035, 0x3036, 0x3037, 0x3038, 0x3039, 0x303a, 0x303b, 0x303c, 0x303d, 0x303e, 0x303f, 0x3040, 0x3041, 0x3042, 0x304c]
 }
 
 def map_page_index(data: Any) -> int:

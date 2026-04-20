@@ -52,7 +52,7 @@ python3 -m pip install --upgrade pip
 python3 ModuleUpdate.py --yes --force
 python3 Launcher.py "Build APWorlds" -- "Brave Fencer Musashi"
 
-cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.6/Archipelago/custom_worlds"
+cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.7/Archipelago/custom_worlds"
 
 cd "$folder"
 

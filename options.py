@@ -41,20 +41,23 @@ class PlaythroughMethod(Choice):
 
 class SkipOverBosses(Toggle):
     """
+    PLACEHOLDER DOESN'T DO ANYTHING YET
     Only used when set to a linear playthrough
 
     Allows starting the next chapter without killing the crest guardian (can be fought later)
     """
     internal_name = "skip_over_bosses"
     display_name = "Skip Over Bosses"
+    visibility = Visibility.none
 
 class SetGoal(Choice):
     """
     Select which Goal in order to win this game of Brave Fencer Musashi
 
-    Rescue All NPCs - save all 35 Castle NPCs lost in the multiworld
-    Rescue [X] NPCs - save a portion of Castle NPCs, check 'NPCs Required to Goal' to adjust count
+    Rescue All NPCs - save all 35 Castle NPCs lost in the multiworld 
+    Rescue [X] NPCs - save a portion of Castle NPCs, check 'NPCs Required to Goal' to adjust count (does not include the 5 who were not kidnapped)
     Defeat [ ] Guardian/Boss - Win after defeating the respective boss (listed in order of occurrence)
+    Defeat [X] Guardian - Win after defeating a specific number of crest guardians check 'guardianGoal' to adjust count (helps somewhat with a certain length for open world settings)
     """
     internal_name = "goal"
     display_name = "Set Winning Goal"
@@ -66,11 +69,13 @@ class SetGoal(Choice):
     option_defeat_wind_crest_guardian = 6
     option_defeat_sky_crest_guardian = 7
     option_defeat_final_boss = 8
-    default = 1
+    option_defeat_x_crest_guardian = 9
+    default = 8
 
 class NPCGoal(Range):
     """
     How many Castle NPCs will need to be rescued in order to goal. Only relevant when 'Rescue X NPCs' is set as the goal.
+    Does not include the 5 who were not kidnapped
     10 - very very short playthrough possibly all in sphere 1 (<30 minutes solo)
     20 - short playthrough (1-3 hours solo)
     35 - same as rescue all NPCs (4-7 hours solo)
@@ -80,6 +85,18 @@ class NPCGoal(Range):
     range_start = 10
     range_end = 35
     default = 20
+
+class guardianGoal(Range):
+    """
+    How many Crest Guardians will need to be defeated in order to goal. Only relevant when 'Defeat X Crest Guardian' is set as the goal.
+    If playthrough method is set to linear 1 would be the same as defeating earth crest guardian
+    If playthrough method is set to open world 1 would be the first crest guardian defeated
+    """
+    internal_name = "guardian_goal"
+    display_name = "Crest Guardians Required to be Defeated to Goal"
+    range_start = 1
+    range_end = 5
+    default = 3
 
 class StartingMaxHP(Range):
     """
@@ -231,7 +248,7 @@ class StatGainModifier(Choice):
     Only active if Level Sanity is True
     """
     internal_name = "stat_gain_modifier"
-    display_name = "Stat Game Modifier"
+    display_name = "Stat Gain Modifier"
     option_early = 1
     option_vanilla = 2
     option_enhanced = 3
@@ -521,12 +538,12 @@ class SkipTownOnFireMinigame(Toggle):
     internal_name = "skip_minigame_town_on_fire"
     display_name = "Skip Minigame Town On Fire"
 
-class SkipToFrostPalace(DefaultOnToggle):
+class SkipToFrozenPalace(DefaultOnToggle):
     """
-    If enabled, after reaching Frost Palace for the first time, Musashi can skip Meandering Forest Maze by going up on the first screen to get to Frost Palace
+    If enabled, after reaching Frozen Palace for the first time, Musashi can skip Meandering Forest Maze by going up on the first screen to get to Frozen Palace
     """
-    internal_name = "skip_to_frost_palace"
-    display_name = "Skip to Frost Palace"
+    internal_name = "skip_to_frozen_palace"
+    display_name = "Skip to Frozen Palace"
 
 class SkipMinigameAntGondola(Toggle):
     """
@@ -572,6 +589,21 @@ class FastWalk(Toggle):
     internal_name = "fast_walk"
     display_name = "Fast Walking Speed"
 
+class MessageLevel(Choice):
+    """
+    Select how many messages appear in the bizhawk client
+
+    OFF  : Nearly no messages
+    ON   : Messages acknowledging a receieved item, reconnection sync messages, some warnings
+    HINT : Notes what action is expected of the player for the current game state in town and all the messages from ON
+    """
+    internal_name = "message_level"
+    display_name = "Message Level"
+    option_off = 0
+    option_on = 1
+    option_hint = 2
+    default = 2
+
 class HairColor(Choice):
     """
     Pick Hair Color, or choose custom for further customization
@@ -604,6 +636,7 @@ class BFMOptions(PerGameCommonOptions):
     skip_over_bosses: SkipOverBosses
     goal: SetGoal
     npc_goal: NPCGoal
+    guardian_goal: guardianGoal
     starting_hp: StartingMaxHP
     max_hp_logic: MaxHpLogic
     lumina_randomzied: LuminaRandomized
@@ -646,12 +679,13 @@ class BFMOptions(PerGameCommonOptions):
     restaurant_teleport_maze_no_fail: RestaurantTeleportMazeNoFail
     church_fight_time_modifier: ChurchFightTimeModifier
     skip_minigame_town_on_fire: SkipTownOnFireMinigame
-    skip_to_frost_palace: SkipToFrostPalace
+    skip_to_frozen_palace: SkipToFrozenPalace
     skip_minigame_ant_gondola: SkipMinigameAntGondola
     skip_over_calendar_maze: SkipSodaFountainCalendarMaze
     topo_dance_battle_logic: TopoDanceBattleLogic
     soda_fountain_boss_rush: SodaFountainBossRush
     death_link: DeathLink
     fast_walk: FastWalk
+    message_level: MessageLevel
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor

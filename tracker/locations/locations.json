@@ -135,6 +135,9 @@
                         "name": "Item 7 - Grocery"
                     },
                     {
+                        "name": "Rescue Tim - Grillin Village"
+                    },
+                    {
                         "name": "Item 8 (Orange) - Grocery"
                     },
                     {
@@ -169,6 +172,9 @@
                     },
                     {
                         "name": "アイテム 7 - 雑貨屋アイのみせ"
+                    },
+                    {
+                        "name": "おおきなミカン - アミヤクイ村"
                     },
                     {
                         "name": "アイテム 8 - 雑貨屋アイのみせ"
@@ -492,6 +498,9 @@
                         "name": "Cloth Chest - Restaurant Basement"
                     },
                     {
+                        "name": "Ugly Belt - Restaurant Basement"
+                    },
+                    {
                         "name": "Defeat Water Crest Guardian - Relic Keeper Arena"
                     },
                     {
@@ -543,6 +552,9 @@
                         "name": "あつでのまきぬののはこ - バーの地下"
                     },
                     {
+                        "name": "きたないべルト - バーの地下"
+                    },
+                    {
                         "name": "倒すレリクスキーパー - バーの地下"
                     }
                 ],
@@ -561,7 +573,13 @@
                         "name": "Water Scroll - Grillin Reservoir"
                     },
                     {
+                        "name": "Well H20 - Grillin Village"
+                    },
+                    {
                         "name": "ミズのまき - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "いどみず - アミヤクイ村"
                     }
                 ],
                 "map_locations": [
@@ -573,7 +591,103 @@
                 ]
             },
             {
-                "name": "Mine",
+                "name": "Mayor's Home",
+                "sections": [
+                    {
+                        "name": "Mayor Berry - Grillin Village"
+                    },
+                    {
+                        "name": "Mrs Govern's Pie - Grillin Village"
+                    },
+                    {
+                        "name": "Reward #1 After Extinguishing Village - Grillin Village"
+                    },
+                    {
+                        "name": "Reward #2 After Extinguishing Village - Grillin Village"
+                    },
+                    {
+                        "name": "Accept or Reject Profits - Grillin Village"
+                    },
+                    {
+                        "name": "チョウジュベリー - アミヤクイ村"
+                    },
+                    {
+                        "name": "夫人の手料理 - アミヤクイ村"
+                    },
+                    {
+                        "name": "カレンダー - アミヤクイ村"
+                    },
+                    {
+                        "name": "あらじお - アミヤクイ村"
+                    },
+                    {
+                        "name": "うりあげきん - アミヤクイ村"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 205,
+                        "y": 455
+                    }
+                ]
+            },
+            {
+                "name": "Outside Conner",
+                "sections": [
+                    {
+                        "name": "Agree to Fix Steamwood - Grillin Village"
+                    },
+                    {
+                        "name": "ウッドのメモ - アミヤクイ村"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 300,
+                        "y": 275
+                    }
+                ]
+            },
+            {
+                "name": "Wid",
+                "sections": [
+                    {
+                        "name": "Key from Wid - Grillin Village"
+                    },
+                    {
+                        "name": "はいこうのカギ - アミヤクイ村"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 90,
+                        "y": 630
+                    }
+                ]
+            },
+            {
+                "name": "Church",
+                "sections": [
+                    {
+                        "name": "Defeat Vambee Soldiers - Grillin Village"
+                    },
+                    {
+                        "name": "かぎづめロープ - アミヤクイ村"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 370,
+                        "y": 426
+                    }
+                ]
+            },
+            {
+                "name": "Mine to Well",
                 "sections": [
                     {
                         "name": "Minku - Grillin Reservoir"
@@ -585,6 +699,9 @@
                         "name": "Used Boot Chest - Grillin Reservoir"
                     },
                     {
+                        "name": "Return Bell - Grillin Village"
+                    },
+                    {
                         "name": "Armor Chest - Reservoir Tunnel"
                     },
                     {
@@ -593,6 +710,39 @@
                     {
                         "name": "Wind Scroll - Grillin Volcano"
                     },
+                    {
+                        "name": "ミンクー - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "よれよれシャツのはこ - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "よれよれながぐつのはこ - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "てんしのぞう - アミヤクイ村"
+                    },
+                    {
+                        "name": "ヘこんだヨロイのはこ - アミヤクイ村貯水池"
+                    },
+                    {
+                        "name": "ミンクー - アミヤクイ村の火山"
+                    },
+                    {
+                        "name": "カゼのまき - アミヤクイ村の火山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 395,
+                        "y": 74
+                    }
+                ]
+            },
+            {
+                "name": "Mine",
+                "sections": [
                     {
                         "name": "KnightA Bincho - Mine Conveyor Belt Room"
                     },
@@ -612,22 +762,19 @@
                         "name": "Old Glove Chest - Misteria Underground Lake"
                     },
                     {
-                        "name": "ミンクー - アミヤクイ村貯水池"
+                        "name": "Misteria - Misteria Underground Lake"
                     },
                     {
-                        "name": "よれよれシャツのはこ - アミヤクイ村貯水池"
+                        "name": "Gondola Gizmo 1 - Scrap Depository"
                     },
                     {
-                        "name": "よれよれながぐつのはこ - アミヤクイ村貯水池"
+                        "name": "Gondola Gizmo 2 - Scrap Depository"
                     },
                     {
-                        "name": "ヘこんだヨロイのはこ - アミヤクイ村貯水池"
+                        "name": "Gondola Gizmo 3 - Scrap Depository"
                     },
                     {
-                        "name": "ミンクー - アミヤクイ村の火山"
-                    },
-                    {
-                        "name": "カゼのまき - アミヤクイ村の火山"
+                        "name": "Gondola Gizmo 4 - Scrap Depository"
                     },
                     {
                         "name": "きしニックのビンチョ - ビンチョタイト採掘場"
@@ -646,13 +793,80 @@
                     },
                     {
                         "name": "ほつれたてぶくろのはこ - 地底湖"
+                    },
+                    {
+                        "name": "まばろしのは - 地底湖"
+                    },
+                    {
+                        "name": "1ばんゴンドラパーツ - スクラップ置き場"
+                    },
+                    {
+                        "name": "2ばんゴンドラパーツ - スクラップ置き場"
+                    },
+                    {
+                        "name": "3ばんゴンドラパーツ - スクラップ置き場"
+                    },
+                    {
+                        "name": "4ばんゴンドラパーツ - スクラップ置き場"
                     }
                 ],
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 410,
+                        "x": 425,
                         "y": 74
+                    }
+                ]
+            },
+            {
+                "name": "Steamwood 2",
+                "sections": [
+                    {
+                        "name": "Handle #0 - Steamwood 2"
+                    },
+                    {
+                        "name": "Handle #1 - Steamwood 2"
+                    },
+                    {
+                        "name": "Handle #4 - Steamwood 2"
+                    },
+                    {
+                        "name": "Handle #8 - Steamwood 2"
+                    },
+                    {
+                        "name": "Profits - Steamwood 2"
+                    },
+                    {
+                        "name": "0ばんハンドル - スチームウッド"
+                    },
+                    {
+                        "name": "1ばんハンドル - スチームウッド"
+                    },
+                    {
+                        "name": "4ばんハンドル - スチームウッド"
+                    },
+                    {
+                        "name": "8ばんハンドル - スチームウッド"
+                    },
+                    {
+                        "name": "うりあげきん - スチームウッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 90,
+                        "y": 34
+                    },
+                    {
+                        "map": "upper_grillin_village",
+                        "x": 43,
+                        "y": 31
+                    },
+                    {
+                        "map": "steamwood_forest",
+                        "x": 250,
+                        "y": 40
                     }
                 ]
             },
@@ -723,6 +937,18 @@
                         "name": "Old Book Chest - Twinpeak Around the Bend"
                     },
                     {
+                        "name": "First Log - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Second Log - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Third Log - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Fourth Log - Twinpeak Second Peak"
+                    },
+                    {
                         "name": "Rock Chest - Twinpeak Second Peak"
                     },
                     {
@@ -780,6 +1006,18 @@
                         "name": "しめったしょもつのはこ - ふたご山"
                     },
                     {
+                        "name": "一番目のまるた - ふたご山"
+                    },
+                    {
+                        "name": "二番目のまるた - ふたご山"
+                    },
+                    {
+                        "name": "三番目のまるた - ふたご山"
+                    },
+                    {
+                        "name": "四番目のまるた - ふたご山"
+                    },
+                    {
                         "name": "かがやくいしのはこ - ふたご山"
                     },
                     {
@@ -803,6 +1041,34 @@
                         "map": "grillin_village",
                         "x": 150,
                         "y": 34
+                    },
+                    {
+                        "map": "upper_grillin_village",
+                        "x": 155,
+                        "y": 20
+                    }
+                ]
+            },
+            {
+                "name": "Twinpeak 2",
+                "sections": [
+                    {
+                        "name": "Aqualin - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "いやしのみず - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 150,
+                        "y": 64
+                    },
+                    {
+                        "map": "upper_grillin_village",
+                        "x": 155,
+                        "y": 50
                     }
                 ]
             },
@@ -1722,7 +1988,13 @@
                         "name": "Hawker Bincho - Somnolent Forest Deadend"
                     },
                     {
+                        "name": "Jon's Note - Somnolent Forest Deadend"
+                    },
+                    {
                         "name": "たかじょうトクセンのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "ジャンのメモ - すいまの森"
                     }
                 ],
                 "map_locations": [
@@ -1997,13 +2269,81 @@
                 "map_locations": [
                     {
                         "map": "somnolent_forest",
-                        "x": 158,
-                        "y": 62
+                        "x": 160,
+                        "y": 60
                     },
                     {
                         "map": "grillin_village",
                         "x": 34,
                         "y": 540
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Island of Dragons Town",
+        "children": [
+            {
+                "name": "Island of Dragons",
+                "sections": [
+                    {
+                        "name": "Artisan Bincho - Island of Dragons"
+                    },
+                    {
+                        "name": "500 Drans Chest - Island of Dragons"
+                    },
+                    {
+                        "name": "Fire Scroll - Island of Dragons"
+                    },
+                    {
+                        "name": "かじやのトックのビンチョ - ガンリュー島"
+                    },
+                    {
+                        "name": "500ドランのはこ - ガンリュー島"
+                    },
+                    {
+                        "name": "ヒのまき - ガンリュー島"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 630
+                    },
+                    {
+                        "map": "somnolent_forest",
+                        "x": 60,
+                        "y": 345
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Graveyard Town",
+        "children": [
+            {
+                "name": "Graveyard",
+                "sections": [
+                    {
+                        "name": "Jon's Key - Graveyard"
+                    },
+                    {
+                        "name": "ジャンのカギ - 墓地"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 34,
+                        "y": 510
+                    },
+                    {
+                        "map": "somnolent_forest",
+                        "x": 190,
+                        "y": 60
                     }
                 ]
             }
@@ -2258,6 +2598,203 @@
                         "map": "valley",
                         "x": 40,
                         "y": 171
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Restaurant Basement Entrance",
+        "children": [
+            {
+                "name": "Ugly Belt - Restaurant Basement",
+                "sections": [
+                    {
+                        "name": "Ugly Belt - Restaurant Basement"
+                    },
+                    {
+                        "name": "きたないべルト - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "basement_entrance",
+                        "x": 45,
+                        "y": 218
+                    }
+                ]
+            },
+            {
+                "name": "Teleport Maze",
+                "sections": [
+                    {
+                        "name": "Baliff Bincho - Restaurant Basement Behind Pole Jumps"
+                    },
+                    {
+                        "name": "Powder Chest - Restaurant Basement Teleport Maze"
+                    },
+                    {
+                        "name": "グラムだいかんのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "しろいこなのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "basement_entrance",
+                        "x": 175,
+                        "y": 160
+                    }
+                ]
+            },
+            {
+                "name": "Bowling",
+                "sections": [
+                    {
+                        "name": "MercenB Bincho - Restaurant Basement Bowling 2"
+                    },
+                    {
+                        "name": "MercenA Bincho - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "Shield Chest - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "Odd Hat Chest - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "ようへいカルビのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ようへいロースウのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ふるびたタテのはこ - バーの地下"
+                    },
+                    {
+                        "name": "ひびわれ・かめんのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "basement_entrance",
+                        "x": 175,
+                        "y": 260
+                    }
+                ]
+            },
+            {
+                "name": "Dark Maze",
+                "sections": [
+                    {
+                        "name": "CarpentB Bincho - Restaurant Basement Dark Platform Maze 2"
+                    },
+                    {
+                        "name": "KnightC Bincho - Restaurant Basement Dark Platform Maze 3"
+                    },
+                    {
+                        "name": "Helmet Chest - Restaurant Basement Dark Platform Maze 3"
+                    },
+                    {
+                        "name": "だいくニコミテールのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "きしコブクローネのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ゆがんだツボのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "basement_entrance",
+                        "x": 475,
+                        "y": 260
+                    }
+                ]
+            },
+            {
+                "name": "Rotating Platforms",
+                "sections": [
+                    {
+                        "name": "SoldierB Bincho - Restaurant Basement Planks Over Lava"
+                    },
+                    {
+                        "name": "Librarian Bincho - Restaurant Basement Near Rotating Platforms"
+                    },
+                    {
+                        "name": "Old Pipe Chest - Restaurant Basement Planks Over Lava"
+                    },
+                    {
+                        "name": "へいしバーベックのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ゾウモッツしょきのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "あなあきこんぼうのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "basement_entrance",
+                        "x": 475,
+                        "y": 160
+                    }
+                ]
+            },
+            {
+                "name": "Behind Breakable Wall",
+                "sections": [
+                    {
+                        "name": "Old Sword Chest - Restaurant Basement"
+                    },
+                    {
+                        "name": "300 Drans Chest - Restaurant Basement"
+                    },
+                    {
+                        "name": "Cloth Chest - Restaurant Basement"
+                    },
+                    {
+                        "name": "さびたつるぎのはこ - バーの地下"
+                    },
+                    {
+                        "name": "300ドランのはこ - バーの地下"
+                    },
+                    {
+                        "name": "あつでのまきぬののはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "basement_entrance",
+                        "x": 610,
+                        "y": 218
+                    }
+                ]
+            },
+            {
+                "name": "Path to Crest Guardian",
+                "sections": [
+                    {
+                        "name": "Taster Bincho - Restaurant Basement Path to Crest Guardian"
+                    },
+                    {
+                        "name": "Defeat Water Crest Guardian - Relic Keeper Arena"
+                    },
+                    {
+                        "name": "9だいめどくみやくのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "倒すレリクスキーパー - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "basement_entrance",
+                        "x": 325,
+                        "y": 30
                     }
                 ]
             }

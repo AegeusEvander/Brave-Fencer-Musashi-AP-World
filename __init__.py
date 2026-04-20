@@ -182,6 +182,8 @@ class BFMWorld(UTMxin, World):
             #self.multiworld.completion_condition[self.player] = lambda state: can_enter_frozen_palace(state, self) and can_identify_gondola_gizmo(state, self) and can_fight_skullpion(state, self) and can_fight_frost_dragon(state, self) and has_wind_scroll(state, self) and has_fire_boss_core(state, self)
         elif(self.options.goal.value == 7 or self.options.goal.value == 8): #defeat sky crest guardian or final boss
             self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Soda Fountain", self.player)
+        elif(self.options.goal.value == 9): #defeat x crest guardian
+            self.multiworld.completion_condition[self.player] = lambda state: state.has("Boss killed", self.player, self.options.guardian_goal.value) or (state.has("Boss killed", self.player, self.options.guardian_goal.value - 1) and state.has("ToD killed", self.player))
             
             #self.multiworld.completion_condition[self.player] = lambda state: has_all_scrolls(state, self) and has_earth_boss_core(state, self) and has_wind_boss_core(state, self) and has_ex_drink(state, self) and state.has_all({"Lumina", "Bracelet"}, self.player)
         #self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "Taster", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "Janitor", "Artisan", "CarpentC", "MusicianC", "Knitter", "Chef", "MercenA", "Chief", "CookB", "Conductor", "Butcher", "KnightC", "Doctor", "KnightD", "Alchemist", "Librarian"}, self.player)
@@ -195,6 +197,7 @@ class BFMWorld(UTMxin, World):
             "skip_over_bosses": self.options.skip_over_bosses.value,
             "goal": self.options.goal.value,
             "npc_goal": self.options.npc_goal.value,
+            "guardian_goal": self.options.guardian_goal.value,
             "starting_hp": self.options.starting_hp.value,
             "max_hp_logic": self.options.max_hp_logic.value,
             "deathlink": self.options.death_link.value,
@@ -239,11 +242,12 @@ class BFMWorld(UTMxin, World):
             "restaurant_teleport_maze_no_fail": self.options.restaurant_teleport_maze_no_fail.value,
             "church_fight_time_modifier": self.options.church_fight_time_modifier.value,
             "skip_minigame_town_on_fire": self.options.skip_minigame_town_on_fire.value,
-            "skip_to_frost_palace": self.options.skip_to_frost_palace.value,
+            "skip_to_frozen_palace": self.options.skip_to_frozen_palace.value,
             "skip_minigame_ant_gondola": self.options.skip_minigame_ant_gondola.value,
             "skip_over_calendar_maze": self.options.skip_over_calendar_maze.value,
             "topo_dance_battle_logic": self.options.topo_dance_battle_logic.value,
             "soda_fountain_boss_rush": self.options.soda_fountain_boss_rush.value,
+            "message_level": self.options.message_level.value,
             "fast_walk": self.options.fast_walk.value
         }
         return slot_data
@@ -320,6 +324,9 @@ class BFMWorld(UTMxin, World):
                 if(name in item_table):
                     del items_to_create[name] 
 
+
+        if(self.options.quest_item_sanity.value == True):
+            items_to_create["Longevity Berry"] = items_to_create["Longevity Berry"] + 1 #mayor berry
         if(self.options.starting_hp.value == 1):
             items_to_create["Longevity Berry"] = 0
 
@@ -341,7 +348,7 @@ class BFMWorld(UTMxin, World):
 
         self.multiworld.itempool += bfm_items
 
-        if (self.options.early_skullpion.value == True):
+        if(self.options.early_skullpion.value == True):
             if(self.options.set_lang.value == 2 and self.options.spoiler_items_in_english.value == False):
                 self.multiworld.early_items[self.player][item_table["SoldierA"].jp_name] = 1
                 self.multiworld.early_items[self.player][item_table["MercenC"].jp_name] = 1
@@ -363,6 +370,11 @@ class BFMWorld(UTMxin, World):
         self.get_region("Relic Keeper Arena").add_event("Water Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Frost Dragon Arena").add_event("Fire Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Queen Ant Arena").add_event("Wind Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        if(self.options.playthrough_method.value == 2):
+            self.get_region("Soda Fountain").add_event("Sky Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        else:
+            self.get_region("Soda Fountain").add_event("Sky Crest Guardian Defeated", "ToD killed", location_type = BFMLocation, item_type = BFMItem)
+
         #final_boss_room.add_event(
         #"Final Boss Defeated", "Victory", location_type=APQuestLocation, item_type=items.APQuestItem)
 

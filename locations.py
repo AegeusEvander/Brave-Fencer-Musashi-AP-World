@@ -74,7 +74,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Red Shoes Chest - Frozen Palace Atrium Left Balcony": BFMLocationData("Frozen Palace Atrium Left Balcony",location_group = "Chest", jp_name = "まっかなボロぐつのはこ - フリーズパレス"),
     "Long Tube Chest - Frozen Palace Red Eye Door": BFMLocationData("Frozen Palace Red Eye Door",location_group = "Chest", jp_name = "とんがりばうのはこ - フリーズパレス"),
     "500 Drans Chest - Island of Dragons": BFMLocationData("Island of Dragons",location_group = "Chest", jp_name = "500ドランのはこ - ガンリュー島"),
-    "Shield Chest - Restaurant Basement Bowling 1": BFMLocationData("Restaurant Basement Bowling 1",location_group = "Chest", jp_name = "ふるびたタテのはこ - バーの地下"),
+    "Shield Chest - Restaurant Basement Bowling 1": BFMLocationData("Restaurant Basement Before Bowling 1",location_group = "Chest", jp_name = "ふるびたタテのはこ - バーの地下"),
     "Odd Hat Chest - Restaurant Basement Bowling 1": BFMLocationData("Restaurant Basement Bowling 1",location_group = "Chest", jp_name = "ひびわれ・かめんのはこ - バーの地下"),
     "Old Sword Chest - Restaurant Basement": BFMLocationData("Restaurant Basement",location_group = "Chest", jp_name = "さびたつるぎのはこ - バーの地下"),
     "Old Shirt Chest - Grillin Reservoir": BFMLocationData("Grillin Reservoir",location_group = "Chest", jp_name = "よれよれシャツのはこ - アミヤクイ村貯水池"),
@@ -287,7 +287,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Second Log - Twinpeak Second Peak": BFMLocationData("Twinpeak Second Peak",location_group = "Quest", jp_name = "二番目のまるた - ふたご山"),
     "Third Log - Twinpeak Second Peak": BFMLocationData("Twinpeak Second Peak",location_group = "Quest", jp_name = "三番目のまるた - ふたご山"),
     "Fourth Log - Twinpeak Second Peak": BFMLocationData("Twinpeak Second Peak",location_group = "Quest", jp_name = "四番目のまるた - ふたご山"),
-    "Manual from Mayor - Grillin Village": BFMLocationData("Grillin Village",location_group = "Quest", jp_name = "ウッドのメモ - アミヤクイ村"),
+    "Agree to Fix Steamwood - Grillin Village": BFMLocationData("Grillin Village",location_group = "Quest", jp_name = "ウッドのメモ - アミヤクイ村"),
     "Mayor Berry - Grillin Village": BFMLocationData("Grillin Village",location_group = "Quest", jp_name = "チョウジュベリー - アミヤクイ村"),
     "Key from Wid - Grillin Village": BFMLocationData("Grillin Village",location_group = "Quest", jp_name = "はいこうのカギ - アミヤクイ村"),
     "Misteria - Misteria Underground Lake": BFMLocationData("Misteria Underground Lake",location_group = "Quest", jp_name = "まばろしのは - 地底湖"),
@@ -329,8 +329,8 @@ all_locations = location_table.copy()
 
 location_name_groups: Dict[str, Set[str]] = {}
 for loc_name, loc_data in location_table.items():
-    loc_group_name = loc_name.split(" - ", 1)[1]
-    location_name_groups.setdefault(loc_group_name, set()).add(loc_name)
+    #loc_group_name = loc_name.split(" - ", 1)[1]
+    #location_name_groups.setdefault(loc_group_name, set()).add(loc_name)
     if loc_data.location_group:
         location_name_groups.setdefault(loc_data.location_group, set()).add(loc_name)
 

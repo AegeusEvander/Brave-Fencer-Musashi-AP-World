@@ -49,6 +49,13 @@
         "img": "images/maps/valley.png"
     },
     {
+        "name": "basement_entrance",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/Basement/basement_entrance.png"
+    },
+    {
         "name": "frozen_palace_entrance",
         "location_size": 18,
         "location_border_thickness": 2,
