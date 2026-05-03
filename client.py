@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, List
 
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch as launch_component
 
-from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, location_base_id, en_table_ids_to_hint, jp_table_ids_to_hint
+from .locations import location_table, location_name_groups, standard_location_name_to_id, location_base_id, en_table_ids_to_hint, jp_table_ids_to_hint
 from .dialog_locations import dialog_location_table, short_text_boxes, castle_dialog, scroll_dialog, boss_core_update, boss_core_dialog, boss_locations, quest_item_dialog
 #if TYPE_CHECKING:
 #    from .context import BizHawkClientContext
@@ -203,6 +203,7 @@ class BFMClient(BizHawkClient):
     scroll_checks = [False] * 5
     core_checks = [False] * 4
     quest_item_checks = [False] * 29
+    bp_checks = [False] * 41
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -589,6 +590,9 @@ class BFMClient(BizHawkClient):
                 if(ctx.slot_data["fast_walk"] == True):
                     fix_town_id = fix_town_id + [(0x15a7e4 + (self.jp_version * 0x2a8), [0xa0, 0xff, 0x03, 0x3c, 0x2c, 0x00, 0x23, 0xae, 0x1e + (self.jp_version * 0xaa), 0x6a, 0x05, 0x08, 0x00, 0x00, 0x00, 0x00], MAIN_RAM)] #andi $v0 $s0 0x4000 to andi $v0 $s0 0x09 #jmp c8 6a 05 08 for jp version JP 8015ab20
                 
+                if(ctx.slot_data["bp_sanity"] == True):
+                    fix_town_id = fix_town_id + [(0x14bcf8 + (self.jp_version * 0x2d0), [0x0, 0x0, 0x0], MAIN_RAM)] #noop the max bp calc 21 10 45 00	addu $v0, $a1
+                
                 fix_town_id = fix_town_id + [(0x13f430 + (self.jp_version * 0x344), [0x06, 0x01, 0x02, 0x24], MAIN_RAM)] #fix scroll cursor
                 await bizhawk.write(
                     ctx.bizhawk_ctx,
@@ -788,6 +792,12 @@ class BFMClient(BizHawkClient):
                 new_quest_item_checks[28] = game_state[17][22] & 0b1 == 0b1
             else:
                 new_quest_item_checks = self.quest_item_checks
+
+            if(ctx.slot_data["bp_sanity"] == True):
+                save_data: bytes = bytes([save_data_toys[11], save_data_toys[17], save_data_toys[23], save_data_toys[29], save_data_toys[35]])
+                new_bp_checks = new_bincho_checks + [val & 0b10000000 == 0b10000000 for val in save_data] + [game_state[17][23] & 0b10000 == 0b10000]
+            else:
+                new_bp_checks = self.bp_checks
 
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
@@ -1005,6 +1015,11 @@ class BFMClient(BizHawkClient):
                     if(new_quest_item_checks[i]):
                         locations_to_send_to_server.append(standard_location_name_to_id["Well H20 - Grillin Village"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
 
+            if(new_bp_checks != self.bp_checks):
+                for i in range(len(new_bp_checks)):
+                    if(new_bp_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Guard BP Up - Somnolent Forest"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
+
 
             #if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks or new_core_checks != self.core_checks):
             if(len(locations_to_send_to_server) > 0):
@@ -1028,6 +1043,7 @@ class BFMClient(BizHawkClient):
                 self.curr_fus_lvl = new_fus_lvl
                 self.curr_lum_lvl = new_lum_lvl
                 self.quest_item_checks = new_quest_item_checks
+                self.bp_checks = new_bp_checks
 
             
             if(curr_location == 0x3005): #main menu/first moon cutscene
@@ -1409,6 +1425,10 @@ class BFMClient(BizHawkClient):
                                     ctx.bizhawk_ctx,
                                     stats_to_write
                                 )
+                        elif(item_id in [0x405, 0x406]): #found bp up
+                            await self.update_max_bp(ctx, self.received_count+1)
+                            if(self.message_level > 0):
+                                logger.info("BP Up Found")
                         elif(item_id == 0x500): #Well H20
                             if(self.message_level > 0):
                                 logger.info("Well H20 returned to well")
@@ -1455,6 +1475,7 @@ class BFMClient(BizHawkClient):
                 if(self.max_hp_updated == False):
                     self.max_hp_updated = True
                     await self.update_max_hp(ctx, self.received_count)
+                    await self.update_max_bp(ctx, self.received_count)
                     bytes_to_update_progression: bytes = (await bizhawk.read(
                         ctx.bizhawk_ctx,
                         [(0x0ba247 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
@@ -1466,6 +1487,7 @@ class BFMClient(BizHawkClient):
                     self.manually_checked_progression.discard(0)
                     if(self.message_level == 3):
                         logger.info("resync progression %s", list(map(hex,sorted(self.manually_checked_progression))))
+                    #await bizhawk.set_message_interval(ctx.bizhawk_ctx, 5)
             if(self.xp_gain_updated == False):
                 self.xp_gain_updated = True
                 if(ctx.slot_data["xp_gain"] != 4):
@@ -3893,6 +3915,46 @@ class BFMClient(BizHawkClient):
                 ctx.bizhawk_ctx,
                 [(0x078eb2 + (self.jp_version * -0xea0), new_hp.to_bytes(2, 'little'), MAIN_RAM), #max hp
                 (0x078eb4 + (self.jp_version * -0xea0), new_hp.to_bytes(2, 'little'), MAIN_RAM)] #current hp
+            )
+
+    async def update_max_bp(self, ctx: "BizHawkClientContext", item_count: int):
+        curr_max_bp_bytes: bytes = (await bizhawk.read(
+            ctx.bizhawk_ctx,
+            [(0x078eb6 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
+        ))[0]
+        curr_max_bp: int = int.from_bytes(curr_max_bp_bytes, byteorder='little')
+        new_bp = ctx.slot_data["starting_bp"]
+        large_bp = 0
+        if(ctx.slot_data["bp_bundles"] < 13):
+            small_bp = 350 / ctx.slot_data["bp_bundles"]
+        else:
+            small_bp = 175 / (ctx.slot_data["bp_bundles"] - 6)
+        
+        for i in range(item_count):
+            if(ctx.items_received[i][0] == 0x405 + ((ctx.slot_data["set_lang"] == 2) * jp_id_offset)):
+                new_bp += small_bp
+            if(ctx.items_received[i][0] == 0x406 + ((ctx.slot_data["set_lang"] == 2) * jp_id_offset)):
+                large_bp += 25
+        if(large_bp >= 150):
+            large_bp += 25
+        new_bp += large_bp
+        max_bp = ctx.slot_data["starting_bp"]
+        large_bp = 0
+        for i in range(len(ctx.items_received)):
+            if(ctx.items_received[i][0] == 0x405 + ((ctx.slot_data["set_lang"] == 2) * jp_id_offset)):
+                max_bp += small_bp
+            if(ctx.items_received[i][0] == 0x406 + ((ctx.slot_data["set_lang"] == 2) * jp_id_offset)):
+                large_bp += 25
+        if(large_bp >= 150):
+            large_bp += 25
+        max_bp += large_bp
+        max_bp = min(round(max_bp), 500)
+        new_bp = min(round(new_bp), 500)
+        if(curr_max_bp != new_bp and curr_max_bp != max_bp):
+            await bizhawk.write(
+                ctx.bizhawk_ctx,
+                [(0x078eb6 + (self.jp_version * -0xea0), new_bp.to_bytes(2, 'little'), MAIN_RAM), #max bp
+                (0x078eb8 + (self.jp_version * -0xea0), new_bp.to_bytes(2, 'little'), MAIN_RAM)] #current bp
             )
 
     async def update_legendary_armor(self, ctx: "BizHawkClientContext"):

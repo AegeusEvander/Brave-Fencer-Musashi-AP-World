@@ -57,7 +57,7 @@ class SetGoal(Choice):
     Rescue All NPCs - save all 35 Castle NPCs lost in the multiworld 
     Rescue [X] NPCs - save a portion of Castle NPCs, check 'NPCs Required to Goal' to adjust count (does not include the 5 who were not kidnapped)
     Defeat [ ] Guardian/Boss - Win after defeating the respective boss (listed in order of occurrence)
-    Defeat [X] Guardian - Win after defeating a specific number of crest guardians check 'guardianGoal' to adjust count (helps somewhat with a certain length for open world settings)
+    Defeat [X] Guardian - Win after defeating a specific number of crest guardians check 'GuardianGoal' to adjust count (helps somewhat with a certain length for open world settings)
     """
     internal_name = "goal"
     display_name = "Set Winning Goal"
@@ -86,7 +86,7 @@ class NPCGoal(Range):
     range_end = 35
     default = 20
 
-class guardianGoal(Range):
+class GuardianGoal(Range):
     """
     How many Crest Guardians will need to be defeated in order to goal. Only relevant when 'Defeat X Crest Guardian' is set as the goal.
     If playthrough method is set to linear 1 would be the same as defeating earth crest guardian
@@ -98,6 +98,18 @@ class guardianGoal(Range):
     range_end = 5
     default = 3
 
+class ForceSodaFountainToBeLast(DefaultOnToggle):
+    """
+    True - Soda Fountain will only be considered logically accessible if all other required bosses (by goal setting) are defeated first
+           Defeat [Earth/Water/Fire/Wind] Crest Guardian - Soda Fountain is never considered accessible until after goal
+           Defeat [Sky/Final Boss] - This setting does nothing
+           Rescue NPCs - Soda Fountain is only in logic after defeating Earth, Water, Fire, and Wind Crest Guardians
+           Defeat X Crest Guardians - Sky Crest Guardian can be the final Crest Guardian in logic (Defeat 1 Crest Guardian means Sky Crest Guardian could be your first Crest Guardian)
+    False - Soda Fountain can be expected to be completed prior to defeating other bosses
+    """
+    internal_name = "force_soda_fountain_last"
+    display_name = "Force Soda Foutain to be Last"
+
 class StartingMaxHP(Range):
     """
     Amount of max hp to start the game with (max hp will never go over 500)
@@ -106,6 +118,16 @@ class StartingMaxHP(Range):
     internal_name = "starting_hp"
     display_name = "Starting Max Hp"
     range_start = 1
+    range_end = 200
+    default = 150
+
+class StartingMaxBP(Range):
+    """
+    Amount of max bp to start the game with (max bp will never go over 500)
+    """
+    internal_name = "starting_bp"
+    display_name = "Starting Max Bp"
+    range_start = 50
     range_end = 200
     default = 150
 
@@ -293,6 +315,25 @@ class QuestItemSanity(Toggle):
     """
     internal_name = "quest_item_sanity"
     display_name = "Quest Item Sanity"
+    
+class BPSanity(Toggle):
+    """
+    Randomize the stats gained from BP gain (binchos and boss cores) into the multiworld
+    """
+    internal_name = "bp_sanity"
+    display_name = "BP Sanity"
+
+class BPBundles(Range):
+    """
+    Number of bundles to receive BP Up
+    Lowering number bundles will leave more room for Traps/Filler
+    Only active if BP Sanity is True
+    """
+    internal_name = "bp_bundles"
+    display_name = "Number of bundles for BP Up"
+    range_start = 1
+    range_end = 41
+    default = 41
 
 class EarlySkullpion(Toggle):
     """
@@ -636,8 +677,10 @@ class BFMOptions(PerGameCommonOptions):
     skip_over_bosses: SkipOverBosses
     goal: SetGoal
     npc_goal: NPCGoal
-    guardian_goal: guardianGoal
+    guardian_goal: GuardianGoal
+    force_soda_fountain_last: ForceSodaFountainToBeLast
     starting_hp: StartingMaxHP
+    starting_bp: StartingMaxBP
     max_hp_logic: MaxHpLogic
     lumina_randomzied: LuminaRandomized
     bakery_sanity: BakerySanity
@@ -657,6 +700,8 @@ class BFMOptions(PerGameCommonOptions):
     xp_gain: XPGain
     xp_gain_mind: XPGainMind
     quest_item_sanity: QuestItemSanity
+    bp_sanity: BPSanity
+    bp_bundles: BPBundles
     early_skullpion: EarlySkullpion
     boulder_chase_zoom: BoulderChaseZoomLevel
     leno_sniff_modifier: LenoSniffModifier

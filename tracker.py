@@ -5,6 +5,7 @@ from NetUtils import JSONMessagePart
 from Options import Option
 
 if TYPE_CHECKING:
+    from . import BFMWorld
     from worlds.AutoWorld import World
 else:
     World = object
@@ -15,10 +16,13 @@ tracker_map_groups = [
     ("Somnolent Forest", "somnolent_forest"),
     ("Steamwood Forest", "steamwood_forest"),
     ("Island of Dragons", "island_of_dragons"),
-    ("Twinpeak", [("Skullpion Arena", "hells_valley_arena"),
+    ("Twinpeak", [
+        ("Skullpion Arena", "hells_valley_arena"),
         ("Path to Skullpion", "valley")]),
-    ("Restaurant Basement", [("Basement Entrance", "basement_entrance")]),
-    ("Frozen Palace", [("Entrance", "frozen_palace_entrance"),
+    ("Restaurant Basement", [
+        ("Basement Entrance", "basement_entrance")]),
+    ("Frozen Palace", [
+        ("Entrance", "frozen_palace_entrance"),
         ("Blue Eye Hallway", "frozen_palace_blue_eye_hallway"),
         ("Red Eye Room", "frozen_palace_red_eye_room"),
         ("Wolf Room", "frozen_palace_wolf_room"),
@@ -87,7 +91,43 @@ class UTMxin(World):
         "map_page_locations": "locations/locations.json",
         "map_page_setting_key": "{player}_{team}_bfm_area",
         "map_page_index": map_page_index,
-        "location_setting_key": "{player}_{team}_bfm_coords",
-        "location_icon_coords": location_icon_coords,
+        #"location_setting_key": "{player}_{team}_bfm_coords",
+        #"location_icon_coords": location_icon_coords,
         "map_page_groups": tracker_map_groups
     }
+
+
+def setup_options_from_slot_data(world: "BFMWorld") -> None:
+    if hasattr(world.multiworld, "re_gen_passthrough"):
+        if "Brave Fencer Musashi" in world.multiworld.re_gen_passthrough:
+            world.using_ut = True
+            world.passthrough = world.multiworld.re_gen_passthrough["Brave Fencer Musashi"]
+            world.options.set_lang.value = world.passthrough["set_lang"]
+            world.options.playthrough_method.value = world.passthrough["playthrough_method"]
+            world.options.skip_over_bosses.value = world.passthrough["skip_over_bosses"]
+            world.options.goal.value = world.passthrough["goal"]
+            world.options.npc_goal.value = world.passthrough["npc_goal"]
+            world.options.guardian_goal.value = world.passthrough["guardian_goal"]
+            world.options.force_soda_fountain_last.value = world.passthrough["force_soda_fountain_last"]
+            world.options.starting_hp.value = world.passthrough["starting_hp"]
+            world.options.max_hp_logic.value = world.passthrough["max_hp_logic"]
+            world.options.lumina_randomzied.value = world.passthrough["lumina_randomzied"]
+            world.options.bakery_sanity.value = world.passthrough["bakery_sanity"]
+            world.options.restaurant_sanity.value = world.passthrough["restaurant_sanity"]
+            world.options.grocery_sanity.value = world.passthrough["grocery_sanity"]
+            world.options.grocery_sanity_heal_logic.value = world.passthrough["grocery_sanity_heal_logic"]
+            world.options.toy_sanity.value = world.passthrough["toy_sanity"]
+            world.options.tech_sanity.value = world.passthrough["tech_sanity"]
+            world.options.scroll_sanity.value = world.passthrough["scroll_sanity"]
+            world.options.wind_scroll_logic.value = world.passthrough["wind_scroll_logic"]
+            world.options.sky_scroll_logic.value = world.passthrough["sky_scroll_logic"]
+            world.options.core_sanity.value = world.passthrough["core_sanity"]
+            world.options.level_sanity.value = world.passthrough["level_sanity"]
+            world.options.xp_gain.value = world.passthrough["xp_gain"]
+            world.options.quest_item_sanity.value = world.passthrough["quest_item_sanity"]
+            world.options.bp_sanity.value = world.passthrough["bp_sanity"]
+            world.options.early_skullpion.value = world.passthrough["early_skullpion"]
+        else:
+            world.using_ut = False
+    else:
+        world.using_ut = False

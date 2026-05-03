@@ -100,6 +100,8 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x47e, "" #0x047e: "See the mutant ant at the mountain entrance",
         if(((0x0294 in completed_progression_states and ctx.slot_data["playthrough_method"] == 2) or (0x3c0 in completed_progression_states and ctx.slot_data["playthrough_method"] == 1)) and old_progression_state < 0x3c0 ):
             return 0x3c0, "" #0x03c0: "go down fixed gondola",
+        if(not 0x0294 in completed_progression_states and old_progression_state >= 0x3c0 ):
+            return 0xa, "" #0x000a: "zipline down gondola",
         #if(0x3b6 in completed_progression_states and not 0x3b6 in completed_progression_states and old_progression_state != 0x3ac): #0x03b6: "The princess disappeared and took the village profits with her",
         #    return 0x3ac #0x03ac: "Talk to a shop about the missing profits"
     if(loc_id == 0x3003): #Castle Meeting Room 
@@ -146,6 +148,8 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
                     return 0x02ee, "" #0x02ee: "The mercenaries give you the location",
                 return 0, ""
         if(old_progression_state == 0x2bc and not 0x2bc in completed_progression_states):
+            return 0xa, "" #0x000a: "zipline down gondola",
+        if(not 0x4b0 in completed_progression_states and old_progression_state > 0x492):
             return 0xa, "" #0x000a: "zipline down gondola",
     if(loc_id == 0x301b): #"Meandering Forest", 
         if(0x32 in completed_progression_states and not 0x3c in completed_progression_states and old_progression_state != 0x32): #0x003c: "Find Jon's Key",
@@ -532,13 +536,22 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
         #0x01ae: "The Father asks you to retrieve Church Bell",
         
         if(0x4b0 in completed_progression_states and old_progression_state < 0x4b0):
-            return 0x4b0, "Nothing to do in town right now" #0x04b0: "Defeat Queen Ant",
+            return 0x4b0, "Nothing to do in town right now" #0x04b0: "Defeat Queen Ant",\
+
+        if(0x1e0 in completed_progression_states and old_progression_state < 0x1d6 and old_progression_state > 0xc8):
+            return 0x1e0, "Nothing to do in town right now" #0x01e0: "Return the bell to the village",
 
         if(old_progression_state < 0xc8 and old_progression_state > 0x5a): #grocery closed
             return 0xa, "Nothing to do in town right now" #0x000a: "zipline down gondola",
 
         if(old_progression_state > 0x4b0):
             return 0xa, "Nothing to do in town right now" #0x000a: "zipline down gondola",
+
+        if(old_progression_state == 0x1e):
+            return 0xa, "Nothing to do in town right now" #0x000a: "zipline down gondola",
+
+        if(old_progression_state == 0x3c0):
+            return 0x4b0, "Nothing to do in town right now" #0x04b0: "Defeat Queen Ant",\
         #0x005a: "Find Bracelet",
         #0x0064: "Equip L-Brace",
         #0x006e: "Agree to help the mayor with Steamwood",
@@ -582,6 +595,8 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
                 return 0x460, "" #0x0460: "break your own bincho field",
         if(0x492 in completed_progression_states and old_progression_state < 0x492):
             return 0x492, "" #0x0492: "GiAnt breaks open entrance to Upper Mines",
+        if(not 0x492 in completed_progression_states and old_progression_state >= 0x492):
+            return 0x1e, "" #0x001e: "Talk to the mayor after rescuing Leno",
         #0x0460: "break your own bincho field",
         #0x047e: "See the mutant ant at the mountain entrance",
         #0x0488: "hop on gondola to squish ant",
@@ -639,7 +654,7 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
 
 def calc_completed_progression_state(ctx: "BizHawkClientContext", progression_flags: List[List[bytes]]) -> Set[int]:
     val = set()
-    if(progression_flags[17][11] & 0b10 == 0b10 or progression_flags[17][16] & 0b1000 == 0b1000):
+    if(progression_flags[17][11] & 0b10 == 0b10): # or progression_flags[17][16] & 0b1000 == 0b1000):
         val.add(0x0014)#: "Rescue Leno",
     if(progression_flags[17][11] & 0b11 == 0b11):
         val.add(0x001e)#: "Talk to the mayor after rescuing Leno",

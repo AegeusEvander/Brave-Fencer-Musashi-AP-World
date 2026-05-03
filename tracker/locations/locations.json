@@ -504,6 +504,9 @@
                         "name": "Defeat Water Crest Guardian - Relic Keeper Arena"
                     },
                     {
+                        "name": "Defeat Water Crest Guardian BP Up - Relic Keeper Arena"
+                    },
+                    {
                         "name": "グラムだいかんのビンチョ - バーの地下"
                     },
                     {
@@ -556,6 +559,9 @@
                     },
                     {
                         "name": "倒すレリクスキーパー - バーの地下"
+                    },
+                    {
+                        "name": "倒すレリクスキーパーのBPアップ - バーの地下"
                     }
                 ],
                 "map_locations": [
@@ -711,6 +717,9 @@
                         "name": "Wind Scroll - Grillin Volcano"
                     },
                     {
+                        "name": "Escape from Bincho - Grillin Volcano"
+                    },
+                    {
                         "name": "ミンクー - アミヤクイ村貯水池"
                     },
                     {
@@ -730,6 +739,9 @@
                     },
                     {
                         "name": "カゼのまき - アミヤクイ村の火山"
+                    },
+                    {
+                        "name": "ムサシのビンチョ - アミヤクイ村の火山"
                     }
                 ],
                 "map_locations": [
@@ -967,6 +979,9 @@
                         "name": "Defeat Earth Crest Guardian - Skullpion Arena"
                     },
                     {
+                        "name": "Defeat Earth Crest Guardian BP Up - Skullpion Arena"
+                    },
+                    {
                         "name": "ヘいしバラニックのビンチョ - ふたご山"
                     },
                     {
@@ -1034,6 +1049,9 @@
                     },
                     {
                         "name": "倒すスカル゠ピオン - ヘルズバレー"
+                    },
+                    {
+                        "name": "倒すスカル゠ピオンのBPアップ - ヘルズバレー"
                     }
                 ],
                 "map_locations": [
@@ -1100,6 +1118,9 @@
                         "name": "Defeat Wind Crest Guardian - Queen Ant Arena"
                     },
                     {
+                        "name": "Defeat Wind Crest Guardian BP Up - Queen Ant Arena"
+                    },
+                    {
                         "name": "ムッシュ・ワギュウのビンチョ - アリの巣"
                     },
                     {
@@ -1122,6 +1143,9 @@
                     },
                     {
                         "name": "倒すアントヒルクィーン - アリの巣"
+                    },
+                    {
+                        "name": "倒すアントヒルクィーンのBPアップ - アリの巣"
                     }
                 ],
                 "map_locations": [
@@ -2224,6 +2248,9 @@
                         "name": "Defeat Fire Crest Guardian - Frost Dragon Arena"
                     },
                     {
+                        "name": "Defeat Fire Crest Guardian BP Up - Frost Dragon Arena"
+                    },
+                    {
                         "name": "ベんじょのニクジルのビンチョ - フリーズパレス"
                     },
                     {
@@ -2264,6 +2291,9 @@
                     },
                     {
                         "name": "倒すフロストドラグーン - フリーズパレス"
+                    },
+                    {
+                        "name": "倒すフロストドラグーンのBPアップ - フリーズパレス"
                     }
                 ],
                 "map_locations": [
@@ -2457,10 +2487,16 @@
                         "name": "Sky Scroll - Sky Island"
                     },
                     {
+                        "name": "Defeat Sky Crest Guardian BP Up - ToD Arena"
+                    },
+                    {
                         "name": "ミンクー - スチームウッドの森"
                     },
                     {
                         "name": "ソラのまき - 空の巻の地"
+                    },
+                    {
+                        "name": "倒すタワーオブデスのBPアップ - リカーバレル"
                     }
                 ],
                 "map_locations": [
@@ -2521,6 +2557,12 @@
                     },
                     {
                         "name": "あなあきコインのはこ - スチームウッドの森"
+                    },
+                    {
+                        "name": "Defeat Sky Crest Guardian BP Up - ToD Arena"
+                    },
+                    {
+                        "name": "倒すタワーオブデスのBPアップ - リカーバレル"
                     }
                 ],
                 "map_locations": [
@@ -2546,10 +2588,16 @@
                         "name": "Defeat Earth Crest Guardian - Skullpion Arena"
                     },
                     {
+                        "name": "Defeat Earth Crest Guardian BP Up - Skullpion Arena"
+                    },
+                    {
                         "name": "ミンクー - ヘルズバレー"
                     },
                     {
                         "name": "倒すスカル゠ピオン - ヘルズバレー"
+                    },
+                    {
+                        "name": "倒すスカル゠ピオンのBPアップ - ヘルズバレー"
                     }
                 ],
                 "map_locations": [
@@ -2784,10 +2832,16 @@
                         "name": "Defeat Water Crest Guardian - Relic Keeper Arena"
                     },
                     {
+                        "name": "Defeat Water Crest Guardian BP Up - Relic Keeper Arena"
+                    },
+                    {
                         "name": "9だいめどくみやくのビンチョ - バーの地下"
                     },
                     {
                         "name": "倒すレリクスキーパー - バーの地下"
+                    },
+                    {
+                        "name": "倒すレリクスキーパーのBPアップ - バーの地下"
                     }
                 ],
                 "map_locations": [

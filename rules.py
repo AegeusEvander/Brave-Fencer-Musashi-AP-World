@@ -277,6 +277,13 @@ def can_wind_scroll_jump_complex(state: CollectionState, world: "BFMWorld") -> b
         return has_wind_scroll(state, world)
     return False
 
+def has_defeated_needed_bosses(state: CollectionState, world: "BFMWorld") -> bool:
+    if(world.options.force_soda_fountain_last.value == True and not world.options.goal.value in [7, 8]):
+        if(world.options.goal.value == 9):
+            return state.has("Boss killed", world.player, world.options.guardian_goal - 1)
+        return state.has("Boss killed", world.player, 4)
+    return True
+
 def set_region_rules(world: "BFMWorld") -> None:
     player = world.player
     options = world.options
@@ -367,7 +374,7 @@ def set_region_rules(world: "BFMWorld") -> None:
     world.get_entrance("Steamwood Forest -> Sky Island").access_rule = \
         lambda state: has_earth_scroll(state, world) and has_water_scroll(state, world) and has_fire_scroll(state, world) and has_wind_scroll(state, world) and has_wind_boss_core(state, world) and has_earth_boss_core(state, world) and has_lumina(state, world) and state.has(check_item_name("Bracelet", world), player) and (can_double_jump(state, world) or has_sky_scroll(state, world))
     world.get_entrance("Sky Island -> Soda Fountain").access_rule = \
-        lambda state: has_all_scrolls(state, world) and can_double_jump(state, world) and has_lumina(state, world) and state.has(check_item_name("Bracelet", world), player) and has_hp_for_soda_fountain(state, world) and has_ex_drink(state, world)         
+        lambda state: has_all_scrolls(state, world) and can_double_jump(state, world) and has_lumina(state, world) and state.has(check_item_name("Bracelet", world), player) and has_hp_for_soda_fountain(state, world) and has_ex_drink(state, world) and has_defeated_needed_bosses(state, world)
 
 def set_location_rules(world: "BFMWorld", lang: bool) -> None:
     player = world.player
@@ -381,9 +388,23 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
             if("Lum" in name):
                 set_rule(world.get_location(check_location_name(name, lang)), lambda state: has_lumina(state, world)) 
 
+    if(options.bp_sanity.value == True):
+        for index, name in enumerate(location_name_groups["BP"]):
+            if(not "Defeat" in name):
+                set_rule(world.get_location(check_location_name(name, lang)), lambda state: has_lumina(state, world))
+        add_rule(world.get_location(check_location_name("Weaver BP Up - Twinpeak Second Peak", lang)),
+            lambda state: can_double_jump(state, world) or has_sky_scroll_simple(state, world)) 
+        add_rule(world.get_location(check_location_name("Chef BP Up - Frozen Palace Crate Pile", lang)),
+            lambda state: can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world))
+        add_rule(world.get_location(check_location_name("MusicianC BP Up - Frozen Palace Green Eye Maze", lang)),
+            lambda state: can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world))
+
     if(options.quest_item_sanity.value == True):
         add_rule(world.get_location(check_location_name("Doctor Bincho - Twinpeak Around the Bend", lang)),
             lambda state: has_raft(state, world) or has_water_scroll(state,world) or has_sky_scroll_simple(state, world)) 
+        if(options.bp_sanity.value == True):
+            add_rule(world.get_location(check_location_name("Doctor BP Up - Twinpeak Around the Bend", lang)),
+                lambda state: has_raft(state, world) or has_water_scroll(state,world) or has_sky_scroll_simple(state, world)) 
         set_rule(world.get_location(check_location_name("First Log - Twinpeak Second Peak", lang)),
             lambda state: has_lumina(state, world))
         set_rule(world.get_location(check_location_name("Second Log - Twinpeak Second Peak", lang)),
@@ -507,9 +528,11 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         set_rule(world.get_location(check_location_name("Topo - Toy Shop", lang)),
             lambda state: state.can_reach_region("Steamwood 2", player))
         set_rule(world.get_location(check_location_name("Vambee Soldier - Toy Shop", lang)),
-            lambda state: has_rescued_tim(state, world) and can_double_jump(state, world))
+            lambda state: has_completed_chapter_2(state, world) and (can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world)))
+            #lambda state: has_rescued_tim(state, world) and can_double_jump(state, world))
         set_rule(world.get_location(check_location_name("Bubbles - Toy Shop", lang)),
-            lambda state: has_rescued_tim(state, world) and can_double_jump(state, world))
+            lambda state: has_completed_chapter_2(state, world) and (can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world)))
+            #lambda state: has_rescued_tim(state, world) and can_double_jump(state, world))
     if(options.tech_sanity.value == True):
         set_rule(world.get_location(check_location_name("Improved Fusion (Artisan) - Allucaneet Castle", lang)),
             lambda state: state.has(check_item_name("Artisan", world), player))

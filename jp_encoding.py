@@ -1,6 +1,8 @@
 from typing import Dict
 #: Dict[str, int]
 jp_encoding = {
+    "B": 0x0df0,
+    "P": 0x0ef0,
     "0": 0x20,
     "1": 0x21,
     "2": 0x22,

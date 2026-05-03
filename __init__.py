@@ -2,7 +2,7 @@ from typing import Dict, List, Any, Tuple, TypedDict, ClassVar, Union, Set, Text
 from logging import warning
 from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState
 from .items import item_name_to_id, item_table, item_name_groups, slot_data_item_names, jp_id_offset, item_base_id, item_id_to_name
-from .locations import location_table, location_name_groups, standard_location_name_to_id, sphere_one, en_standard_location_name_to_id
+from .locations import location_table, location_name_groups, standard_location_name_to_id, en_standard_location_name_to_id
 from .rules import saved_everyone, set_region_rules, set_location_rules, can_fight_skullpion, has_all_scrolls, has_ex_drink, has_water_scroll, can_identify_gondola_gizmo, can_fight_frost_dragon, has_wind_scroll, can_enter_frozen_palace, has_earth_boss_core, has_wind_boss_core, has_fire_boss_core
 from .regions import bfm_regions
 from .options import BFMOptions
@@ -15,8 +15,8 @@ from Utils import visualize_regions
 # This registers the client. The comment ignores "unused import" linter messages
 from .client import BFMClient  # type: ignore  # noqa
 from .version import __version__
-from . import ut_stuff
-from .tracker import UTMxin
+#from . import ut_stuff
+from .tracker import UTMxin, setup_options_from_slot_data
 import string
 
 class BFMWeb(WebWorld):
@@ -76,7 +76,7 @@ class BFMWorld(UTMxin, World):
     #tracker_world: ClassVar = ut_stuff.tracker_world
 
     def generate_early(self) -> None:
-        ut_stuff.setup_options_from_slot_data(self)
+        tracker.setup_options_from_slot_data(self)
         if(hasattr(self.multiworld, "generation_is_fake")):
             warning("Fake GEN")
         if(self.using_ut == True):
@@ -123,6 +123,9 @@ class BFMWorld(UTMxin, World):
                 del self.player_location_table[name]
         if(self.options.quest_item_sanity.value == False):
             for name in location_name_groups["Quest"]:
+                del self.player_location_table[name]
+        if(self.options.bp_sanity.value == False):
+            for name in location_name_groups["BP"]:
                 del self.player_location_table[name]
         
         if self.options.hair_color_selection == 1:
@@ -198,7 +201,9 @@ class BFMWorld(UTMxin, World):
             "goal": self.options.goal.value,
             "npc_goal": self.options.npc_goal.value,
             "guardian_goal": self.options.guardian_goal.value,
+            "force_soda_fountain_last": self.options.force_soda_fountain_last.value,
             "starting_hp": self.options.starting_hp.value,
+            "starting_bp": self.options.starting_bp.value,
             "max_hp_logic": self.options.max_hp_logic.value,
             "deathlink": self.options.death_link.value,
             "hair_color": self.hair_selection,
@@ -220,6 +225,8 @@ class BFMWorld(UTMxin, World):
             "xp_gain": self.options.xp_gain.value,
             "xp_gain_mind": self.options.xp_gain_mind.value,
             "quest_item_sanity": self.options.quest_item_sanity.value,
+            "bp_sanity": self.options.bp_sanity.value,
+            "bp_bundles": self.options.bp_bundles.value,
             "early_skullpion": self.options.early_skullpion.value,
             "boulder_chase_zoom": self.options.boulder_chase_zoom.value,
             "leno_sniff_modifier": self.options.leno_sniff_modifier.value,
@@ -323,6 +330,17 @@ class BFMWorld(UTMxin, World):
             for name in item_name_groups["Quest"]:
                 if(name in item_table):
                     del items_to_create[name] 
+        if(self.options.bp_sanity.value == False):
+            for name in item_name_groups["BP"]:
+                if(name in item_table):
+                    del items_to_create[name] 
+        else:
+            if(self.options.bp_bundles.value < 13):
+                items_to_create["BP Up"] = self.options.bp_bundles.value
+                items_to_create["Large BP Up"] = 0
+            else:
+                items_to_create["BP Up"] = self.options.bp_bundles.value - 6
+            
 
 
         if(self.options.quest_item_sanity.value == True):
@@ -407,6 +425,5 @@ class BFMWorld(UTMxin, World):
     @staticmethod
     def interpret_slot_data(slot_data: Dict[str, Any]) -> Dict[str, Any]:
         # returning slot_data so it regens, giving it back in multiworld.re_gen_passthrough
-        # we are using re_gen_passthrough over modifying the world here due to complexities with ER
         return slot_data
         

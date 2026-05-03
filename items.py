@@ -177,6 +177,8 @@ item_table: Dict[str, BFMItemData] = {
     "Gondola Gizmo???": BFMItemData(IC.filler, 1, 0x66, "Quest", jp_name = "ゴンドラパーツ???"),
     "Profits": BFMItemData(IC.progression, 1, 0x6c, "Quest", jp_name = "うりあげきん"),
     "Note": BFMItemData(IC.filler, 1, 0x6e, "Quest", jp_name = "ジャンのメモ"),
+    "BP Up": BFMItemData(IC.useful, 35, 0x5 + level_base_id, "BP", jp_name = "BPアップ"),
+    "Large BP Up": BFMItemData(IC.useful, 6, 0x6 + level_base_id, "BP", jp_name = "おおきなBPアップ"),
 }
 
 # items we'll want the location of in slot data, for generating in-game hints
