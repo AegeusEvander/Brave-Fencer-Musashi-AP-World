@@ -515,7 +515,7 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         set_rule(world.get_location(check_location_name("GiAnt - Toy Shop", lang)),
             lambda state: state.can_reach_region("Upper Mines Ant Parade", player))
         set_rule(world.get_location(check_location_name("Toad Stool - Toy Shop", lang)),
-            lambda state: can_enter_mine(state, world) or state.can_reach_region("Upper Mines", player))
+            lambda state: can_enter_mine(state, world) or state.can_reach_region("Upper Mines", player) or (has_rope(state, world) and (has_water_scroll(state, world) or has_sky_scroll_simple(state, world))))
         set_rule(world.get_location(check_location_name("Colonel Capricola - Toy Shop", lang)),
             lambda state: state.can_reach_region("Frost Dragon Arena", player))
         #if(options.quest_item_sanity.value == True):

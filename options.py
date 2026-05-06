@@ -538,6 +538,18 @@ class SteamwoodElevatorLogic(Choice):
     option_troll = 3
     default = 2
 
+class SteamwoodColorAccessibility(Choice):
+    """
+    Adjust the color of the pressure gauge
+    Vanilla - No adjustments
+    High Contrast - black and white
+    """
+    internal_name = "steamwood_color_accessibility"
+    display_name = "Steamwood Color Accessibility"
+    option_vanilla = 1
+    option_high_contrast = 2
+    default = 1
+
 class AqualinTimerModifier(Range):
     """
     Modify how fast the 12 hour timer for collecting Aqualin ticks down
@@ -669,6 +681,32 @@ class CustomHairColor(FreeText):
     display_name = "Custom Hair Color"
     default = "B751A7"
 
+class ScalpColor(Choice):
+    """
+    Pick Hair Color, or choose custom for further customization
+    """
+    internal_name = "scalp_color_selection"
+    display_name = "Scalp Color"
+    option_custom = 1
+    option_same_as_hair = 2
+    option_purple = 3
+    option_white = 4
+    option_red = 5
+    option_blue = 6
+    option_green = 7
+    option_orange = 8
+    option_pink = 9
+    option_yellow = 10
+    default = 2
+
+class CustomScalpColor(FreeText):
+    """
+    Must select custom from scalp color, write hex code of desired color in the format RRGGBB (see https://www.color-hex.com/ for assistance) do not include # must be exactly 6 digits and a valid hex code i.e. 0 through F values only
+    """
+    internal_name = "custom_scalp_color_selection"
+    display_name = "Custom Scalp Color"
+    default = "B751A7"
+
 @dataclass
 class BFMOptions(PerGameCommonOptions):
     set_lang: SetLang
@@ -720,6 +758,7 @@ class BFMOptions(PerGameCommonOptions):
     steamwood_valve_progress_modifier: SteamwoodValveProgressModifier
     steamwood_no_fail_over_pressure: SteamwoodNoFailOverPressure
     steamwood_elevator_logic: SteamwoodElevatorLogic
+    steamwood_color_accessibility: SteamwoodColorAccessibility
     aqualin_timer: AqualinTimerModifier
     restaurant_teleport_maze_no_fail: RestaurantTeleportMazeNoFail
     church_fight_time_modifier: ChurchFightTimeModifier
@@ -734,3 +773,5 @@ class BFMOptions(PerGameCommonOptions):
     message_level: MessageLevel
     hair_color_selection: HairColor
     custom_hair_color_selection: CustomHairColor
+    scalp_color_selection: ScalpColor
+    custom_scalp_color_selection: CustomScalpColor

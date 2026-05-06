@@ -9,7 +9,7 @@ from .options import BFMOptions
 from worlds.AutoWorld import WebWorld, World
 from Options import PlandoConnection, OptionError
 from settings import Group, Bool
-from .hair_color import hair_color_options, new_hair_color
+from .hair_color import hair_color_options, new_hair_color, default_hair_color
 from .utils import Constants
 from Utils import visualize_regions
 # This registers the client. The comment ignores "unused import" linter messages
@@ -49,6 +49,7 @@ class BFMWorld(UTMxin, World):
     required_client_version = (0, 2, 5)
     web = BFMWeb()
     hair_selection: str = hair_color_options[2]
+    scalp_selection: str = hair_color_options[2]
 
     item_name_groups = item_name_groups
     location_name_groups = location_name_groups
@@ -139,6 +140,21 @@ class BFMWorld(UTMxin, World):
         else:
             self.hair_selection = hair_color_options[self.options.hair_color_selection]
 
+        if self.options.scalp_color_selection == 1:
+            if len(self.options.custom_scalp_color_selection.value) == 6:
+                if(all(s in string.hexdigits for s in self.options.custom_scalp_color_selection.value)):
+                    self.scalp_selection = self.options.custom_scalp_color_selection.value.upper()
+                else:
+                    self.scalp_selection = self.hair_selection
+            else:
+                self.scalp_selection = self.hair_selection
+        elif self.options.scalp_color_selection == 2:
+            self.scalp_selection = self.hair_selection
+        elif self.options.scalp_color_selection == 3:
+            self.scalp_selection = default_hair_color
+        else:
+            self.scalp_selection = hair_color_options[self.options.scalp_color_selection - 2]
+
         if(self.options.starting_hp.value == 1):
             self.options.death_link.value = False
         #if(self.options.set_lang.value == 2):
@@ -207,6 +223,7 @@ class BFMWorld(UTMxin, World):
             "max_hp_logic": self.options.max_hp_logic.value,
             "deathlink": self.options.death_link.value,
             "hair_color": self.hair_selection,
+            "scalp_color": self.scalp_selection,
             "lumina_randomzied": self.options.lumina_randomzied.value,
             "bakery_sanity": self.options.bakery_sanity.value,
             "restaurant_sanity": self.options.restaurant_sanity.value,
@@ -245,6 +262,7 @@ class BFMWorld(UTMxin, World):
             "steamwood_valve_progress_modifier": self.options.steamwood_valve_progress_modifier.value,
             "steamwood_no_fail_over_pressure": self.options.steamwood_no_fail_over_pressure.value,
             "steamwood_elevator_logic": self.options.steamwood_elevator_logic.value,
+            "steamwood_color_accessibility": self.options.steamwood_color_accessibility.value,
             "aqualin_timer": self.options.aqualin_timer.value,
             "restaurant_teleport_maze_no_fail": self.options.restaurant_teleport_maze_no_fail.value,
             "church_fight_time_modifier": self.options.church_fight_time_modifier.value,

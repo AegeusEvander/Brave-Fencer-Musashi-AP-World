@@ -230,6 +230,9 @@ class BFMClient(BizHawkClient):
     level_transition = 0
     request_hints = 0
     hair_color_updated = 0
+    hair_color_scalp = 0xb0c7
+    skin_color = 0xbf1f
+    hair_transition = [0xb8e9, 0xb96e, 0xba79]
     has_died = 0
     death_link_timer = 240
     previous_death_link: float = 0
@@ -594,6 +597,11 @@ class BFMClient(BizHawkClient):
                     fix_town_id = fix_town_id + [(0x14bcf8 + (self.jp_version * 0x2d0), [0x0, 0x0, 0x0], MAIN_RAM)] #noop the max bp calc 21 10 45 00	addu $v0, $a1
                 
                 fix_town_id = fix_town_id + [(0x13f430 + (self.jp_version * 0x344), [0x06, 0x01, 0x02, 0x24], MAIN_RAM)] #fix scroll cursor
+                if(ctx.slot_data["scalp_color"] != default_hair_color):
+                    fix_town_id = fix_town_id + [(0x86ac4, self.hair_color_scalp.to_bytes(2, "little"), "GPURAM")] #scalp hair color
+                    fix_town_id = fix_town_id + [(0x86ad6, self.hair_transition[0].to_bytes(2, "little"), "GPURAM")] #scalp hair color
+                    fix_town_id = fix_town_id + [(0x86ad8, self.hair_transition[1].to_bytes(2, "little"), "GPURAM")] #scalp hair color
+                    fix_town_id = fix_town_id + [(0x86ada, self.hair_transition[2].to_bytes(2, "little"), "GPURAM")] #scalp hair color
                 await bizhawk.write(
                     ctx.bizhawk_ctx,
                     [(0x075400 + (self.jp_version * -0xe70), [2] + destinations + [0], MAIN_RAM),
@@ -1547,6 +1555,19 @@ class BFMClient(BizHawkClient):
                     ctx.bizhawk_ctx,
                     [(hair_color_addresses[0] + (self.jp_version * 0x1d10), 3, MAIN_RAM)]
                 ))[0]
+
+                hair_color_bytes = bytes.fromhex(ctx.slot_data["scalp_color"])
+                red_5bit = math.floor(hair_color_bytes[0]/8)
+                green_5bit = math.floor(hair_color_bytes[1]/8)
+                blue_5bit = math.floor(hair_color_bytes[2]/8)
+                red_5bit_skin = self.skin_color & 0b11111
+                green_5bit_skin = (self.skin_color >> 5) & 0b11111
+                blue_5bit_skin = (self.skin_color >> 10) & 0b11111
+                self.hair_color_scalp = (1 << 15) + (blue_5bit << 10) + (green_5bit << 5) + red_5bit
+                self.hair_transition[0] = (1 << 15) + ((math.floor((blue_5bit * 3 + blue_5bit_skin)/4) & 0b11111) << 10) + ((math.floor((green_5bit * 3 + green_5bit_skin)/4) & 0b11111) << 5) + (math.floor((red_5bit * 3 + red_5bit_skin)/4) & 0b11111) #1bbbbbgggggrrrrr
+                self.hair_transition[1] = (1 << 15) + ((math.floor((blue_5bit * 2 + blue_5bit_skin * 2)/4) & 0b11111) << 10) + ((math.floor((green_5bit * 2 + green_5bit_skin * 2)/4) & 0b11111) << 5) + (math.floor((red_5bit * 2 + red_5bit_skin * 2)/4) & 0b11111) #1bbbbbgggggrrrrr
+                self.hair_transition[2] = (1 << 15) + ((math.floor((blue_5bit + blue_5bit_skin * 3)/4) & 0b11111) << 10) + ((math.floor((green_5bit + green_5bit_skin * 3)/4) & 0b11111) << 5) + (math.floor((red_5bit + red_5bit_skin * 3)/4) & 0b11111) #1bbbbbgggggrrrrr
+                #self.hair_transition [0] = 
                 if("message_level" in ctx.slot_data):
                     self.message_level = ctx.slot_data["message_level"]
                 if(curr_hair_color == bytes.fromhex(ctx.slot_data["hair_color"])):
@@ -1620,12 +1641,13 @@ class BFMClient(BizHawkClient):
                         logger.info(f"v{s} Current game patch") 
                         logger.info("Try to have all version numbers match if possible for best compatibility")     
                     logger.info("Coloring Hair")
-                    for address in hair_color_addresses:
-                        await bizhawk.write(
-                            ctx.bizhawk_ctx,
-                            [(address + (self.jp_version * 0x1d10), bytes.fromhex(ctx.slot_data["hair_color"]), MAIN_RAM)]
-                        )
-                    write_instructions = []
+                    #for address in hair_color_addresses:
+                    #    await bizhawk.write(
+                    #        ctx.bizhawk_ctx,
+                    #        [(address + (self.jp_version * 0x1d10), bytes.fromhex(ctx.slot_data["hair_color"]), MAIN_RAM)]
+                    #    )
+                    #write_instructions = []
+                    write_instructions = [(address + (self.jp_version * 0x1d10), bytes.fromhex(ctx.slot_data["hair_color"]), MAIN_RAM) for address in hair_color_addresses]
                     write_instructions.append((0x0d1490 + (self.jp_version * -0xe80), [0x0], MAIN_RAM))#set Minku healing to 0
                     for cost in appraisal_items_buy_cost:
                         write_instructions.append((cost + (self.jp_version * 0x1d10), [0xf6, 0xff], MAIN_RAM))
@@ -1639,6 +1661,7 @@ class BFMClient(BizHawkClient):
                     write_instructions.append((store_sanity_buy_cost[0] + (self.jp_version * 0x1d10), [0x1e, 0x00], MAIN_RAM))#bakery
                     write_instructions.append((store_sanity_buy_cost[1]  + (self.jp_version * 0x1d10), [0x64, 0x00], MAIN_RAM))#restaurant
                     write_instructions.append((store_sanity_buy_cost[2]  + (self.jp_version * 0x1d10), [0x32, 0x00], MAIN_RAM))#Grocery
+                    #write_instructions.append((0x86ac4, [0x5b, 0x38], "GPURAM")) #scalp hair color
                     await bizhawk.write(
                         ctx.bizhawk_ctx,
                         write_instructions
@@ -2605,11 +2628,38 @@ class BFMClient(BizHawkClient):
                             write_instructions.append((0x183bc5 + (self.jp_version * 0x1c8), valve_update, MAIN_RAM)) #steamwood 1 valve order
                         else:
                             write_instructions.append((0x184c59 + (self.jp_version * 0x1c8), valve_update, MAIN_RAM)) #steamwood 2 valve order
+                        if(ctx.slot_data["steamwood_color_accessibility"] == 2): #high contrast
+                            write_instructions.append((0x17c3c0 + (self.jp_version * 0x200), [0x0] * 36, MAIN_RAM))
+                            if(curr_location == 0x301d):
+                                write_instructions.append((0x18397c + (self.jp_version * 0x1d4), [0xff, 0xff, 0xff, 0x0, 0x0, 0x0, 0x0, 0x0] * 2, MAIN_RAM)) #okay color
+                                write_instructions.append((0x183998 + (self.jp_version * 0x1d4), [0x0, 0x0, 0x0, 0x0] * 4, MAIN_RAM)) #backdrop color
+                                write_instructions.append((0x183960 + (self.jp_version * 0x1d4), [0xff, 0xff, 0xff, 0x0] * 4, MAIN_RAM)) #pressure bar
+                                write_instructions.append((0x17efa8 + (self.jp_version * 0x200), [0x0] * 8, MAIN_RAM))
+                                write_instructions.append((0x183d14 + (self.jp_version * 0x1c0), [0x0], MAIN_RAM)) #red flash
+                            else:
+                                write_instructions.append((0x1849b4 + (self.jp_version * 0x1d4), [0xff, 0xff, 0xff, 0x0, 0x0, 0x0, 0x0, 0x0] * 2, MAIN_RAM))
+                                write_instructions.append((0x1849d0 + (self.jp_version * 0x1d4), [0x0, 0x0, 0x0, 0x0] * 4, MAIN_RAM))
+                                write_instructions.append((0x184998 + (self.jp_version * 0x1d4), [0xff, 0xff, 0xff, 0x0] * 4, MAIN_RAM))
+                                write_instructions.append((0x17f774 + (self.jp_version * 0x200), [0x0] * 8, MAIN_RAM))
+                                write_instructions.append((0x184eec + (self.jp_version * 0x1c0), [0x0], MAIN_RAM)) #red flash
 
                         await bizhawk.write(
                             ctx.bizhawk_ctx,
                             write_instructions
                         )
+                    
+                    if(curr_location == 0x301e): #outside steamwood
+                        if(ctx.slot_data["steamwood_color_accessibility"] == 2): #high contrast
+                            write_instructions = []
+                            write_instructions.append((0x17c3c0 + (self.jp_version * 0x200), [0x0] * 36, MAIN_RAM))
+                            write_instructions.append((0x184cec + (self.jp_version * 0x1d4), [0xff, 0xff, 0xff, 0x0, 0x0, 0x0, 0x0, 0x0] * 2, MAIN_RAM))
+                            write_instructions.append((0x184d08 + (self.jp_version * 0x1d4), [0x0, 0x0, 0x0, 0x0] * 4, MAIN_RAM))
+                            write_instructions.append((0x184cd0 + (self.jp_version * 0x1d4), [0xff, 0xff, 0xff, 0x0] * 4, MAIN_RAM))
+                            await bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                write_instructions
+                            )
+
                     if(curr_location == 0x302c or curr_location == 0x3029):
                         if(ctx.slot_data["aqualin_timer"] != 100):
                             #await self.update_progression(ctx)
@@ -3816,7 +3866,10 @@ class BFMClient(BizHawkClient):
         count = 0
         for character in s1:
             if(character in jp_encoding):
-                result.append(jp_encoding[character])
+                if isinstance(jp_encoding[character], list):
+                    result.extend(jp_encoding[character])
+                else:
+                    result.append(jp_encoding[character])
             else:
                 count = count + 1
                 result.append(jp_encoding["？"])
@@ -3829,7 +3882,10 @@ class BFMClient(BizHawkClient):
         count = 0
         for character in s1:
             if(character in jp_encoding):
-                result.append(jp_encoding[character])
+                if isinstance(jp_encoding[character], list):
+                    result.extend(jp_encoding[character])
+                else:
+                    result.append(jp_encoding[character])
             else:
                 if(count > 2):
                     result.append(jp_encoding[" "])
