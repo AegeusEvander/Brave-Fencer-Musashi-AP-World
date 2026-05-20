@@ -1,7 +1,7 @@
 from typing import Dict, List, Any, Tuple, TypedDict, ClassVar, Union, Set, TextIO
 from logging import warning
 from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState
-from .items import item_name_to_id, item_table, item_name_groups, slot_data_item_names, jp_id_offset, item_base_id, item_id_to_name
+from .items import item_name_to_id, item_table, item_name_groups, jp_id_offset, item_base_id, item_id_to_name
 from .locations import location_table, location_name_groups, standard_location_name_to_id, en_standard_location_name_to_id
 from .rules import saved_everyone, set_region_rules, set_location_rules, can_fight_skullpion, has_all_scrolls, has_ex_drink, has_water_scroll, can_identify_gondola_gizmo, can_fight_frost_dragon, has_wind_scroll, can_enter_frozen_palace, has_earth_boss_core, has_wind_boss_core, has_fire_boss_core
 from .regions import bfm_regions
@@ -15,9 +15,11 @@ from Utils import visualize_regions
 # This registers the client. The comment ignores "unused import" linter messages
 from .client import BFMClient  # type: ignore  # noqa
 from .version import __version__
+from .trap import trap_weight
 #from . import ut_stuff
 from .tracker import UTMxin, setup_options_from_slot_data
 import string
+import math
 
 class BFMWeb(WebWorld):
     theme = "grass"
@@ -222,6 +224,7 @@ class BFMWorld(UTMxin, World):
             "starting_bp": self.options.starting_bp.value,
             "max_hp_logic": self.options.max_hp_logic.value,
             "deathlink": self.options.death_link.value,
+            "trap_link": self.options.trap_link.value,
             "hair_color": self.hair_selection,
             "scalp_color": self.scalp_selection,
             "lumina_randomzied": self.options.lumina_randomzied.value,
@@ -374,13 +377,36 @@ class BFMWorld(UTMxin, World):
                     bfm_items.append(self.create_item(item))
 
         total_locations = len(self.multiworld.get_unfilled_locations(self.player))
+        if self.options.trap_percent.value > 0 and total_locations > len(bfm_items):
+            trap_count = math.floor((total_locations - len(bfm_items)) * (self.options.trap_percent / 100))
+            trap_names = list(set(self.options.trap_weights.keys()) & set(trap_weight.keys()))
+            trap_weights = {k:self.options.trap_weights[k] for k in trap_names}
+            if len(trap_names) == 0:
+                trap_names = ["Random Ability Trap"]
+                trap_weights = {"Random Ability Trap": 50}
+            trap_values = [trap_weights[k] for k in trap_names]
+            max_trap_weight = sum(trap_values)
+            if len(trap_values) > 1:
+                trap_ranges = trap_values
+                for i in range(1, len(trap_ranges)):
+                    trap_ranges[i] = trap_ranges[i] + trap_ranges[i - 1] 
+                for _ in range(trap_count):
+                    random_trap = self.random.randint(0, max_trap_weight - 1)
+                    for i in range(len(trap_ranges)):
+                        if random_trap < trap_ranges[i]:
+                            bfm_items.append(self.create_item(trap_names[i]))
+                            break
+            else:
+                for _ in range(trap_count):
+                    bfm_items.append(self.create_item(trap_names[0]))
+
 
         for _ in range(total_locations - len(bfm_items)):
             bfm_items.append(self.create_filler())
 
-        for bfm_item in bfm_items:
-            if bfm_item.name in slot_data_item_names:
-                self.slot_data_items.append(bfm_item)
+        #for bfm_item in bfm_items:
+        #    if bfm_item.name in slot_data_item_names:
+        #        self.slot_data_items.append(bfm_item)
 
         self.multiworld.itempool += bfm_items
 

@@ -17,6 +17,7 @@ scroll_base_id = 0x200
 core_base_id = 0x300
 level_base_id = 0x400
 quest_base_id = 0x500
+trap_base_id = 0x600
 jp_id_offset = 0x0c0000
 
 item_table: Dict[str, BFMItemData] = {
@@ -156,7 +157,7 @@ item_table: Dict[str, BFMItemData] = {
     "Fusion Stat Up": BFMItemData(IC.useful, 29, 0x3 + level_base_id, "Level", jp_name = "らいこうまる アップ"),
     "Lumina Stat Up": BFMItemData(IC.useful, 29, 0x4 + level_base_id, "Level", jp_name = "レイガンド アップ"),
     "Ugly Belt": BFMItemData(IC.progression, 1, 0x48, "Quest", jp_name = "きたないべルト"),
-    "Well H20": BFMItemData(IC.progression, 1, 0x0 + quest_base_id, "Quest", jp_name = "いど みず"),
+    "Well H20": BFMItemData(IC.progression, 1, 0x0 + quest_base_id, "Quest", jp_name = "いどみず"),
     "Jon's Key": BFMItemData(IC.progression, 1, 0x4d, "Quest", jp_name = "ジャンのカギ"),
     "Log": BFMItemData(IC.progression, 4, 0x1 + quest_base_id, "Quest", jp_name = "まるた"),
     "Manual": BFMItemData(IC.progression, 1, 0x3 + quest_base_id, "Quest", jp_name = "ウッドのメモ"),
@@ -179,17 +180,25 @@ item_table: Dict[str, BFMItemData] = {
     "Note": BFMItemData(IC.filler, 1, 0x6e, "Quest", jp_name = "ジャンのメモ"),
     "BP Up": BFMItemData(IC.useful, 35, 0x5 + level_base_id, "BP", jp_name = "BPアップ"),
     "Large BP Up": BFMItemData(IC.useful, 6, 0x6 + level_base_id, "BP", jp_name = "おおきなBPアップ"),
+    "Activate Ability Trap": BFMItemData(IC.trap, 0, 0x0 + trap_base_id, "Trap", jp_name = "らいこうまるをつかうのわな"), #雷光丸を使うの罠
+    "Activate Scroll Trap": BFMItemData(IC.trap, 0, 0x1 + trap_base_id, "Trap", jp_name = "まきをつかうのわな"), #巻を使うの罠
+    "Bald Trap": BFMItemData(IC.trap, 0, 0x2 + trap_base_id, "Trap", jp_name = "はげるのわな"), #禿げるの罠
+    "Camera Manipulation Trap": BFMItemData(IC.trap, 0, 0x3 + trap_base_id, "Trap", jp_name = "カメラをかいてんのわな"),#カメラを回転の罠
+    "Depression Trap": BFMItemData(IC.trap, 0, 0x4 + trap_base_id, "Trap", jp_name = "イヤナオモイデのわな"),
+    "Disarm Trap": BFMItemData(IC.trap, 0, 0x5 + trap_base_id, "Trap", jp_name = "ぶそうをとくわな"), #武装を解く
+    "Dismember Trap": BFMItemData(IC.trap, 0, 0x6 + trap_base_id, "Trap", jp_name = "きりはなすのわな"), #切り離すの罠
+    "Sinking Trap": BFMItemData(IC.trap, 0, 0x7 + trap_base_id, "Trap", jp_name = "おぼれるのわな"), #溺れるの罠
+    "Ghost Trap": BFMItemData(IC.trap, 0, 0x8 + trap_base_id, "Trap", jp_name = "エクトプラズムのわな"),
+    "Instant Death Trap": BFMItemData(IC.trap, 0, 0x9 + trap_base_id, "Trap", jp_name = "しぬのわな"),
+    "Jump Trap": BFMItemData(IC.trap, 0, 0xa + trap_base_id, "Trap", jp_name = "ジャンプわな"),
+    "Pea Soup Trap": BFMItemData(IC.trap, 0, 0xb + trap_base_id, "Trap", jp_name = "ビアールのわな"),
+    "Poison Trap": BFMItemData(IC.trap, 0, 0xc + trap_base_id, "Trap", jp_name = "どくのわな"),
+    "Random Ability Trap": BFMItemData(IC.trap, 0, 0xd + trap_base_id, "Trap", jp_name = "どうかのわな"), #同化の罠
+    "Sleepy Trap": BFMItemData(IC.trap, 0, 0xe + trap_base_id, "Trap", jp_name = "しっこいすいまのわな"),
+    "Stinky Trap": BFMItemData(IC.trap, 0, 0xf + trap_base_id, "Trap", jp_name = "あくしゅうのわな"),
+    "Toxin Trap": BFMItemData(IC.trap, 0, 0x10 + trap_base_id, "Trap", jp_name = "どくどくのわな"),
+    "Use S-Revive Trap": BFMItemData(IC.trap, 0, 0x11 + trap_base_id, "Trap", jp_name = "リバイバーSをつかうのわな"),
 }
-
-# items we'll want the location of in slot data, for generating in-game hints
-slot_data_item_names = [
-    "Guard",
-    "Seer",
-    "Hawker",
-    "MusicianB",
-    "SoldierA",
-    "Acrobat",
-]
 
 item_name_to_id: Dict[str, int] = {name: item_base_id * (data.item_group == "NPC") + data.item_id_offset for name, data in item_table.items()}
 jp_item_name_to_id: Dict[str, int] = {data.jp_name: item_base_id * (data.item_group == "NPC") + data.item_id_offset + jp_id_offset for name, data in item_table.items()}

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from Options import Choice, Toggle, PerGameCommonOptions, DeathLink, FreeText, DefaultOnToggle, Range, Visibility
+from Options import Choice, Toggle, PerGameCommonOptions, DeathLink, FreeText, DefaultOnToggle, Range, Visibility, OptionCounter
 from typing import Dict, Any, TYPE_CHECKING
+from .trap import trap_weight
 import logging
 if TYPE_CHECKING:
     from . import BFMWorld
@@ -563,6 +564,30 @@ class AqualinTimerModifier(Range):
     range_end = 150
     default = 50
 
+class TrapPercentage(Range):
+    """
+    What percent of filler should be replaced with traps.
+    """
+    internal_name = "trap_percent"
+    display_name = "Trap Percentage"
+    range_start = 0
+    range_end = 100
+    default = 0
+
+class TrapWeights(OptionCounter):
+    """
+    Specify the weighted chance of rolling individual trap items.
+
+        You can use a weight of 0 to guarantee a particular trap will never appear.
+        **This option is ignored when "TrapPercentage" option is set to an other value than "custom"
+    """
+    internal_name = "trap_weights"
+    display_name = "Trap Weights"
+    min = 0
+    max = 100
+    valid_keys = frozenset(trap_weight.keys())
+    default = trap_weight
+
 class RestaurantTeleportMazeNoFail(DefaultOnToggle):
     """
     Vanilla logic for picking the wrong teleporter is to send Musashi back to the start or much earlier part of the dungeon
@@ -634,6 +659,13 @@ class SodaFountainBossRush(Toggle):
     """
     internal_name = "soda_fountain_boss_rush"
     display_name = "Soda Fountain Boss Rush"
+
+class TrapLink(Toggle):
+    """
+    If other games with traplink are connected to the multiworld traps are triggered in all
+    """
+    internal_name = "trap_link"
+    display_name = "Trap Link"
 
 class FastWalk(Toggle):
     """
@@ -760,6 +792,8 @@ class BFMOptions(PerGameCommonOptions):
     steamwood_elevator_logic: SteamwoodElevatorLogic
     steamwood_color_accessibility: SteamwoodColorAccessibility
     aqualin_timer: AqualinTimerModifier
+    trap_percent: TrapPercentage
+    trap_weights: TrapWeights
     restaurant_teleport_maze_no_fail: RestaurantTeleportMazeNoFail
     church_fight_time_modifier: ChurchFightTimeModifier
     skip_minigame_town_on_fire: SkipTownOnFireMinigame
@@ -769,6 +803,7 @@ class BFMOptions(PerGameCommonOptions):
     topo_dance_battle_logic: TopoDanceBattleLogic
     soda_fountain_boss_rush: SodaFountainBossRush
     death_link: DeathLink
+    trap_link: TrapLink
     fast_walk: FastWalk
     message_level: MessageLevel
     hair_color_selection: HairColor

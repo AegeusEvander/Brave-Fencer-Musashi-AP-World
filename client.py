@@ -22,6 +22,8 @@ from .stats import body_xp, mind_xp, lumina_xp, fusion_xp, body_stat, mind_stat,
 from .jp_encoding import jp_encoding
 from .quest_items import quest_item_locations, well_water_id, gate_angles
 from .portals import bfm_portals, BFMConnection
+from .trap import trap_names_long_queue, trap_names_short_queue, regions_with_water, regions_indoors, assimilation_value, item_swap_whitelist, trap_conversion, trap_send_conversion, trap_weight
+from .fusion import fusion_lookup, usable_skills
 from .progression_state import calc_completed_progression_state, calc_progression_state, progression_state_table
 import math
 import random
@@ -31,6 +33,7 @@ import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
 from pathlib import Path
 import os
+import time
 import Utils
 import zipfile
 from BaseClasses import ItemClassification as IC
@@ -147,6 +150,45 @@ def cmd_deathlink(self: "BizHawkClientCommandProcessor", status = "") -> None:
 
     logger.info(f"Deathlink is now {msg}\n")
 
+
+def cmd_trap_link(self: "BizHawkClientCommandProcessor", status = "") -> None:
+    """Toggle Traplink on and off"""
+    from CommonClient import logger
+    from worlds._bizhawk.context import BizHawkClientContext
+    if self.ctx.game != "Brave Fencer Musashi":
+        logger.warning("This command can only be used when playing Brave Fencer Musashi.")
+        return
+    if not self.ctx.server or not self.ctx.slot:
+        logger.warning("You must be connected to a server to use this command.")
+        return
+
+    ctx = self.ctx
+    assert isinstance(ctx, BizHawkClientContext)
+    client = ctx.client_handler
+    assert isinstance(client, BFMClient)
+    if status == "":
+        if client.trap_link == 1 or (client.trap_link == -1 and ctx.slot_data["trap_link"]):
+            msg = "ON"
+        else:
+            msg = "OFF"
+        logger.info(f"Traplink: {msg}\n"
+                    f"    To change the status, use the command: /traplink [on/off]")
+        return
+    elif status.lower() == "on":
+        client.trap_link = 1
+    elif status.lower() == "off":
+        client.trap_link = 0
+    else:
+        logger.info(f"Invalid argument for function ""traplink""\n")
+        return
+    
+    if client.trap_link == 1:
+        msg = "ON"
+    else:
+        msg = "OFF"
+
+    logger.info(f"Traplink is now {msg}\n")
+
 def cmd_goal(self: "BizHawkClientCommandProcessor") -> None:
     """check Goal"""
     from CommonClient import logger
@@ -257,10 +299,11 @@ class BFMClient(BizHawkClient):
     curr_lum_stat = 8
     raft_regrow_timer = 0
     raft_hp = 4
-    elevator_active = True
+    elevator_active = False
     jp_version = False
     table_ids_to_hint = []
     deathlink = -1
+    trap_link = -1
     num_bosses_killed = -1
     completed_progression: set[int] = set()
     manually_checked_progression: set[int] = set()
@@ -281,8 +324,16 @@ class BFMClient(BizHawkClient):
     old_closest_gizmo = 0
     last_displayed_hint: str = ""
     hint_dictionary: Dict[int, str] = {}
+    long_trap_queue: List[str] = []
+    short_trap_queue: List[str] = []
+    sinking_trap_queue = 0
+    trap_index = 0
+    sinking_timer = 0
+    long_trap_timer = 0
+    short_trap_timer = 0
     Commands_Dict = {
         "deathlink": "cmd_deathlink",
+        "traplink": "cmd_trap_link",
         "message_level": "cmd_message_level",
         "debug_dump": "cmd_debug_dump",
         "goal": "cmd_goal",
@@ -427,7 +478,8 @@ class BFMClient(BizHawkClient):
             (0x0ae64a + (self.jp_version * -0xea0), 3, MAIN_RAM), #26 Scrolls and LArmor
             (0x0ba1f3 + (self.jp_version * -0xea0), 1, MAIN_RAM), #27 Geezer   
             (0x0ba285 + (self.jp_version * -0xea0), 1, MAIN_RAM), #28 Steamwood Status
-            (0x075400 + (self.jp_version * -0xe70), 1, MAIN_RAM)] #29 Zone Loaded   
+            (0x075400 + (self.jp_version * -0xe70), 1, MAIN_RAM), #29 Zone Loaded 
+            (0x078eb4 + (self.jp_version * -0xea0), 2, MAIN_RAM)] #30 Current HP 
             ))
             if check_game_state != game_state[0]:
                 self.received_count = 0
@@ -450,6 +502,8 @@ class BFMClient(BizHawkClient):
             old_progression_state = self.progression_state
             self.progression_state = int.from_bytes(game_state[16], byteorder='little')
             if(old_progression_state != self.progression_state): #TODO clear and resync on death
+                if(not 0x294 in self.manually_checked_progression and 0x2b2 in self.manually_checked_progression):
+                    self.manually_checked_progression.add(0x294)
                 if(self.progression_state in self.manually_checked_progression_states and not self.progression_state in self.manually_checked_progression):
                     if(self.progression_state == 0x2bc):
                         if(curr_location == 0x1077):
@@ -542,7 +596,7 @@ class BFMClient(BizHawkClient):
                                 if(ctx.slot_data["quest_item_sanity"] == True and not item_name_to_id["Key"] in received_list):
                                     dest = 0x3000
                             if(dest == 0x304e and curr_location in [0x1010, 0x1052, 0x1077, 0x1094]):#town to Well
-                                if(ctx.slot_data["quest_item_sanity"] == True and not item_name_to_id["Rope"] in received_list or game_state[17][6] & 0b1 == 0b1):
+                                if((ctx.slot_data["quest_item_sanity"] == True and not item_name_to_id["Rope"] in received_list) or (ctx.slot_data["quest_item_sanity"] == False and game_state[20][0] & 0b10000000 != 0b10000000) or game_state[17][6] & 0b1 == 0b1):
                                     dest = 0x3000
                                     fix_town_id = fix_town_id + [(connection.memory + 0x2 + (self.jp_version * connection_data.jp_offset), [0], MAIN_RAM)] #change door
                             #if(dest in [0x207b, 0x2098] and self.num_bosses_killed <2): #bakery chapter 4, 5/6
@@ -658,9 +712,9 @@ class BFMClient(BizHawkClient):
             holdint = [save_data[4]]
             new_chest_checks.extend(self.decode_booleans(int.from_bytes(holdint, byteorder='little'), 7))
 
-            save_data_toys: bytes = bytes()
-            if(ctx.slot_data["toy_sanity"] == True or ctx.slot_data["core_sanity"] == True or ctx.slot_data["goal"] > 2):
-                save_data_toys = game_state[4]
+            save_data_toys: bytes #= bytes()
+            #if(ctx.slot_data["toy_sanity"] == True or ctx.slot_data["core_sanity"] == True or ctx.slot_data["goal"] > 2):
+            save_data_toys = game_state[4]
             #    save_data_toys = (await bizhawk.read(
             #        ctx.bizhawk_ctx,
             #        [(0x0ba21b + (self.jp_version * -0xea0), 43, MAIN_RAM)]
@@ -696,14 +750,15 @@ class BFMClient(BizHawkClient):
             if(new_num_bosses_killed != self.num_bosses_killed):
                 self.num_bosses_killed = new_num_bosses_killed
                 limit_levels = [8, 16, 22, 27, 30, 30]
-                await bizhawk.write(
-                    ctx.bizhawk_ctx,
-                    [(0x02aa90 + (self.jp_version * -0xdb0), [limit_levels[self.num_bosses_killed]], MAIN_RAM), #limit lvl 16
-                    (0x02aa80 + (self.jp_version * -0xdb0), [limit_levels[self.num_bosses_killed]], MAIN_RAM), #limit lvl 22
-                    (0x02aa70 + (self.jp_version * -0xdb0), [limit_levels[self.num_bosses_killed]], MAIN_RAM), #limit lvl 27
-                    (0x02aa78 + (self.jp_version * -0xdb0), [0xa], MAIN_RAM), #limit lvl 16 progression state check, lower to 0xa
-                    (0x02aa50 + (self.jp_version * -0xdb0), [0x4a, 0x6], MAIN_RAM)] #limit lvl 30 (chapter 6 check)
-                )
+                if(ctx.slot_data["xp_gain"] != 1):
+                    await bizhawk.write(
+                        ctx.bizhawk_ctx,
+                        [(0x02aa90 + (self.jp_version * -0xdb0), [limit_levels[self.num_bosses_killed]], MAIN_RAM), #limit lvl 16
+                        (0x02aa80 + (self.jp_version * -0xdb0), [limit_levels[self.num_bosses_killed]], MAIN_RAM), #limit lvl 22
+                        (0x02aa70 + (self.jp_version * -0xdb0), [limit_levels[self.num_bosses_killed]], MAIN_RAM), #limit lvl 27
+                        (0x02aa78 + (self.jp_version * -0xdb0), [0xa], MAIN_RAM), #limit lvl 16 progression state check, lower to 0xa
+                        (0x02aa50 + (self.jp_version * -0xdb0), [0x4a, 0x6], MAIN_RAM)] #limit lvl 30 (chapter 6 check)
+                    )
 
             if(ctx.slot_data["tech_sanity"] == True):
                 save_data = game_state[5:12]
@@ -773,7 +828,7 @@ class BFMClient(BizHawkClient):
                 #Ugly Belt
                 new_quest_item_checks[12] = self.progression_state == 0x17c
                 #Rope
-                new_quest_item_checks[13] = game_state[20][0] & 0b10000000 == 0b10000000 and curr_location == 0x1052
+                new_quest_item_checks[13] = game_state[20][0] & 0b10000000 == 0b10000000 and curr_location == 0x1052 and self.level_transition != 1
                 #Angel Statue
                 new_quest_item_checks[14] = int.from_bytes(game_state[18], byteorder='little') == 0x1052
                 #Pie
@@ -1054,9 +1109,10 @@ class BFMClient(BizHawkClient):
                 self.bp_checks = new_bp_checks
 
             
+            curr_hp: int = int.from_bytes(game_state[30], byteorder='little')
             if(curr_location == 0x3005): #main menu/first moon cutscene
                 self.level_transition = 1
-            if(curr_location in [0x3012, 0x3054, 0x3079, 0x3096]): #waking up from nightmare
+            if(curr_location in [0x3012, 0x3054, 0x3079, 0x3096] or (curr_hp > 0 and self.has_died == 1)): #waking up from nightmare
                 self.level_transition = 1
                 self.received_count = 0
                 self.old_step_count = 0
@@ -1064,13 +1120,14 @@ class BFMClient(BizHawkClient):
                 self.has_died = 0
                 self.check_if_lumina_needs_removed = 1
                 self.max_hp_updated = False
-                curr_hp_bytes: bytes = (await bizhawk.read(
-                    ctx.bizhawk_ctx,
-                    [(0x078eb4 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
-                ))[0]
-                curr_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
-                if curr_hp < 5:
-                    new_hp = 150
+                self.xp_gain_updated = False
+                #curr_hp_bytes: bytes = (await bizhawk.read(
+                #    ctx.bizhawk_ctx,
+                #    [(0x078eb4 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
+                #))[0]
+                #curr_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
+                if curr_hp < 5 and ctx.slot_data["starting_hp"] != curr_hp:
+                    new_hp = ctx.slot_data["starting_hp"]
                     await bizhawk.write(
                         ctx.bizhawk_ctx,
                         [(0x078eb4+ (self.jp_version * -0xea0), new_hp.to_bytes(2, 'little'), MAIN_RAM)]
@@ -1454,6 +1511,27 @@ class BFMClient(BizHawkClient):
                         elif(item_id == 0x503): #Manual
                             if(self.message_level > 0):
                                 logger.info("Manual available during minigame")
+                        elif(item_id >= 0x600 and item_id < 0x700): #traps
+
+                            num_traps = (await bizhawk.read(
+                                ctx.bizhawk_ctx,
+                                [(0x0ba247 + (self.jp_version * -0xea0), 1, MAIN_RAM)]
+                            ))[0][0]
+                            #num_boons: int = int.from_bytes(num_boons_byte, byteorder='little')
+                            trap_count = 0
+                            for i in range(self.received_count+1):
+                                if(received_list[i] >= 0x600 and received_list[i] < 0x700):
+                                    trap_count += 1
+                            if(self.trap_index < num_traps):
+                                self.trap_index = num_traps
+                            if(self.trap_index < trap_count):
+                                self.trap_index = trap_count
+                                write_instructions = [(0x0ba247 + (self.jp_version * -0xea0), [trap_count], MAIN_RAM)] + self.add_trap(item_id_to_name[item_id])
+                                
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    write_instructions
+                                )
                         else:
                             if(self.message_level > 0):
                                 logger.info("unhandled item receieved %s",item_id_to_name[item_id])
@@ -3559,6 +3637,126 @@ class BFMClient(BizHawkClient):
                                     [(dialog_id[self.jp_version]+4, barray, MAIN_RAM),
                                     (dialog_id_2[self.jp_version]+4, barray, MAIN_RAM)]
                                 )
+                if(self.sinking_trap_queue > 0):
+                    if(curr_location in regions_with_water):
+                        if(self.sinking_timer > 0):
+                            self.sinking_timer = self.sinking_timer - 1
+                        if(self.sinking_timer <= 0):
+                            save_data = (await bizhawk.read(ctx.bizhawk_ctx, [(0x126b58 + (self.jp_version * 0xa70), 1, MAIN_RAM),(0x126c4a + (self.jp_version * 0xa70), 1, MAIN_RAM)]))
+                            character_state = save_data[0][0]
+                            damage_value = save_data[1][0]
+                            if(character_state in [0, 1]): #standing or walking
+                                self.sinking_trap_queue = self.sinking_trap_queue - 1
+                                self.sinking_timer = 20 + random.randint(0,20)
+                                write_instructions = [(0x126b58 + (self.jp_version * 0xa70), [0x19], MAIN_RAM)]
+                                if(damage_value == 0):
+                                    write_instructions.append((0x126c4a + (self.jp_version * 0xa70), [14], MAIN_RAM))
+                                await bizhawk.write(
+                                    ctx.bizhawk_ctx,
+                                    write_instructions
+                                )
+                if(len(self.long_trap_queue) > 0):
+                    if(curr_location in bfm_portals):
+                        if(bfm_portals[curr_location].is_cutscene == False and not curr_location in regions_indoors): 
+                            if(self.long_trap_timer > 0):
+                                self.long_trap_timer = self.long_trap_timer - 1
+                            if(self.long_trap_timer <= 0):
+                                save_data = (await bizhawk.read(ctx.bizhawk_ctx, [(0x126b9c + (self.jp_version * 0xa70), 1, MAIN_RAM),(0x126b58 + (self.jp_version * 0xa70), 1, MAIN_RAM),(0x078ec1 + (self.jp_version * -0xea0), 1, MAIN_RAM)]))
+                                
+                                assimilation_state = save_data[0][0]
+                                character_state = save_data[1][0]
+                                assimilation_skill = save_data[2][0]
+                                if(assimilation_state == 0):
+                                    if(character_state in [0, 1]):
+                                        trap_name = self.long_trap_queue[0]
+                                        write_instructions = []
+                                        if(trap_name == "Activate Ability Trap"):
+                                            if_successful = True
+                                            if(assimilation_skill in usable_skills):
+                                                #write_instructions = [(0x126b58 + (self.jp_version * 0xa70), [0x17], MAIN_RAM)]
+
+                                                if_successful = await bizhawk.guarded_write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x126b58 + (self.jp_version * 0xa70), [0x17], MAIN_RAM)],
+                                                    [(0x126b58 + (self.jp_version * 0xa70), [character_state], MAIN_RAM)]
+                                                )
+                                            if(if_successful):
+                                                self.long_trap_queue.pop(0)
+                                                self.long_trap_timer = 20 + random.randint(0,20)
+                                        elif(trap_name in assimilation_value):
+                                            write_instructions = [(0x126cdc + (self.jp_version * 0xa70), [assimilation_value[trap_name]], MAIN_RAM),(0x126b9c + (self.jp_version * 0xa70), [0x10], MAIN_RAM)]
+                                            self.long_trap_queue.pop(0)
+                                            self.long_trap_timer = 40 + random.randint(0,40)
+                                        elif(trap_name == "Random Ability Trap"):
+                                            write_instructions = [(0x126cdc + (self.jp_version * 0xa70), [random.choice(list(fusion_lookup.keys()))], MAIN_RAM),(0x126b9c + (self.jp_version * 0xa70), [0x10], MAIN_RAM)]
+                                            self.long_trap_queue.pop(0)
+                                            self.long_trap_timer = 40 + random.randint(0,40)
+                                        elif(trap_name == "Jump Trap"):
+                                            if(character_state == 1):
+                                                if_successful = await bizhawk.guarded_write(
+                                                    ctx.bizhawk_ctx,
+                                                    [(0x126b58 + (self.jp_version * 0xa70), [0x14], MAIN_RAM)],
+                                                    [(0x126b58 + (self.jp_version * 0xa70), [0x1], MAIN_RAM)]
+                                                )
+                                                #write_instructions = [(0x126b58 + (self.jp_version * 0xa70), [0x14], MAIN_RAM)]
+                                                if(if_successful):
+                                                    self.long_trap_queue.pop(0)
+                                                    self.long_trap_timer = 10 + random.randint(0,20)
+                                        elif(trap_name == "Poison Trap"):
+                                            write_instructions = [(0x078e97 + (self.jp_version * -0xea0), [0x80], MAIN_RAM)]
+                                            self.long_trap_queue.pop(0)
+                                            self.long_trap_timer = 20 + random.randint(0,20)
+                                        else:
+                                            logger.info("%s not supported", trap_name)
+                                            self.long_trap_queue.pop(0)
+                                            self.long_trap_timer = 20 + random.randint(0,20)
+                                        
+                                        if(len(write_instructions)>0):
+                                            await bizhawk.write(
+                                                ctx.bizhawk_ctx,
+                                                write_instructions
+                                            )
+                if(len(self.short_trap_queue) > 0):
+                    if(curr_location in bfm_portals):
+                        if(bfm_portals[curr_location].is_cutscene == False and not curr_location in regions_indoors): 
+                            if(self.short_trap_timer > 0):
+                                self.short_trap_timer = self.short_trap_timer - 1
+                            if(self.short_trap_timer <= 0):
+                                save_data = (await bizhawk.read(ctx.bizhawk_ctx, [(0x126b58 + (self.jp_version * 0xa70), 1, MAIN_RAM)]))
+                                
+                                character_state = save_data[0][0]
+                                if(character_state in [0, 1]):
+                                    trap_name = self.short_trap_queue[0]
+                                    write_instructions = []
+                                    if(trap_name == "Use S-Revive Trap"):
+                                        write_instructions = [(0x126b58 + (self.jp_version * 0xa70), [0x1e], MAIN_RAM),(0x078e97 + (self.jp_version * -0xea0), [0x0], MAIN_RAM)]
+                                        self.short_trap_queue.pop(0)
+                                        self.short_trap_timer = 16 + random.randint(0,10)
+                                    elif(trap_name == "Camera Manipulation Trap"):
+                                        write_instructions = [(0x126962 + (self.jp_version * 0xa70), (random.randint(0,4000)).to_bytes(2, "little"), MAIN_RAM),(0x126968 + (self.jp_version * 0xa70), (random.randint(300,2250)).to_bytes(2, "little"), MAIN_RAM),(0x12695C + (self.jp_version * 0xa70), (random.randint(450,2250)).to_bytes(2, "little"), MAIN_RAM)]
+                                        self.short_trap_queue.pop(0)
+                                        self.short_trap_timer = 16 + random.randint(0,20)
+                                    elif(trap_name == "Pea Soup Trap"):
+                                        new_inventory: List[int] = [val * (not val in item_swap_whitelist) + 0x72 * (val in item_swap_whitelist) for val in game_state[19]] 
+
+                                        write_instructions = [(0x0ba1e7 + (self.jp_version * -0xea0), new_inventory, MAIN_RAM)]
+                                        self.short_trap_queue.pop(0)
+                                        self.short_trap_timer = 16 + random.randint(0,20)
+                                    else:
+                                        logger.info("%s not supported", trap_name)
+                                        self.short_trap_queue.pop(0)
+                                        self.short_trap_timer = 10 + random.randint(0,10)
+                                    
+                                    if(len(write_instructions)>0):
+                                        await bizhawk.write(
+                                            ctx.bizhawk_ctx,
+                                            write_instructions
+                                        )
+
+
+                            
+
+
                 """if(ctx.slot_data["bakery_sanity"] == True):
                     if(curr_location in bakery_locations):
                         if(len(self.bakery_dialog)>0):
@@ -3737,20 +3935,23 @@ class BFMClient(BizHawkClient):
                     "create_as_hint": 0
                 }])
 
+            updateTags = False
             if((ctx.slot_data["deathlink"] and self.deathlink == -1) or self.deathlink == 1):
                 if self.death_link_timer > 0 and self.has_died == 0:
                     self.death_link_timer -= 1
                     if self.death_link_timer == 0:
                         logger.info("death link grace period has ended")
                 if "DeathLink" not in ctx.tags:
-                    await ctx.update_death_link(True)
+                    #await ctx.update_death_link(True)
                     self.previous_death_link = ctx.last_death_link
+                    ctx.tags.add("DeathLink")
+                    updateTags = True
                 if self.death_link_timer == 0:
-                    curr_hp_bytes: bytes = (await bizhawk.read(
-                        ctx.bizhawk_ctx,
-                        [(PLAYER_CURR_HP_MEMORY + (self.jp_version * -0xea0), 2, MAIN_RAM)]
-                    ))[0]
-                    curr_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
+                    #curr_hp_bytes: bytes = (await bizhawk.read(
+                    #    ctx.bizhawk_ctx,
+                    #    [(PLAYER_CURR_HP_MEMORY + (self.jp_version * -0xea0), 2, MAIN_RAM)]
+                    #))[0]
+                    #curr_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
                     if curr_hp == 0 and self.has_died == 0:
                         self.has_died = 1
                         curr_maxhp_bytes: bytes = (await bizhawk.read(
@@ -3772,6 +3973,19 @@ class BFMClient(BizHawkClient):
                         logger.info("received death link")
                         await self.kill_player(ctx)
                         self.has_died = 1
+            if(curr_hp == 0 and self.has_died == 0):
+                self.has_died = 1
+            
+            if((ctx.slot_data["trap_link"] and self.trap_link == -1) or self.trap_link == 1):
+                if "TrapLink" not in ctx.tags:
+                    ctx.tags.add("TrapLink")
+                    updateTags = True
+            else:
+                if "TrapLink" in ctx.tags:
+                    ctx.tags.remove("TrapLink")
+                    updateTags = True
+            if updateTags:
+                await ctx.send_msgs([{"cmd": "ConnectUpdate", "tags": ctx.tags}])
                     
         except bizhawk.RequestFailedError:
             # The connector didn't respond. Exit handler and return to main loop to reconnect
@@ -3783,23 +3997,41 @@ class BFMClient(BizHawkClient):
         """For handling packages from the server. Called from `BizHawkClientContext.on_package`."""
         #taken from ape escape https://github.com/Thedragon005/Archipelago-Ape-Escape/blob/12dace2cdecf019ae7cfcb49dfd64ecb56a6c409/worlds/apeescape/Client.py#L504
         if cmd == "Bounced":
-            if "tags" in args and False:
+            if "tags" in args:
                 assert ctx.slot is not None
                 source_name = args["data"]["source"]
                 if "TrapLink" in args["tags"] and args["data"]["source"] != ctx.slot_info[ctx.slot].name:
                     trap_name: str = args["data"]["trap_name"]
-                    if(self.message_level == 3):
-                        from CommonClient import logger
-                        logger.info("[TrapLink] received <%s>", trap_name)
+                    if(trap_name in trap_conversion):
+                        trap_name = trap_conversion[trap_name]
+                    
+                    from CommonClient import logger
+                    if(trap_name not in trap_weight):
+                        if(self.message_level > 2):
+                            logger.info("[TrapLink] received <%s> from <%s>, but it was not implemented", trap_name, source_name)
+                        return
+                    if(self.message_level > 0):
+                        logger.info("[TrapLink] received <%s> from <%s>", trap_name, source_name)
+                    write_instructions = self.add_trap(trap_name)
+                    if(len(write_instructions)>0):
+                        Utils.async_start(bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            write_instructions
+                        ))
+                    message = f"TrapLink {trap_name} from {source_name}"
+                    self.messagequeue.append(message)
+                    if(trap_name == "Instant Death Trap"):
+                        Utils.async_start(bizhawk.guarded_write(
+                            ctx.bizhawk_ctx,
+                            [(0x126b58 + (self.jp_version * 0xa70), [0x1a], MAIN_RAM),
+                            (PLAYER_CURR_HP_MEMORY + (self.jp_version * -0xea0), [0, 0], MAIN_RAM)],
+                            [(0x0b99de + (self.jp_version * -0xea0), [0xb], MAIN_RAM)]
+                        ))
+                        if(self.has_died == 0 and ((ctx.slot_data["deathlink"] and self.deathlink == -1) or self.deathlink == 1)):
+                            Utils.async_start(ctx.send_death(f"{ctx.username} was slain by a trap from the multiworld!"))
+                        self.death_link_timer = 240
+                        #self.has_died = 1
 
-                    #local_trap_name: str = trap_to_local_traps.get(trap_name)
-                    #print(local_trap_name)
-                    #trap_value: int = trap_name_to_value.get(local_trap_name)
-
-                    #message = f"Received linked {trap_name} from {source_name}"
-                    #logger.info(message)
-                    #self.priority_trap_queue.insert(0,[trap_value,time.time()])
-                    #Utils.async_start(self.send_bizhawk_message(ctx,message,"Passthrough", ""))
 
         if cmd in {"PrintJSON"} and "type" in args and ctx.slot_data is not None:
             # When a message is received
@@ -3810,7 +4042,7 @@ class BFMClient(BizHawkClient):
                 senderID = networkItem.player
                 if recieverID == ctx.slot or senderID == ctx.slot:
                     itemCategory = networkItem.flags
-                    if(len(self.messagequeue) < 31 or itemCategory & IC.progression == IC.progression):
+                    if(len(self.messagequeue) < 31 or itemCategory & IC.progression == IC.progression or itemCategory & IC.trap == IC.trap):
                         if itemCategory & IC.trap == IC.trap:
                             itemClass = "(Trap) "
                         elif itemCategory & IC.progression == IC.progression:
@@ -3833,11 +4065,70 @@ class BFMClient(BizHawkClient):
                             message = f"You found '{itemName}'"
 
                         self.messagequeue.append(message)
+                        if(itemName == "Instant Death Trap" and recieverID == ctx.slot):
+                            from CommonClient import logger
+                            logger.info("Instant Death Trap received")
+                            Utils.async_start(bizhawk.guarded_write(
+                                ctx.bizhawk_ctx,
+                                [(0x126b58 + (self.jp_version * 0xa70), [0x1a], MAIN_RAM),
+                                (PLAYER_CURR_HP_MEMORY + (self.jp_version * -0xea0), [0, 0], MAIN_RAM)],
+                                [(0x0b99de + (self.jp_version * -0xea0), [0xb], MAIN_RAM)]
+                            ))
+                            if(self.has_died == 0 and ((ctx.slot_data["deathlink"] and self.deathlink == -1) or self.deathlink == 1)):
+                                Utils.async_start(ctx.send_death(f"{ctx.username} was slain by a trap from the multiworld!"))
+                            
+                            self.death_link_timer = 240
+                            #self.has_died = 1
+                            #is_main_menu = (await bizhawk.read(ctx.bizhawk_ctx, [
+                            #    (0x0b99de + (self.jp_version * -0xea0), 1, MAIN_RAM)]))[0][0] #is in main menu
+                        if "TrapLink" in ctx.tags and recieverID == ctx.slot and itemName in trap_weight:
+                            trap_name = itemName
+                            if(trap_name in trap_send_conversion):
+                                trap_name = trap_send_conversion[trap_name]
+                            Utils.async_start(ctx.send_msgs([{
+                                "cmd": "Bounce", "tags": ["TrapLink"],
+                                "data": {
+                                    "time": time.time(),
+                                    "source": ctx.player_names[ctx.slot],
+                                    "trap_name": trap_name
+                                }
+                            }]))
+
                 # If there is a PRINTJSON which is sent by the player
                 #if "TrapLink" in ctx.tags and recieverID == ctx.slot and itemName in trap_name_to_value:
                 #    Utils.async_start(self.send_trap_link(ctx, itemName))
-
-
+    def add_trap(self, trap_name: str) -> List:
+        from CommonClient import logger
+        write_instructions = []
+        if(trap_name in trap_names_long_queue):
+            if(self.message_level > 0):
+                logger.info("%s added to queue",trap_name)
+            self.long_trap_queue.append(trap_name)
+        elif(trap_name == "Sinking Trap"):
+            if(self.message_level > 0):
+                logger.info("%s added to queue",trap_name)
+            self.sinking_trap_queue = self.sinking_trap_queue + 1
+        elif(trap_name == "Bald Trap"):
+            if(self.message_level > 0):
+                logger.info("Musashi's hair fell out")
+            write_instructions.append((0x86ac4, self.skin_color.to_bytes(2, "little"), "GPURAM"))
+            #write_instructions.append((0x0afb0c + (self.jp_version * -0xea0), [0x00, 0x58], MAIN_RAM))
+        elif(trap_name == "Disarm Trap"):
+            if(self.message_level > 0):
+                logger.info("Musashi felt lighter")
+            #write_instructions.append((0x0afb0c + (self.jp_version * -0xea0), [0x00, 0x53], MAIN_RAM))
+        elif(trap_name == "Dismember Trap"):
+            if(self.message_level > 0):
+                logger.info("Musashi fell apart")
+            #write_instructions.append((0x0afb0c + (self.jp_version * -0xea0), [0x08, 0x11], MAIN_RAM))
+        elif(trap_name in trap_names_short_queue):
+            if(self.message_level > 0):
+                logger.info("%s added to queue",trap_name)
+            self.short_trap_queue.append(trap_name)
+        elif(trap_name != "Instant Death Trap"):
+            if(self.message_level > 0):
+                logger.info("unhandled item receieved %s",trap_name)
+        return write_instructions
 
     def fix_dialog(self, text: List[str]):
         if(len(text)>0):

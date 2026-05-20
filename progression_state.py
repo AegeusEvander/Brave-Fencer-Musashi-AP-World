@@ -538,7 +538,7 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
         if(0x4b0 in completed_progression_states and old_progression_state < 0x4b0):
             return 0x4b0, "Nothing to do in town right now" #0x04b0: "Defeat Queen Ant",\
 
-        if(0x1e0 in completed_progression_states and old_progression_state < 0x1d6 and old_progression_state > 0xc8):
+        if(0x1e0 in completed_progression_states and old_progression_state <= 0x1d6 and old_progression_state >= 0xc8):
             return 0x1e0, "Nothing to do in town right now" #0x01e0: "Return the bell to the village",
 
         if(old_progression_state < 0xc8 and old_progression_state > 0x5a): #grocery closed
@@ -747,7 +747,7 @@ def calc_completed_progression_state(ctx: "BizHawkClientContext", progression_fl
     #if(int.from_bytes(progression_flags[27], byteorder='little') == 8):
         #val.add(0x0294)#: "Deliver the Gizmo Gondola",
     #if(False): #TODO manually record when this happens Probably
-    if((ctx.slot_data["quest_item_sanity"] == True and (standard_location_name_to_id["Reward #1 After Extinguishing Village - Grillin Village"] in ctx.checked_locations or standard_location_name_to_id["Reward #1 After Extinguishing Village - Grillin Village"] + jp_id_offset in ctx.checked_locations))):
+    if((ctx.slot_data["quest_item_sanity"] == True and (standard_location_name_to_id["Reward #1 After Extinguishing Village - Grillin Village"] in ctx.checked_locations or standard_location_name_to_id["Reward #1 After Extinguishing Village - Grillin Village"] + jp_id_offset in ctx.checked_locations) and (standard_location_name_to_id["Reward #2 After Extinguishing Village - Grillin Village"] in ctx.checked_locations or standard_location_name_to_id["Reward #2 After Extinguishing Village - Grillin Village"] + jp_id_offset in ctx.checked_locations))):
         val.add(0x0294)#: "Deliver the Gizmo Gondola",
         val.add(0x029e)#: "A fire starts in the village",
         val.add(0x02a8)#: "Put out fire",

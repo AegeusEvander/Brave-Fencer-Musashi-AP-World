@@ -1,0 +1,48 @@
+from typing import Dict, NamedTuple, Set, Optional, List, ClassVar
+
+fusion_lookup: Dict[int, str] = {
+    0x1 : "Depress",
+    0x2 : "Mint",
+    0x3 : "Satiate",
+    0x4 : "Antidote",
+    0x5 : "Perfume",
+    0x7 : "Stun",
+    0x8 : "Gunshot",
+    0x9 : "D-kick",
+    0xa : "Hurl",
+    0xb : "Fence",
+    0xc : "Hop",
+    0xd : "Shrink",
+    0xf : "Bowl",
+    0x10 : "Steel",
+    0x11 : "Sleepy",
+    0x13 : "Toxin",
+    0x14 : "Rip-off",
+    0x15 : "B.O.",
+    0x16 : "Firefly",
+    0x17 : "Clone",
+    0x18 : "Sublime",
+    0x19 : "Acid",
+    0x1a : "Map",
+    0x1b : "3-Way",
+    0x1c : "Homing",
+    0x1d : "Grenade",
+    0x1e : "Javelin",
+}
+
+usable_skills: List[int] = [
+    0x4,
+    0x7,
+    0x8,
+    0x9,
+    0xb,
+    0xd,
+    0xf,
+    0x10,
+    0x17,
+    0x19,
+    0x1b,
+    0x1c,
+    0x1d,
+    0x1e
+]

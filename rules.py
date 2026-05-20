@@ -504,9 +504,9 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         set_rule(world.get_location(check_location_name("Frost Dragon - Toy Shop", lang)),
             lambda state: state.can_reach_region("Frost Dragon Arena", player))
         set_rule(world.get_location(check_location_name("Slow Guy - Toy Shop", lang)),
-            lambda state: state.has_any({check_item_name("Red Eye", world), check_item_name("Blue Eye", world), check_item_name("Red Shoes", world)}, player) or has_sky_scroll_complex(state, world))
+            lambda state: (state.has_any({check_item_name("Red Eye", world), check_item_name("Blue Eye", world)}, player) and (can_double_jump(state, world) or can_wind_scroll_jump_simple(state, world))) or state.has_all({check_item_name("Green Eye", world), check_item_name("Red Shoes", world)}, player) or has_sky_scroll_complex(state, world))
         set_rule(world.get_location(check_location_name("Stomp Golem - Toy Shop", lang)),
-            lambda state: state.has_any({check_item_name("Red Eye", world), check_item_name("Red Shoes", world)}, player) or has_sky_scroll_complex(state, world))
+            lambda state: (state.has(check_item_name("Red Eye", world), player) and (can_double_jump(state, world) or can_wind_scroll_jump_simple(state, world))) or state.has_all({check_item_name("Green Eye", world), check_item_name("Red Shoes", world)}, player) or has_sky_scroll_complex(state, world))
         set_rule(world.get_location(check_location_name("GiAnt - Toy Shop", lang)),
             lambda state: has_wind_scroll(state, world) and has_fire_boss_core(state, world))
         set_rule(world.get_location(check_location_name("Queen Ant - Toy Shop", lang)),
