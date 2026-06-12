@@ -17,6 +17,8 @@ tracker_map_groups = [
     ("Steamwood Forest", "steamwood_forest"),
     ("Island of Dragons", "island_of_dragons"),
     ("Twinpeak", [
+        ("Twinpeak Entrance", "twinpeak_entrance"),
+        ("Twinpeak Cave", "twinpeak_cave"),
         ("Skullpion Arena", "hells_valley_arena"),
         ("Path to Skullpion", "valley")]),
     ("Restaurant Basement", [
@@ -28,7 +30,7 @@ tracker_map_groups = [
         ("Wolf Room", "frozen_palace_wolf_room"),
         ("Green Eye Maze", "frozen_palace_green_eye_maze"),
         ("Ramp Hallway", "frozen_palace_ramp_hallway"),
-        ("Red Eye Maze", "frozen_palace_red_eye_maze"),
+        ("Blue Eye Maze", "frozen_palace_red_eye_maze"),
         ("Red Eye Hallway", "frozen_palace_red_eye_hallway"),
         ("Spike Bridge", "frozen_palace_spike_bridge"),
         ("Ramp to Dragon Church", "frozen_palace_ramp_to_dragon_church")])
@@ -41,6 +43,8 @@ map_order = [
     0x301c,# steamwood forest
     0x3021,# island of dragons
     0x3024,# skullpion arena
+    0x3025,# Twinpeak Entrance
+    0x3027,# Twinpeak Cave 1
     0x302b,# path to skullpion
     0x3034,# basement entrance
     0x305c,# frost palace entrance
@@ -49,7 +53,7 @@ map_order = [
     0x305f,# frost palace wolf room
     0x3060,# frost palace green eye maze
     0x3061,# frost palace ramp hallway
-    0x3062,# frost palace red eye maze
+    0x3062,# frost palace blue eye maze
     0x3063,# frost palace red eye hallway
     0x3064,# frost palace spike bridge
     0x3065# frost palace ramp to dragon church
@@ -126,6 +130,8 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.options.xp_gain.value = world.passthrough["xp_gain"]
             world.options.quest_item_sanity.value = world.passthrough["quest_item_sanity"]
             world.options.bp_sanity.value = world.passthrough["bp_sanity"]
+            world.options.time_sanity.value = world.passthrough["time_sanity"]
+            world.options.time_sanity_settings.value = world.passthrough["time_sanity_settings"]
             world.options.early_skullpion.value = world.passthrough["early_skullpion"]
         else:
             world.using_ut = False

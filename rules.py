@@ -40,7 +40,7 @@ def has_defeated_relic_keeper(state: CollectionState, world: "BFMWorld") -> bool
 def has_completed_chapter_3(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.playthrough_method.value == 2):
         return True
-    return has_completed_chapter_2(state, world) and has_rescued_tim(state, world) and has_defeated_relic_keeper(state,world) and can_double_jump(state, world)
+    return has_completed_chapter_2(state, world) and has_rescued_tim(state, world) and has_defeated_relic_keeper(state,world) and (can_double_jump(state, world) or can_wind_scroll_jump_complex(state, world))
 
 def can_fight_frost_dragon(state: CollectionState, world: "BFMWorld") -> bool:
     return state.has_all({check_item_name("Red Eye", world), check_item_name("Blue Eye", world), check_item_name("Green Eye", world), check_item_name("Red Shoes", world)}, world.player) and has_fire_scroll(state, world) and has_lumina(state, world) and can_double_jump(state, world) and has_healing(state, world)
@@ -56,7 +56,7 @@ def can_identify_gondola_gizmo(state: CollectionState, world: "BFMWorld") -> boo
 def has_saved_princess(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.playthrough_method.value == 2):
         return True
-    return has_completed_chapter_3(state, world) and can_rescue_princess(state, world) and has_fixed_well(state, world) and has_fixed_gondola(state, world)
+    return has_completed_chapter_3(state, world) and can_rescue_princess(state, world) #and has_fixed_well(state, world) and has_fixed_gondola(state, world)
 
 def has_completed_chapter_4(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.playthrough_method.value == 2):
@@ -213,7 +213,7 @@ def has_wind_scroll(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
         return state.has(check_item_name("Wind Scroll", world), world.player)
     else:
-        return has_completed_chapter_4(state, world) and can_enter_mine(state, world) and has_water_scroll(state, world) and has_water_boss_core(state, world) and has_fire_scroll(state, world) and has_fire_boss_core(state, world) and has_lumina(state, world)
+        return has_completed_chapter_4(state, world) and can_enter_mine(state, world) and has_water_scroll(state, world) and has_water_boss_core(state, world) and has_fire_scroll(state, world) and has_fire_boss_core(state, world) and has_lumina(state, world) and state.has(check_item_name("Bracelet", world), world.player)
 
 def has_sky_scroll(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
@@ -240,22 +240,26 @@ def has_sky_scroll_complex(state: CollectionState, world: "BFMWorld") -> bool:
 def has_earth_boss_core(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.core_sanity.value == True):
         return state.has(check_item_name("Earth Boss Core", world), world.player)
-    return has_defeated_skullpion(state, world)
+    return state.has("Skullpion killed", world.player)
+    #return has_defeated_skullpion(state, world)
 
 def has_water_boss_core(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.core_sanity.value == True):
         return state.has(check_item_name("Water Boss Core", world), world.player) and can_enter_mine(state,world)
-    return has_defeated_relic_keeper(state, world) and can_enter_mine(state,world)
+    return state.has("Relic Keeper killed", world.player) and can_enter_mine(state,world)
+    #return has_defeated_relic_keeper(state, world) and can_enter_mine(state,world)
 
 def has_fire_boss_core(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.core_sanity.value == True):
         return state.has(check_item_name("Fire Boss Core", world), world.player)
-    return has_completed_chapter_4(state, world) and can_enter_frozen_palace(state, world) and can_fight_frost_dragon(state, world)
+    return state.has("Frost Dragon killed", world.player)
+    #return has_completed_chapter_4(state, world) and can_enter_frozen_palace(state, world) and can_fight_frost_dragon(state, world)
 
 def has_wind_boss_core(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.core_sanity.value == True):
         return state.has(check_item_name("Wind Boss Core", world), world.player)
-    return has_completed_chapter_5(state, world)
+    return state.has("Queen Ant killed", world.player)
+    #return has_completed_chapter_5(state, world)
 
 def has_all_scrolls(state: CollectionState, world: "BFMWorld") -> bool:
     if(world.options.scroll_sanity.value == True):
@@ -342,7 +346,7 @@ def set_region_rules(world: "BFMWorld") -> None:
     world.get_entrance("Mine Entrance -> Scrap Depository").access_rule = \
         lambda state: can_identify_gondola_gizmo(state, world) and (can_double_jump(state, world) or has_sky_scroll_complex(state, world)) and has_completed_chapter_3(state, world) and has_fixed_well_or_open_world(state, world)
     world.get_entrance("Grillin Reservoir -> Reservoir Tunnel").access_rule = \
-        lambda state: has_water_scroll(state, world) and has_water_boss_core(state, world)
+        lambda state: has_fixed_well(state, world)
     world.get_entrance("Reservoir Tunnel -> Wind Scroll").access_rule = \
         lambda state: has_fire_boss_core(state, world) and has_fire_scroll(state, world) and state.has(check_item_name("Bracelet", world), player)
     world.get_entrance("Meandering Forest -> Frozen Palace Entrance").access_rule = \
@@ -447,16 +451,16 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         lambda state: has_water_scroll(state, world) or has_sky_scroll_simple(state, world))
     if(options.bakery_sanity.value == True):
         set_rule(world.get_location(check_location_name("Item 6 (JamBread) - Bakery", lang)),
-            lambda state: has_completed_chapter_3(state, world) and state.has("Boss killed", player, 2))
+            lambda state: state.has("Boss killed", player, 2))
         set_rule(world.get_location(check_location_name("Item 7 (Biscuit) - Bakery", lang)),
-            lambda state: has_completed_chapter_3(state, world) and state.has("Boss killed", player, 2))
+            lambda state: state.has("Boss killed", player, 2))
     if(options.grocery_sanity.value == True):
         set_rule(world.get_location(check_location_name("Item 8 (Orange) - Grocery", lang)), #orange, save Tim
             lambda state: has_completed_chapter_2(state, world) and has_rescued_tim(state, world))
         set_rule(world.get_location(check_location_name("Item 9 (EX-Drink) - Grocery", lang)), #Chapter 4 EX-Drink
-            lambda state: has_completed_chapter_3(state, world) and state.has("Boss killed", player, 2))
+            lambda state: state.has("Boss killed", player, 2))
         set_rule(world.get_location(check_location_name("Item 10 (H-Mint) - Grocery", lang)), #Chapter 4 H-Mint
-            lambda state: has_completed_chapter_3(state, world) and state.has("Boss killed", player, 2))
+            lambda state: state.has("Boss killed", player, 2))
         set_rule(world.get_location(check_location_name("Item 11 (Riceball) - Grocery", lang)), #rice ball
             lambda state: has_rice(state, world) and state.has(check_item_name("Chef", world), player))
         set_rule(world.get_location(check_location_name("Item 12 (Neat Ball) - Grocery", lang)), #neatball
@@ -498,7 +502,7 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         set_rule(world.get_location(check_location_name("Skullpion - Toy Shop", lang)),
             lambda state: can_fight_skullpion(state, world))
         set_rule(world.get_location(check_location_name("Ed & Ben - Toy Shop", lang)),
-            lambda state: has_water_scroll(state, world) and has_water_boss_core(state, world) and can_enter_mine(state, world))
+            lambda state: has_fixed_well(state, world))
         set_rule(world.get_location(check_location_name("Relic Keeper - Toy Shop", lang)),
             lambda state: state.can_reach_region("Relic Keeper Arena", player))
         set_rule(world.get_location(check_location_name("Frost Dragon - Toy Shop", lang)),
@@ -515,9 +519,10 @@ def set_location_rules(world: "BFMWorld", lang: bool) -> None:
         set_rule(world.get_location(check_location_name("GiAnt - Toy Shop", lang)),
             lambda state: state.can_reach_region("Upper Mines Ant Parade", player))
         set_rule(world.get_location(check_location_name("Toad Stool - Toy Shop", lang)),
-            lambda state: can_enter_mine(state, world) or state.can_reach_region("Upper Mines", player) or (has_rope(state, world) and (has_water_scroll(state, world) or has_sky_scroll_simple(state, world))))
+            lambda state: can_enter_mine(state, world) or state.can_reach_region("Upper Mines Behind Poison", player) or (has_rope(state, world) and (has_water_scroll(state, world) or has_sky_scroll_simple(state, world))))
         set_rule(world.get_location(check_location_name("Colonel Capricola - Toy Shop", lang)),
-            lambda state: state.can_reach_region("Frost Dragon Arena", player))
+            lambda state: state.has("Frost Dragon killed", player))
+            #lambda state: state.can_reach_region("Frost Dragon Arena", player))
         #if(options.quest_item_sanity.value == True):
         set_rule(world.get_location(check_location_name("Relic Vambee - Toy Shop", lang)),
             lambda state: state.can_reach_region("Restaurant Basement", player))

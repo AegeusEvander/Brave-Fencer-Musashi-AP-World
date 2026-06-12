@@ -1,7 +1,7 @@
 from typing import Dict, NamedTuple, Set, Optional, List
 
 trap_weight: Dict[str, int] = {
-    "Activate Ability Trap": 50, #queue
+    #"Activate Ability Trap": 50, #queue
     #"Activate Scroll Trap": 50, #queue
     "Bald Trap": 10, #instant 0x0afb0c 0x5800 no upper top hair no torso no legs
     "Camera Manipulation Trap": 50, #short queue
@@ -11,14 +11,14 @@ trap_weight: Dict[str, int] = {
     "Sinking Trap": 50, #queue other
     "Ghost Trap": 50, #queue
     "Instant Death Trap": 0, #instant
-    "Jump Trap": 0, #queue
+    #"Jump Trap": 0, #queue
     "Pea Soup Trap": 50, #queue
     "Poison Trap": 50, #queue
     "Random Ability Trap": 50, #queue
     "Sleepy Trap": 50, #queue
     "Stinky Trap": 50, #queue
     "Toxin Trap": 50, #queue
-    "Use S-Revive Trap": 20, #queue
+    #"Use S-Revive Trap": 20, #queue
 }
 
 """
@@ -36,9 +36,10 @@ rot
 """
 trap_conversion: Dict[str, str] = {
     "Bee Trap": "Stinky Trap",
+    "Curse Trap": "Depression Trap",
     "Camera Rotate Trap": "Camera Manipulation Trap",
     "Damage Trap": "Sinking Trap",
-    "Depletion Trap": "Use S-Revive Trap",
+    #"Depletion Trap": "Use S-Revive Trap",
     "Egg Trap": "Pea Soup Trap",
     "Gadget Shuffle Trap": "Random Ability Trap",
     "Ghost": "Ghost Trap",
@@ -58,6 +59,7 @@ trap_conversion: Dict[str, str] = {
 
 trap_send_conversion: Dict[str, str] = {
     "Camera Manipulation Trap": "Camera Rotate Trap",
+    "Ghost Trap": "Ghost",
     "Sleepy Trap": "Sleep Trap",
 }
 

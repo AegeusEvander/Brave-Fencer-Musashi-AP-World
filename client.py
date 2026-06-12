@@ -20,7 +20,7 @@ from .items import npc_ids, item_id_to_name, item_name_to_id, item_name_groups, 
 from .store_info import bakery_locations, store_table, restaurant_pointers, restaurant_pointers_pointers, restaurant_locations, grocery_locations, toy_shop_locations, toy_shop_fix, toy_shop_dialog, toy_shop_dialog_length, tech_fix, tech_check_locations, appraisal_items_buy_cost, appraisal_l_armor_buy_cost, key_item_buy_cost, store_sanity_buy_cost, quest_item_buy_cost
 from .stats import body_xp, mind_xp, lumina_xp, fusion_xp, body_stat, mind_stat, lumina_stat, fusion_stat, level_memory_ids
 from .jp_encoding import jp_encoding
-from .quest_items import quest_item_locations, well_water_id, gate_angles
+from .quest_items import quest_item_locations, well_water_id, gate_angles, time_hook
 from .portals import bfm_portals, BFMConnection
 from .trap import trap_names_long_queue, trap_names_short_queue, regions_with_water, regions_indoors, assimilation_value, item_swap_whitelist, trap_conversion, trap_send_conversion, trap_weight
 from .fusion import fusion_lookup, usable_skills
@@ -246,6 +246,9 @@ class BFMClient(BizHawkClient):
     core_checks = [False] * 4
     quest_item_checks = [False] * 29
     bp_checks = [False] * 41
+    time_checks = [False] * 168
+    day_checks = [False] * 7
+    hour_checks = [False] * 24
     chest_indices_to_skip = [0, 1, 2, 3, 4, 25]
     bakery_inventory_default = [0xd,0xe,0xf,0x10,0x53]
     bakery_inventory_sanity = [0x3e,0x3e,0x3e,0x3e,0x3e]
@@ -331,6 +334,9 @@ class BFMClient(BizHawkClient):
     sinking_timer = 0
     long_trap_timer = 0
     short_trap_timer = 0
+    #time_available = [0x200] + ([0x0] * 6)
+    time_available = [0x0] * 7
+    number_of_time_slots_unlocked = 168
     Commands_Dict = {
         "deathlink": "cmd_deathlink",
         "traplink": "cmd_trap_link",
@@ -479,7 +485,9 @@ class BFMClient(BizHawkClient):
             (0x0ba1f3 + (self.jp_version * -0xea0), 1, MAIN_RAM), #27 Geezer   
             (0x0ba285 + (self.jp_version * -0xea0), 1, MAIN_RAM), #28 Steamwood Status
             (0x075400 + (self.jp_version * -0xe70), 1, MAIN_RAM), #29 Zone Loaded 
-            (0x078eb4 + (self.jp_version * -0xea0), 2, MAIN_RAM)] #30 Current HP 
+            (0x078eb4 + (self.jp_version * -0xea0), 2, MAIN_RAM), #30 Current HP 
+            (0x078eb1 + (self.jp_version * -0xea0), 1, MAIN_RAM), #31 in game hour
+            (0x078eba + (self.jp_version * -0xea0), 1, MAIN_RAM)] #32 day of the week
             ))
             if check_game_state != game_state[0]:
                 self.received_count = 0
@@ -494,7 +502,8 @@ class BFMClient(BizHawkClient):
             #global bincho_checks
             from CommonClient import logger
             #logger.info("data dump %s", game_state)
-            received_list: List[int] = [received_item[0] - ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) for received_item in ctx.items_received]
+            #received_list: List[int] = [received_item[0] - ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) for received_item in ctx.items_received]
+            received_list: List[int] = [received_item[0] - ((received_item[0] > jp_id_offset) * jp_id_offset) for received_item in ctx.items_received]
 
 
             curr_location_data: bytes = game_state[25]
@@ -534,7 +543,7 @@ class BFMClient(BizHawkClient):
                         #logger.info("con %s", connection)
                         dest = connection.destination
                         if(dest in bfm_portals):
-                            calc_progression, hint_text = calc_progression_state(ctx, dest, self.progression_state, game_state, self.completed_progression, received_list)
+                            calc_progression, hint_text = calc_progression_state(ctx, dest, self.progression_state, game_state, self.completed_progression, received_list, self.time_available)
                             if(curr_location in [0x3069, 0x3075] or connection_data.is_cutscene == True): #Chapter 4 town on fire, queen ant, thirstquencher cutscenes
                                 calc_progression = 0
                             if(curr_location == 0x3021 and dest == 0x3003):
@@ -650,6 +659,11 @@ class BFMClient(BizHawkClient):
                 if(ctx.slot_data["bp_sanity"] == True):
                     fix_town_id = fix_town_id + [(0x14bcf8 + (self.jp_version * 0x2d0), [0x0, 0x0, 0x0], MAIN_RAM)] #noop the max bp calc 21 10 45 00	addu $v0, $a1
                 
+                if(ctx.slot_data["time_sanity"] == True):
+                    if(self.hair_color_updated == 1):
+                        fix_town_id = fix_town_id + [(0x146280 + (self.jp_version * 0x2d0), time_hook[self.jp_version], MAIN_RAM)] #update jump for time sanity
+                    time_modifier = max(0x100, math.ceil(self.number_of_time_slots_unlocked * 0x1555 / 168.0))
+                    fix_town_id = fix_town_id + [(0x14ae6c + (self.jp_version * 0x2d0), time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #update time increment
                 fix_town_id = fix_town_id + [(0x13f430 + (self.jp_version * 0x344), [0x06, 0x01, 0x02, 0x24], MAIN_RAM)] #fix scroll cursor
                 if(ctx.slot_data["scalp_color"] != default_hair_color):
                     fix_town_id = fix_town_id + [(0x86ac4, self.hair_color_scalp.to_bytes(2, "little"), "GPURAM")] #scalp hair color
@@ -861,6 +875,20 @@ class BFMClient(BizHawkClient):
                 new_bp_checks = new_bincho_checks + [val & 0b10000000 == 0b10000000 for val in save_data] + [game_state[17][23] & 0b10000 == 0b10000]
             else:
                 new_bp_checks = self.bp_checks
+
+            new_time_checks = self.time_checks.copy()
+            new_day_checks = self.day_checks.copy()
+            new_hour_checks = self.hour_checks.copy()
+            if(ctx.slot_data["time_sanity"] == True):
+                day_of_week = game_state[32][0]
+                current_hour = game_state[31][0]
+                if(ctx.slot_data["time_sanity_settings"] == 1):
+                    new_day_checks[day_of_week] = self.time_available[day_of_week] > 0
+                    new_hour_checks[current_hour] = (self.time_available[day_of_week] & (1 << current_hour)) > 0
+                    #logger.info("day: %s hour: %s stuff: %s", day_of_week, current_hour, (self.time_available[day_of_week] & (1 << current_hour)) > 0)
+                else:
+                    new_time_checks[(day_of_week*24)+current_hour] = (self.time_available[day_of_week] & (1 << current_hour)) > 0
+                    #logger.info("day: %s hour: %s stuff: %s", day_of_week, current_hour, (self.time_available[day_of_week] & (1 << current_hour)) > 0)
 
             locations_to_send_to_server = []
             #logger.info("What was read 1 in 0aae671 %s",new_bincho_checks)
@@ -1083,6 +1111,21 @@ class BFMClient(BizHawkClient):
                     if(new_bp_checks[i]):
                         locations_to_send_to_server.append(standard_location_name_to_id["Guard BP Up - Somnolent Forest"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
 
+            if(new_time_checks != self.time_checks):
+                for i in range(len(new_time_checks)):
+                    if(new_time_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Reach Mon 00:00"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
+            
+            if(new_day_checks != self.day_checks):
+                for i in range(len(new_day_checks)):
+                    if(new_day_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Reach Mon"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
+            
+            if(new_hour_checks != self.hour_checks):
+                for i in range(len(new_hour_checks)):
+                    if(new_hour_checks[i]):
+                        locations_to_send_to_server.append(standard_location_name_to_id["Reach 00:00"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
+
 
             #if(new_bincho_checks != self.bincho_checks or new_minku_checks != self.minku_checks or new_chest_checks != self.chest_checks or new_bakery_checks != self.bakery_checks or new_restaurant_checks != self.restaurant_checks or new_grocery_checks != self.grocery_checks or new_toy_checks != self.toy_checks or new_tech_checks != self.tech_checks or new_scroll_checks != self.scroll_checks or new_core_checks != self.core_checks):
             if(len(locations_to_send_to_server) > 0):
@@ -1107,6 +1150,9 @@ class BFMClient(BizHawkClient):
                 self.curr_lum_lvl = new_lum_lvl
                 self.quest_item_checks = new_quest_item_checks
                 self.bp_checks = new_bp_checks
+                self.time_checks = new_time_checks
+                self.day_checks = new_day_checks
+                self.hour_checks = new_hour_checks
 
             
             curr_hp: int = int.from_bytes(game_state[30], byteorder='little')
@@ -1515,23 +1561,30 @@ class BFMClient(BizHawkClient):
 
                             num_traps = (await bizhawk.read(
                                 ctx.bizhawk_ctx,
-                                [(0x0ba247 + (self.jp_version * -0xea0), 1, MAIN_RAM)]
+                                [(0x0ba249 + (self.jp_version * -0xea0), 1, MAIN_RAM)]
                             ))[0][0]
                             #num_boons: int = int.from_bytes(num_boons_byte, byteorder='little')
+                            #    if(ctx.items_received[i][0] == 0x78 + ((ctx.slot_data["set_lang"] == 2) * jp_id_offset)):
                             trap_count = 0
                             for i in range(self.received_count+1):
-                                if(received_list[i] >= 0x600 and received_list[i] < 0x700):
+                                #if(received_list[i] >= 0x600 and received_list[i] < 0x700): #TODO figure out why/how this crashed
+                                item_id_temp = ctx.items_received[i][0]
+                                if(item_id_temp > jp_id_offset):
+                                    item_id_temp = item_id_temp - jp_id_offset
+                                if(item_id_temp >= 0x600 and item_id_temp < 0x700):
                                     trap_count += 1
                             if(self.trap_index < num_traps):
                                 self.trap_index = num_traps
                             if(self.trap_index < trap_count):
                                 self.trap_index = trap_count
-                                write_instructions = [(0x0ba247 + (self.jp_version * -0xea0), [trap_count], MAIN_RAM)] + self.add_trap(item_id_to_name[item_id])
+                                write_instructions = [(0x0ba249 + (self.jp_version * -0xea0), [trap_count], MAIN_RAM)] + self.add_trap(item_id_to_name[item_id])
                                 
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
                                     write_instructions
                                 )
+                        elif(item_id >= 0x700 and item_id < 0x800): #time
+                            await self.update_time_available(ctx)
                         else:
                             if(self.message_level > 0):
                                 logger.info("unhandled item receieved %s",item_id_to_name[item_id])
@@ -1676,6 +1729,16 @@ class BFMClient(BizHawkClient):
                             write_instructions.append((0x0283f0, data, MAIN_RAM))
                             data = archive.read("bfm/patch/jp/updateProgressionHooks.bin")
                             write_instructions.append((0x0d08cc, data, MAIN_RAM))
+
+
+                            if(ctx.slot_data["time_sanity"] == True):
+                                #self.time_available = [0x200] + ([0x0] * 6)
+                                self.time_available = [0x0] * 7
+                                await self.update_time_available(ctx)
+                                #write_instructions.append((0x078091, [0x2], MAIN_RAM))
+                                data = archive.read("bfm/patch/jp/setTimec.bin")
+                                write_instructions.append((0x073e58, data, MAIN_RAM))
+                                write_instructions.append((0x146550, time_hook[1], MAIN_RAM))
                             await bizhawk.write(
                                 ctx.bizhawk_ctx,
                                 write_instructions
@@ -1701,6 +1764,17 @@ class BFMClient(BizHawkClient):
                             write_instructions.append((0x0291a0, data, MAIN_RAM))
                             data = archive.read("bfm/patch/en/updateProgressionHooks.bin")
                             write_instructions.append((0x0d17dc, data, MAIN_RAM))
+
+                            if(ctx.slot_data["time_sanity"] == True):
+                                #self.time_available = [0x200] + ([0x0] * 6)
+                                self.time_available = [0x0] * 7
+                                await self.update_time_available(ctx)
+                                #write_instructions.append((0x078e92, [0x1c, 0x2], MAIN_RAM))#update clock to 9am
+                                #write_instructions.append((0x078f31, [0x2], MAIN_RAM))
+                                data = archive.read("bfm/patch/en/setTimec.bin")
+                                write_instructions.append((0x074cb8, data, MAIN_RAM))
+                            #data = archive.read("bfm/patch/en/setTimeHooks.bin") #reset on area load
+                                write_instructions.append((0x146280, time_hook[0], MAIN_RAM))
                             await bizhawk.write(
                                 ctx.bizhawk_ctx,
                                 write_instructions
@@ -1726,6 +1800,12 @@ class BFMClient(BizHawkClient):
                     #    )
                     #write_instructions = []
                     write_instructions = [(address + (self.jp_version * 0x1d10), bytes.fromhex(ctx.slot_data["hair_color"]), MAIN_RAM) for address in hair_color_addresses]
+                    if(ctx.slot_data["scalp_color"] != default_hair_color):
+                        write_instructions.append((0x86ac4, self.hair_color_scalp.to_bytes(2, "little"), "GPURAM")) #scalp hair color
+                        write_instructions.append((0x86ad6, self.hair_transition[0].to_bytes(2, "little"), "GPURAM")) #scalp hair color
+                        write_instructions.append((0x86ad8, self.hair_transition[1].to_bytes(2, "little"), "GPURAM")) #scalp hair color
+                        write_instructions.append((0x86ada, self.hair_transition[2].to_bytes(2, "little"), "GPURAM")) #scalp hair color
+                
                     write_instructions.append((0x0d1490 + (self.jp_version * -0xe80), [0x0], MAIN_RAM))#set Minku healing to 0
                     for cost in appraisal_items_buy_cost:
                         write_instructions.append((cost + (self.jp_version * 0x1d10), [0xf6, 0xff], MAIN_RAM))
@@ -1910,11 +1990,13 @@ class BFMClient(BizHawkClient):
                             bread_to_add = []
                             if(item_name_to_id["Progressive Bread"] in self.list_of_received_items or (item_name_to_id["Progressive Bread"] + jp_id_offset) in self.list_of_received_items):
                                 bread_to_add = self.bakery_inventory_default[:(self.list_of_received_items.count(item_name_to_id["Progressive Bread"]) + self.list_of_received_items.count(item_name_to_id["Progressive Bread"] + jp_id_offset))]
-                            
-                            if((curr_location == 0x2015 or curr_location == 0x2056) and ctx.slot_data["restaurant_sanity"] == True and self.progression_state > 0x63):
+                            times_available = 1
+                            if(ctx.slot_data["time_sanity"] == True):
+                                times_available = sum([time & 0xfc0003 * (i != 6) for i, time in enumerate(self.time_available)]) #18:00 - 02:00
+                            if((curr_location == 0x2015 or curr_location == 0x2056) and ctx.slot_data["restaurant_sanity"] == True and times_available > 0 and self.progression_state > 0x63):
                                 await self.fill_restaurant_dialog(ctx)
                                 for i in range(len(self.bakery_inventory)):
-                                    if(self.bakery_checks[i]==True and self.restaurant_checks[i]==False):
+                                    if(self.bakery_checks[i]==True and self.restaurant_checks[i]==False): #TODO check if player has time slots to even enter the restaurant
                                         self.bakery_inventory[i]=0x40
                                     elif(self.bakery_checks[i]==True):
                                         if(len(bread_to_add)>0):
@@ -2095,8 +2177,12 @@ class BFMClient(BizHawkClient):
                                 #if(self.progression_state >= 0x12c):
                                 if(game_state[17][14] & 0b1000 == 0b1000): #tim is saved, add orange to inventory
                                     if(len(self.grocery_inventory_sanity) < 11): #no Riceball or Neatball yet
-                                        self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0x42]
-                                        self.grocery_inventory_default = self.grocery_inventory_default + [0xb]
+                                        if(len(self.grocery_inventory_sanity) == 10): #but added h-mint and ex-drink
+                                            self.grocery_inventory_sanity[7] = 0x42
+                                            self.grocery_inventory_default = self.grocery_inventory_default[:7] + [0xb] + self.grocery_inventory_default[7:]
+                                        else:
+                                            self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0x42]
+                                            self.grocery_inventory_default = self.grocery_inventory_default + [0xb]
                                     else: #have either Riceball or Neatball
                                         self.grocery_inventory_sanity[7] = 0x42
                                         self.grocery_inventory_default = self.grocery_inventory_default[:7] + [0xb] + self.grocery_inventory_default[7:]
@@ -2106,6 +2192,8 @@ class BFMClient(BizHawkClient):
                                 if(not 0x7 in self.grocery_inventory_default):
                                     self.grocery_inventory_default = self.grocery_inventory_default[:3] + [0x7] + self.grocery_inventory_default[3:5] + [0x6d] + self.grocery_inventory_default[5:] #EX-Drink and H-Mint
                                     if(len(self.grocery_inventory_sanity) < 11): #no Riceball or Neatball yet
+                                        if(len(self.grocery_inventory_sanity) == 7): #no orange
+                                            self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0x0]
                                         self.grocery_inventory_sanity = self.grocery_inventory_sanity + [0x42,0x42]
                                     else:
                                         self.grocery_inventory_sanity[8] = 0x42
@@ -2563,7 +2651,8 @@ class BFMClient(BizHawkClient):
                         if(ctx.slot_data["steamwood_timer"] != 100):
                             #await self.update_progression(ctx)
                             if((self.progression_state < 0x0082 and self.progression_state >= 0x0078) or (self.progression_state < 0x03d4 and self.progression_state >= 0x03ca)):
-                                time_modifier = math.ceil(ctx.slot_data["steamwood_timer"] * 0x1555 / 100.0)
+                                time_modifier = max(0x50, math.ceil(ctx.slot_data["steamwood_timer"] * self.number_of_time_slots_unlocked * 0x1555 / 16800.0))
+
                                 if(ctx.slot_data["steamwood_timer"] == 1):
                                     time_modifier = 0x25
                                 await bizhawk.write(
@@ -2742,7 +2831,7 @@ class BFMClient(BizHawkClient):
                         if(ctx.slot_data["aqualin_timer"] != 100):
                             #await self.update_progression(ctx)
                             if(self.progression_state < 0x012c and self.progression_state >= 0x00f0):
-                                time_modifier = math.ceil(ctx.slot_data["aqualin_timer"] * 0x1555 / 100.0)
+                                time_modifier = max(0x50, math.ceil(ctx.slot_data["aqualin_timer"] * self.number_of_time_slots_unlocked * 0x1555 / 16800.0))
                                 if(ctx.slot_data["aqualin_timer"] == 1):
                                     time_modifier = 0x25
                                 await bizhawk.write(
@@ -2765,12 +2854,12 @@ class BFMClient(BizHawkClient):
                                 [(0x19061c + (self.jp_version * 0x1d4), [0x33, 0x30, 0x08, 0x00], MAIN_RAM)] #fix right teleporter second room
                             )
                     if(curr_location == 0x3051):
-                        if(ctx.slot_data["church_fight_time_modifier"] != 100):
-                            time_modifier = math.ceil(ctx.slot_data["church_fight_time_modifier"] * 0x1555 / 100.0)
-                            await bizhawk.write(
-                                ctx.bizhawk_ctx,
-                                [(0x14ae6c + (self.jp_version * 0x2d0), time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #fix steamwood timer
-                            )
+                        #if(ctx.slot_data["church_fight_time_modifier"] != 100):
+                        time_modifier = math.ceil(ctx.slot_data["church_fight_time_modifier"] * 0x1555 / 100.0)
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x14ae6c + (self.jp_version * 0x2d0), time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #fix steamwood timer
+                        )
                     if(curr_location == 0x3000): #path to castle
                         if(ctx.slot_data["skip_minigame_town_on_fire"] == True):
                             #await self.update_progression(ctx)
@@ -3691,7 +3780,7 @@ class BFMClient(BizHawkClient):
                                             write_instructions = [(0x126cdc + (self.jp_version * 0xa70), [random.choice(list(fusion_lookup.keys()))], MAIN_RAM),(0x126b9c + (self.jp_version * 0xa70), [0x10], MAIN_RAM)]
                                             self.long_trap_queue.pop(0)
                                             self.long_trap_timer = 40 + random.randint(0,40)
-                                        elif(trap_name == "Jump Trap"):
+                                        elif(trap_name == "Jump Trap" and False):
                                             if(character_state == 1):
                                                 if_successful = await bizhawk.guarded_write(
                                                     ctx.bizhawk_ctx,
@@ -3728,7 +3817,7 @@ class BFMClient(BizHawkClient):
                                 if(character_state in [0, 1]):
                                     trap_name = self.short_trap_queue[0]
                                     write_instructions = []
-                                    if(trap_name == "Use S-Revive Trap"):
+                                    if(trap_name == "Use S-Revive Trap" and False):
                                         write_instructions = [(0x126b58 + (self.jp_version * 0xa70), [0x1e], MAIN_RAM),(0x078e97 + (self.jp_version * -0xea0), [0x0], MAIN_RAM)]
                                         self.short_trap_queue.pop(0)
                                         self.short_trap_timer = 16 + random.randint(0,10)
@@ -3958,7 +4047,7 @@ class BFMClient(BizHawkClient):
                             ctx.bizhawk_ctx,
                             [(0x078eb2 + (self.jp_version * -0xea0), 2, MAIN_RAM)]
                         ))[0]
-                        max_hp: int = int.from_bytes(curr_hp_bytes, byteorder='little')
+                        max_hp: int = int.from_bytes(curr_maxhp_bytes, byteorder='little')
                         if(max_hp > 0):
                             logger.info("%s died",ctx.username)
                             await ctx.send_death(f"{ctx.username} had a nightmare about a horrid death!")
@@ -4553,4 +4642,48 @@ class BFMClient(BizHawkClient):
 
         return result
 
+    async def update_time_available(self, ctx: "BizHawkClientContext"):#, received_list: List[int]):
+        received_list: List[int] = [received_item[0] - ((received_item[0] > jp_id_offset) * jp_id_offset) for received_item in ctx.items_received]
+
+        from CommonClient import logger
+        #logger.info("Start update")
+        #logger.info("time avail: %s", self.time_available)
+        time_temp = [0x200] + ([0x0] * 6)
+        #logger.info("temp avail: %s", time_temp)
+        days_of_week_unlocked = [0]
+        for i in range(1,7):
+            if (item_name_to_id["Mon"]+i) in received_list:
+                days_of_week_unlocked = days_of_week_unlocked + [i]
+        time_of_day_unlocked = [9]
+        for i in range(24):
+            if (item_name_to_id["00:00"]+i) in received_list:
+                time_of_day_unlocked = time_of_day_unlocked + [i]
+        if(len(days_of_week_unlocked)>1 or len(time_of_day_unlocked)>1):
+            for day in days_of_week_unlocked:
+                for time in time_of_day_unlocked:
+                    time_temp[day] = time_temp[day] | (1 << time)
+        #TODO replace with set comparison
+        for day in range(7):
+            for time in range(24):
+                if (item_name_to_id["Mon 00:00"]+ day*24 + time) in received_list:
+                    time_temp[day] = time_temp[day] | (1 << time)
+        #logger.info("time avail2: %s", self.time_available)
+        #logger.info("temp avail2: %s", time_temp)
+
+        if(time_temp != self.time_available):
+            self.time_available = time_temp
+            #logger.info("time avail3: %s", self.time_available)
+            #logger.info("temp avail3: %s", time_temp)
+            list_to_write = []
+            self.number_of_time_slots_unlocked = 0 
+            for i in range(7):
+                list_to_write = list_to_write + list(self.time_available[i].to_bytes(4, 'little'))
+                self.number_of_time_slots_unlocked = self.number_of_time_slots_unlocked + (bin(self.time_available[i])[2:]).count('1')
+            #logger.info("List to Write: %s", list_to_write)
             
+            time_modifier = max(0x100, math.ceil(self.number_of_time_slots_unlocked * 0x1555 / 168.0))
+            await bizhawk.write(
+                ctx.bizhawk_ctx,
+                [(0x078f30 + (self.jp_version * -0xea0), list_to_write, MAIN_RAM), #write available time slots
+                (0x14ae6c + (self.jp_version * 0x2d0), time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #update time increment
+            )

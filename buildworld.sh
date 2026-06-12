@@ -50,7 +50,7 @@ source venv/bin/activate
 cd "Archipelago/"
 python3 -m pip install --upgrade pip
 python3 ModuleUpdate.py --yes --force
-python3 Launcher.py "Build APWorlds" -- "Brave Fencer Musashi"
+python3 Launcher.py "Build APWorlds" -- "Brave Fencer Musashi" --skip_open_folder
 
 cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.7/Archipelago/custom_worlds"
 

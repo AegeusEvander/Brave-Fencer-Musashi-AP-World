@@ -90,7 +90,7 @@ progression_state_table: Dict[int, str] = {
     0x064a: "end of Credits (would you like to save)",
 }
 
-def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progression_state: int, progression_flags: List[bool], completed_progression_states: Set[int], received_list: List[int]) -> (int, str):
+def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progression_state: int, progression_flags: List[bool], completed_progression_states: Set[int], received_list: List[int], time_available: List[int]) -> (int, str):
     if(loc_id == 0x3000): #Castle Outside 
         if(old_progression_state in [0x0294, 0x29e] and ctx.slot_data["skip_minigame_town_on_fire"] == False): #0x029e: "A fire starts in the village",
             return 0, ""
@@ -157,6 +157,8 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
         if((0x02e4 in completed_progression_states or ctx.slot_data["playthrough_method"] == 2) and old_progression_state != 0x2f0): #0x02f0: "Reach the frost palace gate for the first time",
             if(item_name_to_id["MercenA"] in received_list and item_name_to_id["MercenB"] in received_list and item_name_to_id["MercenC"] in received_list):
                 return 0x02ee, "" #0x02ee: "The mercenaries give you the location",
+        if(old_progression_state > 0x02e4 and old_progression_state != 0x2f0): #if state is at or above 0x2ee mercenaries tell you path but requirements have not been met then lower state
+            return 0xa, "" #0x000a: "zipline down gondola",
 	#0x301c: "Steamwood Forest", 
     if(loc_id == 0x301e): #"Steamwood Outside", 
         if(old_progression_state in [0x78, 0x82]):
@@ -241,7 +243,7 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
 	#0x302a: "Twinpeak Rafting", 
     if(loc_id == 0x302b): #"Twinpeak Path to Skullpion", 
         if(not 0xa0 in completed_progression_states and item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list and 0x96 != old_progression_state):
-            if(ctx.slot_data["playthrough_method"] == 2 or (0x50 in completed_progression_states and 0x85 in completed_progression_states)): 
+            if(ctx.slot_data["playthrough_method"] == 2 or (0x50 in completed_progression_states and progression_flags[17][2] & 0b1000000 == 0b1000000)):  #0x85 in completed_progression_states
                 return 0x96, "" #0x0096: "have Geezer permission to face the Earth Crest Guardian",
         if(0xa0 in completed_progression_states and old_progression_state < 0xa0):
             return 0xa0, "" #0x00a0: "Allies open the gate to Hell's Valley",
@@ -278,7 +280,7 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
     if(loc_id == 0x304e): #"Grillin Reservoir", 
         if(int.from_bytes(progression_flags[18], byteorder='little') != 0x1052):
             if(0x1ae in completed_progression_states and 0x12c in completed_progression_states and 0x136 in completed_progression_states):
-                if((ctx.slot_data["quest_item_sanity"] == False or item_name_to_id["Key"] in received_list) and (ctx.slot_data["scroll_sanity"] == False or (item_name_to_id["Water Scroll"] in received_list or (item_name_to_id["Sky Scroll"] in received_list and ctx.slot_data["sky_scroll_logic"] > 1)))):
+                if((progression_flags[17][13] & 0b1000000 == 0b1000000) and (ctx.slot_data["scroll_sanity"] == False or (item_name_to_id["Water Scroll"] in received_list or (item_name_to_id["Sky Scroll"] in received_list and ctx.slot_data["sky_scroll_logic"] > 1)))):
                     return 0x1ae, "" #0x01ae: "The Father asks you to retrieve Church Bell",
             if(old_progression_state <= 0x276 or old_progression_state >= 0x190):
                 return 0xc8, "" #0x00c8: "Acquire your first crest",
@@ -347,13 +349,15 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
         #0x0028: "Jon asks for food and water",
         #0x0032: "Feed Jon",
         if(0x32 in completed_progression_states and not 0x46 in completed_progression_states): #need to free Jon
-            if(ctx.slot_data["quest_item_sanity"] == True):
-                #if(item_name_to_id["Jon's Key"] in received_list):
-                if(0x4d in set(progression_flags[19])):
-                    return 0x3c, "Jon requests that you free him from the stocks" #0x003c: "Find Jon's Key",
-            else:
-                if(0x3c in completed_progression_states):
-                    return 0x3c, "Jon requests that you free him from the stocks" #0x003c: "Find Jon's Key",
+            has_time_unlocked = sum([time & 0b11111 for time in time_available])
+            if(ctx.slot_data["time_sanity"] == False or has_time_unlocked > 0):
+                if(ctx.slot_data["quest_item_sanity"] == True):
+                    #if(item_name_to_id["Jon's Key"] in received_list):
+                    if(0x4d in set(progression_flags[19])):
+                        return 0x3c, "Jon requests that you free him from the stocks" #0x003c: "Find Jon's Key",
+                else:
+                    if(0x3c in completed_progression_states):
+                        return 0x3c, "Jon requests that you free him from the stocks" #0x003c: "Find Jon's Key",
         #0x003c: "Find Jon's Key",
         #0x0046: "Free Jon",
         #0x0050: "Give Jon the 4 trees and understand about the five scrolls",
@@ -417,9 +421,11 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x122, "" #0x0122: "Talk to Tim after saving him",
         #0x0122: "Talk to Tim after saving him",
         if(0x12c in completed_progression_states and not 0x140 in completed_progression_states):
-            if(not old_progression_state in [0x122, 0x12c, 0x136]):
-                return 0x12c, "Need to talk to Towst and then Wanda" #0x012c: "Tim became a Vambee/ Tim is Saved",
-            return 0, "Need to talk to Towst and then Wanda"
+            has_time_unlocked = sum([time & 0x7c0000 for time in time_available]) #18:00 - 23:00
+            if(ctx.slot_data["time_sanity"] == False or has_time_unlocked > 0):
+                if(not old_progression_state in [0x122, 0x12c, 0x136]):
+                    return 0x12c, "Need to talk to Towst and then Wanda" #0x012c: "Tim became a Vambee/ Tim is Saved",
+                return 0, "Need to talk to Towst and then Wanda"
         #0x012c: "Tim became a Vambee/ Tim is Saved",
         #if(0x136 in completed_progression_states and not 0x140 in completed_progression_states):
             #return 0x136 #0x0136: "Talk to the drunk and discover you",
@@ -432,7 +438,9 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x181, "" #0x0181: "Equip the L-Belt",
         #0x0181: "Equip the L-Belt",
         if((0x186 in completed_progression_states or (progression_flags[26][1] & 0b10 == 0b10 and ctx.slot_data["wind_scroll_logic"] == 3)) and not 0x190 in completed_progression_states):
-            return 0x186, "Father White at the church requires assistance" #0x0186: "The owner of the restaurant says he needs the rope",
+            has_time_unlocked = sum([time & 0b100 for time in time_available]) #02:00 - 3:00
+            if(ctx.slot_data["time_sanity"] == False or has_time_unlocked > 0):
+                return 0x186, "Father White at the church requires assistance" #0x0186: "The owner of the restaurant says he needs the rope",
         #0x0186: "The owner of the restaurant says he needs the rope",
         if(0x190 in completed_progression_states and not 0x19a in completed_progression_states):
             return 0x190, "Father White at the church requires assistance" #0x0190: "Something is happening at the church at 2 am",

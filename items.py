@@ -1,7 +1,7 @@
 from itertools import groupby
 from typing import Dict, List, Set, NamedTuple, Optional
 from BaseClasses import ItemClassification as IC
-
+import math
 
 class BFMItemData(NamedTuple):
     classification: IC
@@ -18,6 +18,7 @@ core_base_id = 0x300
 level_base_id = 0x400
 quest_base_id = 0x500
 trap_base_id = 0x600
+time_base_id = 0x700
 jp_id_offset = 0x0c0000
 
 item_table: Dict[str, BFMItemData] = {
@@ -199,6 +200,31 @@ item_table: Dict[str, BFMItemData] = {
     "Toxin Trap": BFMItemData(IC.trap, 0, 0x10 + trap_base_id, "Trap", jp_name = "どくどくのわな"),
     "Use S-Revive Trap": BFMItemData(IC.trap, 0, 0x11 + trap_base_id, "Trap", jp_name = "リバイバーSをつかうのわな"),
 }
+days_of_week: List[str]=[
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thr",
+    "Sky",
+    "Sat",
+    "Sun"
+]
+days_of_week_jp: List[str]=[
+    "げつようび",
+    "かようび",
+    "すいようび",
+    "もくようび",
+    "きんようび",
+    "どようび",
+    "にちようび"
+]
+time_of_day: List[int]= list(range(24))
+days_of_week_items = {day: BFMItemData(IC.progression, 1 * (i != 0), i + time_base_id, "Time", jp_name = days_of_week_jp[i]) for i, day in enumerate(days_of_week)}
+time_of_day_items = {("0" * (time < 10) + f"{time}" + ":00"): BFMItemData(IC.progression, 1 * (i != 9), i + time_base_id + 0x7, "Time", jp_name = " " + "0" * (time < 10) + f"{time}" + ":00") for i, time in enumerate(time_of_day)}
+days_with_time_of_day_items = {(days_of_week[math.floor(i/24)] + " " + "0" * (time < 10) + f"{time}" + ":00"): BFMItemData(IC.progression, 1 * (i != 9), i + time_base_id + 0x1f, "Time Combined", jp_name = days_of_week_jp[math.floor(i/24)] + " " + "0" * (time < 10) + f"{time}" + ":00") for i, time in enumerate(time_of_day * 7)}
+item_table.update(days_of_week_items | time_of_day_items | days_with_time_of_day_items)
+
+
 
 item_name_to_id: Dict[str, int] = {name: item_base_id * (data.item_group == "NPC") + data.item_id_offset for name, data in item_table.items()}
 jp_item_name_to_id: Dict[str, int] = {data.jp_name: item_base_id * (data.item_group == "NPC") + data.item_id_offset + jp_id_offset for name, data in item_table.items()}

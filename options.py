@@ -336,6 +336,26 @@ class BPBundles(Range):
     range_end = 41
     default = 41
 
+class TimeSanity(Toggle):
+    """
+    Randomize the flow of time into the multiworld
+    You always start with Monday from 09:00 to 10:00
+    This will mean that you will need to unlock a period of time that the Grocery is open to get hp healing items
+    """
+    internal_name = "time_sanity"
+    display_name = "Time Sanity"
+
+class TimeSanitySettings(Choice):
+    """
+    Separate - days and hours are seperate items (aka Tuesday, Wednesday, 10:00, 18:00, etc.)[adds 31 locations]
+    Combined - days and hours are combined (aka Tuesday 10:00, Wednesday 18:00, etc.)[adds 169 locations]
+    """
+    internal_name = "time_sanity_settings"
+    display_name = "Time Sanity Settings"
+    option_separate = 1
+    option_combined = 2
+    default = 1
+
 class EarlySkullpion(Toggle):
     """
     Add the NPCs required for Skullpion, Lumina (if randomized), and Bracelet to the early generation (Will likely place in Sphere 1, this setting is only recommended for multiworld generations to avoid being stuck in chapter 2)
@@ -579,7 +599,18 @@ class TrapWeights(OptionCounter):
     Specify the weighted chance of rolling individual trap items.
 
         You can use a weight of 0 to guarantee a particular trap will never appear.
-        **This option is ignored when "TrapPercentage" option is set to an other value than "custom"
+            Bald Trap - Musashi's scalpe is skin colored until next area
+            Camera Manipulation Trap - randomly spin/zoom the camera to a new angle
+            Depression Trap - Assimilate Depress
+            Sinking Trap - sink into the ground (only works for areas with water)
+            Ghost Trap - Assimilate Sublime
+            Instant Death Trap - instantly goes to the game over screen
+            Pea Soup Trap - fill inventory with pea soup
+            Poison Trap" - become poisoned
+            Random Ability Trap - gain a random assimilation
+            Sleepy Trap - Assimilate Sleepy
+            Stinky Trap - B.O.
+            Toxin Trap - Assimilate Toxin
     """
     internal_name = "trap_weights"
     display_name = "Trap Weights"
@@ -772,6 +803,8 @@ class BFMOptions(PerGameCommonOptions):
     quest_item_sanity: QuestItemSanity
     bp_sanity: BPSanity
     bp_bundles: BPBundles
+    time_sanity: TimeSanity
+    time_sanity_settings: TimeSanitySettings
     early_skullpion: EarlySkullpion
     boulder_chase_zoom: BoulderChaseZoomLevel
     leno_sniff_modifier: LenoSniffModifier

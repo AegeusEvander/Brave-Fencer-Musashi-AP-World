@@ -3,7 +3,8 @@ from logging import warning
 from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState
 from .items import item_name_to_id, item_table, item_name_groups, jp_id_offset, item_base_id, item_id_to_name
 from .locations import location_table, location_name_groups, standard_location_name_to_id, en_standard_location_name_to_id
-from .rules import saved_everyone, set_region_rules, set_location_rules, can_fight_skullpion, has_all_scrolls, has_ex_drink, has_water_scroll, can_identify_gondola_gizmo, can_fight_frost_dragon, has_wind_scroll, can_enter_frozen_palace, has_earth_boss_core, has_wind_boss_core, has_fire_boss_core
+from .rulebuilder import set_rules
+from .rules import set_region_rules, set_location_rules
 from .regions import bfm_regions
 from .options import BFMOptions
 from worlds.AutoWorld import WebWorld, World
@@ -11,7 +12,8 @@ from Options import PlandoConnection, OptionError
 from settings import Group, Bool
 from .hair_color import hair_color_options, new_hair_color, default_hair_color
 from .utils import Constants
-from Utils import visualize_regions
+#import Utils
+from Utils import visualize_regions, is_windows, messagebox, open_file, tuplize_version, async_start
 # This registers the client. The comment ignores "unused import" linter messages
 from .client import BFMClient  # type: ignore  # noqa
 from .version import __version__
@@ -20,6 +22,20 @@ from .trap import trap_weight
 from .tracker import UTMxin, setup_options_from_slot_data
 import string
 import math
+from worlds.LauncherComponents import Component, Type, components
+from .launch import run_client
+from .settings import BFMSettings
+
+
+components.append(
+    Component(
+        "BFM Client",
+        func=run_client,
+        game_name=Constants.GAME_NAME,
+        component_type=Type.CLIENT,
+        supports_uri=True,
+    )
+)
 
 class BFMWeb(WebWorld):
     theme = "grass"
@@ -48,6 +64,8 @@ class BFMWorld(UTMxin, World):
     game: str = Constants.GAME_NAME
     options_dataclass =  BFMOptions
     options: BFMOptions
+    settings_key = "brave_fencer_musashi_settings"
+    settings: ClassVar[BFMSettings]
     required_client_version = (0, 2, 5)
     web = BFMWeb()
     hair_selection: str = hair_color_options[2]
@@ -80,7 +98,7 @@ class BFMWorld(UTMxin, World):
 
     def generate_early(self) -> None:
         tracker.setup_options_from_slot_data(self)
-        if(hasattr(self.multiworld, "generation_is_fake")):
+        if(getattr(self.multiworld, "generation_is_fake", False)):
             warning("Fake GEN")
         if(self.using_ut == True):
             warning(" >UT Gen<")
@@ -130,6 +148,18 @@ class BFMWorld(UTMxin, World):
         if(self.options.bp_sanity.value == False):
             for name in location_name_groups["BP"]:
                 del self.player_location_table[name]
+        if(self.options.time_sanity.value == False):
+            for name in location_name_groups["Time"]:
+                del self.player_location_table[name]
+            for name in location_name_groups["Time Combined"]:
+                del self.player_location_table[name]
+        else:
+            if(self.options.time_sanity_settings.value == 2):
+                for name in location_name_groups["Time"]:
+                    del self.player_location_table[name]
+            else:
+                for name in location_name_groups["Time Combined"]:
+                    del self.player_location_table[name]
         
         if self.options.hair_color_selection == 1:
             if len(self.options.custom_hair_color_selection.value) == 6:
@@ -159,6 +189,11 @@ class BFMWorld(UTMxin, World):
 
         if(self.options.starting_hp.value == 1):
             self.options.death_link.value = False
+
+        if(self.options.early_skullpion.value == True):
+            if(self.options.time_sanity.value == True and self.options.lumina_randomzied.value == True and self.options.bakery_sanity.value == False):
+                warning("extremely restrictive settings are turned on with early skullpion, turning off early_skullpion")
+                self.options.early_skullpion.value = False
         #if(self.options.set_lang.value == 2):
             #temp_locations: Dict[str, int] = {location_table[location_name].jp_name: location_id for location_name, location_id in self.player_location_table.items()}
             #self.player_location_table = temp_locations
@@ -191,7 +226,8 @@ class BFMWorld(UTMxin, World):
         elif(self.options.goal.value == 2): #save x NPCs
             self.multiworld.completion_condition[self.player] = lambda state: state.has_group("NPC", self.player, self.options.npc_goal.value)
         elif(self.options.goal.value == 3): #defeat earth crest guardian
-            self.multiworld.completion_condition[self.player] = lambda state: can_fight_skullpion(state, self)
+            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Skullpion Arena", self.player)
+            #self.multiworld.completion_condition[self.player] = lambda state: can_fight_skullpion(state, self)
         elif(self.options.goal.value == 4): #defeat water crest guardian
             self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Relic Keeper Arena", self.player)
             #self.multiworld.completion_condition[self.player] = lambda state: can_fight_skullpion(state, self) and has_water_scroll(state, self)
@@ -247,6 +283,8 @@ class BFMWorld(UTMxin, World):
             "quest_item_sanity": self.options.quest_item_sanity.value,
             "bp_sanity": self.options.bp_sanity.value,
             "bp_bundles": self.options.bp_bundles.value,
+            "time_sanity": self.options.time_sanity.value,
+            "time_sanity_settings": self.options.time_sanity_settings.value,
             "early_skullpion": self.options.early_skullpion.value,
             "boulder_chase_zoom": self.options.boulder_chase_zoom.value,
             "leno_sniff_modifier": self.options.leno_sniff_modifier.value,
@@ -361,6 +399,22 @@ class BFMWorld(UTMxin, World):
                 items_to_create["Large BP Up"] = 0
             else:
                 items_to_create["BP Up"] = self.options.bp_bundles.value - 6
+        if(self.options.time_sanity.value == False):
+            for name in item_name_groups["Time"]:
+                if(name in item_table):
+                    del items_to_create[name] 
+            for name in item_name_groups["Time Combined"]:
+                if(name in item_table):
+                    del items_to_create[name] 
+        else:
+            if(self.options.time_sanity_settings.value == 2):
+                for name in item_name_groups["Time"]:
+                    if(name in item_table):
+                        del items_to_create[name] 
+            else:
+                for name in item_name_groups["Time Combined"]:
+                    if(name in item_table):
+                        del items_to_create[name] 
             
 
 
@@ -432,6 +486,10 @@ class BFMWorld(UTMxin, World):
         self.get_region("Relic Keeper Arena").add_event("Water Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Frost Dragon Arena").add_event("Fire Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Queen Ant Arena").add_event("Wind Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Skullpion Arena").add_event("Earth Crest Guardian", "Skullpion killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Relic Keeper Arena").add_event("Water Crest Guardian", "Relic Keeper killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Frost Dragon Arena").add_event("Fire Crest Guardian", "Frost Dragon killed", location_type = BFMLocation, item_type = BFMItem)
+        self.get_region("Queen Ant Arena").add_event("Wind Crest Guardian", "Queen Ant killed", location_type = BFMLocation, item_type = BFMItem)
         if(self.options.playthrough_method.value == 2):
             self.get_region("Soda Fountain").add_event("Sky Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         else:
@@ -449,9 +507,13 @@ class BFMWorld(UTMxin, World):
         return self.create_item(self.get_filler_item_name())
 
     def set_rules(self) -> None:
-        print(self.options.set_lang.value)
-        set_region_rules(self)
-        set_location_rules(self, self.options.set_lang.value == 2 and (self.options.spoiler_items_in_english.value == False or self.using_ut == True))
+        #print(self.options.set_lang.value)
+        set_rules(self)
+        #if(self.using_ut == False):
+        #    set_rules(self)
+        #else:
+        #    set_region_rules(self)
+        #    set_location_rules(self, self.options.set_lang.value == 2 and (self.options.spoiler_items_in_english.value == False or self.using_ut == True))
         #if(self.options.quest_item_sanity.value == True):
             #warning(" quest sanity is on !?!?!")
         #warning("registering indirect connections")

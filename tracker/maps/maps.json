@@ -39,14 +39,28 @@
         "location_size": 18,
         "location_border_thickness": 2,
         "location_icon_size": 25,
-        "img": "images/maps/hells_valley_arena.png"
+        "img": "images/maps/Twinpeak/hells_valley_arena.png"
+    },
+    {
+        "name": "twinpeak_entrance",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/Twinpeak/twinpeak_entrance.png"
+    },
+    {
+        "name": "twinpeak_cave",
+        "location_size": 18,
+        "location_border_thickness": 2,
+        "location_icon_size": 25,
+        "img": "images/maps/Twinpeak/twinpeak_cave.png"
     },
     {
         "name": "valley",
         "location_size": 18,
         "location_border_thickness": 2,
         "location_icon_size": 25,
-        "img": "images/maps/valley.png"
+        "img": "images/maps/Twinpeak/valley.png"
     },
     {
         "name": "basement_entrance",

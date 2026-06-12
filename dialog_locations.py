@@ -63,8 +63,8 @@ dialog_location_table: Dict[int, Dict[int, List[int]]] = {
     standard_location_name_to_id["Green Eye Chest - Frozen Palace Green Eye Maze"]: [0x18ba54, 0x18bc28],
     standard_location_name_to_id["White Cloth Chest - Frozen Palace Green Eye Maze"]: [0x18bb94, 0x18bd30]},
     0x3061: {standard_location_name_to_id["Red Cloth Chest - Frozen Palace Green Eye Maze"]: [0x18382c, 0x183a00]},
-    0x3062: {standard_location_name_to_id["Alchemist Bincho - Frozen Palace Red Eye Maze"]: [0x1899e8, 0x189bac],
-    standard_location_name_to_id["Blue Eye Chest - Frozen Palace Red Eye Maze"]: [0x189984, 0x189b58]},
+    0x3062: {standard_location_name_to_id["Alchemist Bincho - Frozen Palace Blue Eye Maze"]: [0x1899e8, 0x189bac],
+    standard_location_name_to_id["Blue Eye Chest - Frozen Palace Blue Eye Maze"]: [0x189984, 0x189b58]},
     0x3063: {standard_location_name_to_id["Long Tube Chest - Frozen Palace Red Eye Door"]: [0x188db4, 0x188f88]},
     0x3065: {standard_location_name_to_id["Black Cloth Chest - Frost Dragon Door"]: [0x1828b8, 0x182a8c]},
     0x306c: {standard_location_name_to_id["CookB Bincho - Upper Mines"]: [0x189cf0, 0x189dfc],
@@ -78,7 +78,7 @@ short_text_boxes: List[int] = [
     standard_location_name_to_id["Bracelet Chest - Twinpeak Entrance"],
     standard_location_name_to_id["Glasses Chest - Somnolent Forest"],
     standard_location_name_to_id["Red Eye Chest - Frozen Palace Red Eye Room"],
-    standard_location_name_to_id["Blue Eye Chest - Frozen Palace Red Eye Maze"],
+    standard_location_name_to_id["Blue Eye Chest - Frozen Palace Blue Eye Maze"],
     standard_location_name_to_id["Green Eye Chest - Frozen Palace Green Eye Maze"]
 ]
 

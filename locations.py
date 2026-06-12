@@ -1,5 +1,5 @@
 from typing import Dict, NamedTuple, Set, Optional, List
-
+import math
 
 class BFMLocationData(NamedTuple):
     region: str
@@ -44,7 +44,7 @@ location_table: Dict[str, BFMLocationData] = {
     "KnightC Bincho - Restaurant Basement Dark Platform Maze 3": BFMLocationData("Restaurant Basement Dark Platform Maze 3",location_group = "Bincho", jp_name = "きしコブクローネのビンチョ - バーの地下"),
     "Doctor Bincho - Twinpeak Around the Bend": BFMLocationData("Twinpeak Around the Bend",location_group = "Bincho", jp_name = "モルホンいしのビンチョ - ふたご山"),
     "KnightD Bincho - Upper Mines Before Digging": BFMLocationData("Upper Mines Before Digging",location_group = "Bincho", jp_name = "きしだんちょうのビンチョ - アリの巣"),
-    "Alchemist Bincho - Frozen Palace Red Eye Maze": BFMLocationData("Frozen Palace Red Eye Maze",location_group = "Bincho", jp_name = "れんきんじゃつしのビンチョ - フリーズパレス"),
+    "Alchemist Bincho - Frozen Palace Blue Eye Maze": BFMLocationData("Frozen Palace Blue Eye Maze",location_group = "Bincho", jp_name = "れんきんじゃつしのビンチョ - フリーズパレス"),
     "Librarian Bincho - Restaurant Basement Near Rotating Platforms": BFMLocationData("Restaurant Basement Near Rotating Platforms",location_group = "Bincho", jp_name = "ゾウモッツしょきのビンチョ - バーの地下"),
     "Minku - Grillin Village Near Twinpeak": BFMLocationData("Upper Grillin Village",location_group = "Minku", jp_name = "ミンクー - アミヤクイ村"),
     "Minku - Somnolent Forest Hidden Path": BFMLocationData("Somnolent Forest",location_group = "Minku", jp_name = "ミンクー - すいまの森"),
@@ -69,7 +69,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Bracelet Chest - Twinpeak Entrance": BFMLocationData("Twinpeak Entrance",location_group = "Chest", jp_name = "おおきなうでわのはこ - ふたご山"),
     "200 Drans Chest - Twinpeak Path to Skullpion": BFMLocationData("Twinpeak Path to Skullpion",location_group = "Chest", jp_name = "200ドランのはこ - ヘルズバレー"),
     "Red Eye Chest - Frozen Palace Red Eye Room": BFMLocationData("Frozen Palace Red Eye Room",location_group = "Chest", jp_name = "レッドアイのはこ - フリーズパレス"),
-    "Blue Eye Chest - Frozen Palace Red Eye Maze": BFMLocationData("Frozen Palace Red Eye Maze",location_group = "Chest", jp_name = "ブルーアイのはこ - フリーズパレス"),
+    "Blue Eye Chest - Frozen Palace Blue Eye Maze": BFMLocationData("Frozen Palace Blue Eye Maze",location_group = "Chest", jp_name = "ブルーアイのはこ - フリーズパレス"),
     "Green Eye Chest - Frozen Palace Green Eye Maze": BFMLocationData("Frozen Palace Green Eye Maze",location_group = "Chest", jp_name = "グリーンアイのはこ - フリーズパレス"),
     "Red Shoes Chest - Frozen Palace Atrium Left Balcony": BFMLocationData("Frozen Palace Atrium Left Balcony",location_group = "Chest", jp_name = "まっかなボロぐつのはこ - フリーズパレス"),
     "Long Tube Chest - Frozen Palace Red Eye Door": BFMLocationData("Frozen Palace Red Eye Door",location_group = "Chest", jp_name = "とんがりばうのはこ - フリーズパレス"),
@@ -100,25 +100,25 @@ location_table: Dict[str, BFMLocationData] = {
     "Item 5 - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery", jp_name = "アイテム 5 - ふっくらパン屋ブレッド"),
     "Item 6 (JamBread) - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery", jp_name = "アイテム 6 - ふっくらパン屋ブレッド"),
     "Item 7 (Biscuit) - Bakery": BFMLocationData("Grillin Village",location_group = "Bakery", jp_name = "アイテム 7 - ふっくらパン屋ブレッド"),
-    "Item 1 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant", jp_name = "アイテム 1 - ダクレイズ バー"),
-    "Item 2 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant", jp_name = "アイテム 2 - ダクレイズ バー"),
-    "Item 3 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant", jp_name = "アイテム 3 - ダクレイズ バー"),
-    "Item 4 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant", jp_name = "アイテム 4 - ダクレイズ バー"),
-    "Item 5 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant", jp_name = "アイテム 5 - ダクレイズ バー"),
-    "Item 6 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant", jp_name = "アイテム 6 - ダクレイズ バー"),
-    "Item 7 - Restaurant": BFMLocationData("Grillin Village",location_group = "Restaurant", jp_name = "アイテム 7 - ダクレイズ バー"),
-    "Item 1 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 1 - 雑貨屋アイのみせ"),
-    "Item 2 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 2 - 雑貨屋アイのみせ"),
-    "Item 3 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 3 - 雑貨屋アイのみせ"),
-    "Item 4 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 4 - 雑貨屋アイのみせ"),
-    "Item 5 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 5 - 雑貨屋アイのみせ"),
-    "Item 6 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 6 - 雑貨屋アイのみせ"),
-    "Item 7 - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 7 - 雑貨屋アイのみせ"),
-    "Item 8 (Orange) - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 8 - 雑貨屋アイのみせ"),
-    "Item 9 (EX-Drink) - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 9 - 雑貨屋アイのみせ"),
-    "Item 10 (H-Mint) - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 10 - 雑貨屋アイのみせ"),
-    "Item 11 (Riceball) - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 11 - 雑貨屋アイのみせ"),
-    "Item 12 (Neat Ball) - Grocery": BFMLocationData("Grillin Village",location_group = "Grocery", jp_name = "アイテム 12 - 雑貨屋アイのみせ"),
+    "Item 1 - Restaurant": BFMLocationData("Restaurant",location_group = "Restaurant", jp_name = "アイテム 1 - ダクレイズ バー"),
+    "Item 2 - Restaurant": BFMLocationData("Restaurant",location_group = "Restaurant", jp_name = "アイテム 2 - ダクレイズ バー"),
+    "Item 3 - Restaurant": BFMLocationData("Restaurant",location_group = "Restaurant", jp_name = "アイテム 3 - ダクレイズ バー"),
+    "Item 4 - Restaurant": BFMLocationData("Restaurant",location_group = "Restaurant", jp_name = "アイテム 4 - ダクレイズ バー"),
+    "Item 5 - Restaurant": BFMLocationData("Restaurant",location_group = "Restaurant", jp_name = "アイテム 5 - ダクレイズ バー"),
+    "Item 6 - Restaurant": BFMLocationData("Restaurant",location_group = "Restaurant", jp_name = "アイテム 6 - ダクレイズ バー"),
+    "Item 7 - Restaurant": BFMLocationData("Restaurant",location_group = "Restaurant", jp_name = "アイテム 7 - ダクレイズ バー"),
+    "Item 1 - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 1 - 雑貨屋アイのみせ"),
+    "Item 2 - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 2 - 雑貨屋アイのみせ"),
+    "Item 3 - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 3 - 雑貨屋アイのみせ"),
+    "Item 4 - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 4 - 雑貨屋アイのみせ"),
+    "Item 5 - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 5 - 雑貨屋アイのみせ"),
+    "Item 6 - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 6 - 雑貨屋アイのみせ"),
+    "Item 7 - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 7 - 雑貨屋アイのみせ"),
+    "Item 8 (Orange) - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 8 - 雑貨屋アイのみせ"),
+    "Item 9 (EX-Drink) - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 9 - 雑貨屋アイのみせ"),
+    "Item 10 (H-Mint) - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 10 - 雑貨屋アイのみせ"),
+    "Item 11 (Riceball) - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 11 - 雑貨屋アイのみせ"),
+    "Item 12 (Neat Ball) - Grocery": BFMLocationData("Hilda's Grocery",location_group = "Grocery", jp_name = "アイテム 12 - 雑貨屋アイのみせ"),
     "Musashi - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop", jp_name = "ムサシ - トーイざんす"),
     "Bee Plant - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop", jp_name = "ビー・プラント - トーイざんす"),
     "Soldier1 - Toy Shop": BFMLocationData("Toy Shop Series 1",location_group = "Toy Shop", jp_name = "ル・コアールヘい1 - トーイざんす"),
@@ -343,7 +343,7 @@ location_table: Dict[str, BFMLocationData] = {
     "KnightC BP Up - Restaurant Basement Dark Platform Maze 3": BFMLocationData("Restaurant Basement Dark Platform Maze 3",location_group = "BP", jp_name = "きしコブクローネのBPアップ - バーの地下"),
     "Doctor BP Up - Twinpeak Around the Bend": BFMLocationData("Twinpeak Around the Bend",location_group = "BP", jp_name = "モルホンいしのBPアップ - ふたご山"),
     "KnightD BP Up - Upper Mines Before Digging": BFMLocationData("Upper Mines Before Digging",location_group = "BP", jp_name = "きしだんちょうのBPアップ - アリの巣"),
-    "Alchemist BP Up - Frozen Palace Red Eye Maze": BFMLocationData("Frozen Palace Red Eye Maze",location_group = "BP", jp_name = "れんきんじゃつしのBPアップ - フリーズパレス"),
+    "Alchemist BP Up - Frozen Palace Blue Eye Maze": BFMLocationData("Frozen Palace Blue Eye Maze",location_group = "BP", jp_name = "れんきんじゃつしのBPアップ - フリーズパレス"),
     "Librarian BP Up - Restaurant Basement Near Rotating Platforms": BFMLocationData("Restaurant Basement Near Rotating Platforms",location_group = "BP", jp_name = "ゾウモッツしょきのBPアップ - バーの地下"),
     "Defeat Earth Crest Guardian BP Up - Skullpion Arena": BFMLocationData("Skullpion Arena",location_group = "BP", jp_name = "倒すスカル゠ピオンのBPアップ - ヘルズバレー"),
     "Defeat Water Crest Guardian BP Up - Relic Keeper Arena": BFMLocationData("Relic Keeper Arena",location_group = "BP", jp_name = "倒すレリクスキーパーのBPアップ - バーの地下"),
@@ -352,6 +352,29 @@ location_table: Dict[str, BFMLocationData] = {
     "Defeat Sky Crest Guardian BP Up - ToD Arena": BFMLocationData("Soda Fountain",location_group = "BP", jp_name = "倒すタワーオブデスのBPアップ - リカーバレル"),
     "Escape from Bincho - Grillin Volcano": BFMLocationData("Wind Scroll",location_group = "BP", jp_name = "ムサシのビンチョ - アミヤクイ村の火山"),
 }
+days_of_week: List[str]=[
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thr",
+    "Sky",
+    "Sat",
+    "Sun"
+]
+days_of_week_jp: List[str]=[
+    "げつようび",
+    "かようび",
+    "すいようび",
+    "もくようび",
+    "きんようび",
+    "どようび",
+    "にちようび"
+]
+time_of_day: List[int]= list(range(24))
+days_of_week_locations = {("Reach " + day): BFMLocationData("Grillin Village",location_group = "Time", jp_name = days_of_week_jp[i]+"に到達する") for i, day in enumerate(days_of_week)}
+time_of_day_locations = {("Reach " + "0" * (time < 10) + f"{time}" + ":00"): BFMLocationData("Grillin Village",location_group = "Time", jp_name = "0" * (time < 10) + f"{time}" + ":00 に到達する") for time in time_of_day}
+days_with_time_of_day_locations = {("Reach " + days_of_week[math.floor(i/24)] + " " + "0" * (time < 10) + f"{time}" + ":00"): BFMLocationData("Grillin Village",location_group = "Time Combined", jp_name = days_of_week_jp[math.floor(i/24)] + " " + "0" * (time < 10) + f"{time}" + ":00 に到達する") for i, time in enumerate(time_of_day * 7)}
+location_table.update(days_of_week_locations | time_of_day_locations | days_with_time_of_day_locations)
 
 en_standard_location_name_to_id: Dict[str, int] = {name: location_base_id + index for index, name in enumerate(location_table)}
 jp_location_name_to_id: Dict[str, int] = {location_table[name].jp_name: location_base_id + index + jp_id_offset for index, name in enumerate(location_table)}
@@ -380,3 +403,6 @@ for loc_name, loc_id in en_standard_location_name_to_id.items():
         jp_table_ids_to_hint.append(loc_id + jp_id_offset)
 
 standard_location_name_to_id = en_standard_location_name_to_id | jp_location_name_to_id
+
+
+#location_id_to_name: Dict[int, str] = {val: name for name, val in standard_location_name_to_id.items()}
