@@ -74,8 +74,8 @@ async def _run_game(rom: str):
 
     if auto_start is True:
         emuhawk_path = settings.get_settings().bizhawkclient_options.emuhawk_path
-        lua_path = os.path.relpath(Utils.local_path('data', 'lua', 'connector_bizhawk_generic.lua'), os.path.expanduser("."))
-        rom_path = os.path.relpath(os.path.realpath(rom), os.path.expanduser("."))
+        lua_path = os.path.relpath(Utils.local_path('data', 'lua', 'connector_bizhawk_generic.lua'), os.path.expanduser("~"))
+        rom_path = os.path.relpath(os.path.realpath(rom), os.path.expanduser("~"))
         #logging.info("lua path %s", lua_path)
         subprocess.Popen(
             [

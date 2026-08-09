@@ -645,6 +645,8 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
                     return 0x258, "" #0x0258: "Acquire your second crest",
             else:
                 if(old_progression_state >= 0x258):
+                    if(not 0x12c in completed_progression_states):
+                        return 0xa, "" #0x000a: "zipline down gondola",
                     return 0x12c, "" #0x012c: "Tim became a Vambee/ Tim is Saved",
 	#0x2057: "Chapter 3 Grocery", 
 	#0x207c: "Chapter 4 Grocery",#two bosses killed

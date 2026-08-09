@@ -433,7 +433,7 @@ class BFMWorld(UTMxin, World):
         total_locations = len(self.multiworld.get_unfilled_locations(self.player))
         if self.options.trap_percent.value > 0 and total_locations > len(bfm_items):
             trap_count = math.floor((total_locations - len(bfm_items)) * (self.options.trap_percent / 100))
-            trap_names = list(set(self.options.trap_weights.keys()) & set(trap_weight.keys()))
+            trap_names = sorted(list(set(self.options.trap_weights.keys()) & set(trap_weight.keys())))
             trap_weights = {k:self.options.trap_weights[k] for k in trap_names}
             if len(trap_names) == 0:
                 trap_names = ["Random Ability Trap"]
