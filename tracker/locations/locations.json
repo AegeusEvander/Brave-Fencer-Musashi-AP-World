@@ -51,8 +51,13 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 245,
-                        "y": 320
+                        "x": 335,
+                        "y": 295
+                    },
+                    {
+                        "map": "bakery",
+                        "x": 30,
+                        "y": 30
                     }
                 ]
             },
@@ -105,8 +110,13 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 257,
-                        "y": 111
+                        "x": 440,
+                        "y": 220
+                    },
+                    {
+                        "map": "restaurant",
+                        "x": 30,
+                        "y": 30
                     }
                 ]
             },
@@ -195,8 +205,13 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 337,
-                        "y": 200
+                        "x": 455,
+                        "y": 300
+                    },
+                    {
+                        "map": "grocery",
+                        "x": 30,
+                        "y": 30
                     }
                 ]
             },
@@ -387,8 +402,13 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 416,
-                        "y": 200
+                        "x": 475,
+                        "y": 350
+                    },
+                    {
+                        "map": "toy_shop",
+                        "x": 30,
+                        "y": 30
                     }
                 ]
             },
@@ -441,8 +461,13 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 474,
-                        "y": 390
+                        "x": 445,
+                        "y": 465
+                    },
+                    {
+                        "map": "castle_meeting_room",
+                        "x": 225,
+                        "y": 115
                     }
                 ]
             },
@@ -567,8 +592,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 218,
-                        "y": 111
+                        "x": 420,
+                        "y": 200
                     }
                 ]
             },
@@ -591,8 +616,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 344,
-                        "y": 426
+                        "x": 335,
+                        "y": 375
                     }
                 ]
             },
@@ -633,8 +658,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 205,
-                        "y": 455
+                        "x": 225,
+                        "y": 350
                     }
                 ]
             },
@@ -651,8 +676,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 300,
-                        "y": 275
+                        "x": 385,
+                        "y": 310
                     }
                 ]
             },
@@ -669,8 +694,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 90,
-                        "y": 630
+                        "x": 80,
+                        "y": 335
                     }
                 ]
             },
@@ -687,8 +712,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 370,
-                        "y": 426
+                        "x": 335,
+                        "y": 405
                     }
                 ]
             },
@@ -747,8 +772,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 395,
-                        "y": 74
+                        "x": 535,
+                        "y": 270
                     }
                 ]
             },
@@ -825,8 +850,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 425,
-                        "y": 74
+                        "x": 555,
+                        "y": 290
                     }
                 ]
             },
@@ -867,13 +892,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 90,
-                        "y": 34
-                    },
-                    {
-                        "map": "upper_grillin_village",
-                        "x": 43,
-                        "y": 31
+                        "x": 270,
+                        "y": 65
                     },
                     {
                         "map": "steamwood_forest",
@@ -883,16 +903,28 @@
                 ]
             },
             {
-                "name": "Upper Village",
+                "name": "Upper Village lower Minku",
                 "sections": [
                     {
                         "name": "Minku - Grillin Village Near Twinpeak"
                     },
                     {
-                        "name": "Minku - Grillin Village Above Gondola"
-                    },
-                    {
                         "name": "ミンクー - アミヤクイ村"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "grillin_village",
+                        "x": 265,
+                        "y": 220
+                    }
+                ]
+            },
+            {
+                "name": "Upper Village",
+                "sections": [
+                    {
+                        "name": "Minku - Grillin Village Above Gondola"
                     },
                     {
                         "name": "ミンクー - ゴンドラの上"
@@ -901,8 +933,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 120,
-                        "y": 34
+                        "x": 590,
+                        "y": 160
                     }
                 ]
             },
@@ -1057,13 +1089,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 150,
-                        "y": 34
-                    },
-                    {
-                        "map": "upper_grillin_village",
-                        "x": 155,
-                        "y": 20
+                        "x": 435,
+                        "y": 65
                     }
                 ]
             },
@@ -1080,13 +1107,13 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 150,
-                        "y": 64
+                        "x": 415,
+                        "y": 45
                     },
                     {
-                        "map": "upper_grillin_village",
-                        "x": 155,
-                        "y": 50
+                        "map": "second_peak",
+                        "x": 245,
+                        "y": 70
                     }
                 ]
             },
@@ -1151,13 +1178,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 180,
-                        "y": 34
-                    },
-                    {
-                        "map": "upper_grillin_village",
-                        "x": 256,
-                        "y": 66
+                        "x": 565,
+                        "y": 120
                     }
                 ]
             },
@@ -1174,8 +1196,13 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 210,
-                        "y": 34
+                        "x": 485,
+                        "y": 150
+                    },
+                    {
+                        "map": "spiral_tower_roof",
+                        "x": 283,
+                        "y": 118
                     }
                 ]
             },
@@ -3124,49 +3151,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 34,
-                        "y": 184
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name": "Upper Grillin Village",
-        "children": [
-            {
-                "name": "Minku - Grillin Village Near Twinpeak",
-                "sections": [
-                    {
-                        "name": "Minku - Grillin Village Near Twinpeak"
-                    },
-                    {
-                        "name": "ミンクー - アミヤクイ村"
-                    }
-                ],
-                "map_locations": [
-                    {
-                        "map": "upper_grillin_village",
-                        "x": 43,
-                        "y": 158
-                    }
-                ]
-            },
-            {
-                "name": "Minku - Grillin Village Above Gondola",
-                "sections": [
-                    {
-                        "name": "Minku - Grillin Village Above Gondola"
-                    },
-                    {
-                        "name": "ミンクー - ゴンドラの上"
-                    }
-                ],
-                "map_locations": [
-                    {
-                        "map": "upper_grillin_village",
-                        "x": 256,
-                        "y": 101
+                        "x": 64,
+                        "y": 34
                     }
                 ]
             }
@@ -3182,7 +3168,13 @@
                         "name": "Guard Bincho - Somnolent Forest"
                     },
                     {
+                        "name": "Guard BP Up - Somnolent Forest"
+                    },
+                    {
                         "name": "みはりのナミロスのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "みはりのナミロスのBPアップ - すいまの森"
                     }
                 ],
                 "map_locations": [
@@ -3200,7 +3192,13 @@
                         "name": "Seer Bincho - Somnolent Forest"
                     },
                     {
+                        "name": "Seer BP Up - Somnolent Forest"
+                    },
+                    {
                         "name": "うらないしギアラのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "うらないしギアラのBPアップ - すいまの森"
                     }
                 ],
                 "map_locations": [
@@ -3218,10 +3216,16 @@
                         "name": "Hawker Bincho - Somnolent Forest Deadend"
                     },
                     {
+                        "name": "Hawker BP Up - Somnolent Forest Deadend"
+                    },
+                    {
                         "name": "Jon's Note - Somnolent Forest Deadend"
                     },
                     {
                         "name": "たかじょうトクセンのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "たかじょうトクセンのBPアップ - すいまの森"
                     },
                     {
                         "name": "ジャンのメモ - すいまの森"
@@ -3235,8 +3239,8 @@
                     },
                     {
                         "map": "grillin_village",
-                        "x": 444,
-                        "y": 698
+                        "x": 220,
+                        "y": 565
                     }
                 ]
             },
@@ -3247,10 +3251,16 @@
                         "name": "Maid Bincho - Somnolent Forest Behind Steam"
                     },
                     {
+                        "name": "Maid BP Up - Somnolent Forest Behind Steam"
+                    },
+                    {
                         "name": "500 Drans Chest - Somnolent Forest Behind Steam"
                     },
                     {
                         "name": "そうじふジョミーノのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "そうじふジョミーノのBPアップ - すいまの森"
                     },
                     {
                         "name": "500ドランのはこ - すいまの森"
@@ -3343,13 +3353,16 @@
                         "name": "Guard Bincho - Somnolent Forest"
                     },
                     {
-                        "name": "みはりのナミロスのビンチョ - すいまの森"
-                    },
-                    {
                         "name": "Maid Bincho - Somnolent Forest Behind Steam"
                     },
                     {
                         "name": "500 Drans Chest - Somnolent Forest Behind Steam"
+                    },
+                    {
+                        "name": "Glasses Chest - Somnolent Forest"
+                    },
+                    {
+                        "name": "みはりのナミロスのビンチョ - すいまの森"
                     },
                     {
                         "name": "そうじふジョミーノのビンチョ - すいまの森"
@@ -3358,17 +3371,14 @@
                         "name": "500ドランのはこ - すいまの森"
                     },
                     {
-                        "name": "Glasses Chest - Somnolent Forest"
-                    },
-                    {
                         "name": "ひびわれメガネのはこ - すいまの森"
                     }
                 ],
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 298,
-                        "y": 698
+                        "x": 150,
+                        "y": 495
                     }
                 ]
             },
@@ -3379,22 +3389,22 @@
                         "name": "Seer Bincho - Somnolent Forest"
                     },
                     {
-                        "name": "うらないしギアラのビンチョ - すいまの森"
-                    },
-                    {
                         "name": "Old Crown Chest - Somnolent Forest"
-                    },
-                    {
-                        "name": "しめったしょもつのはこ - すいまの森"
                     },
                     {
                         "name": "Minku - Somnolent Forest Hidden Path"
                     },
                     {
-                        "name": "ミンクー - すいまの森"
+                        "name": "Minku - Somnolent Forest"
                     },
                     {
-                        "name": "Minku - Somnolent Forest"
+                        "name": "うらないしギアラのビンチョ - すいまの森"
+                    },
+                    {
+                        "name": "しめったしょもつのはこ - すいまの森"
+                    },
+                    {
+                        "name": "ミンクー - すいまの森"
                     },
                     {
                         "name": "ミンクー - すいまの森の川"
@@ -3403,8 +3413,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 34,
-                        "y": 600
+                        "x": 60,
+                        "y": 265
                     }
                 ]
             },
@@ -3510,8 +3520,78 @@
                     },
                     {
                         "map": "grillin_village",
-                        "x": 34,
-                        "y": 540
+                        "x": 95,
+                        "y": 215
+                    },
+                    {
+                        "map": "courtyard",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "dragon_church",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frost_dragon_arena",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_blue_eye_hallway",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_blue_eye_maze",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_entrance",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_green_eye_maze",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_ramp_hallway",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_ramp_to_dragon_church",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_red_eye_hallway",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_red_eye_room",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_spike_bridge",
+                        "x": 30,
+                        "y": 30
+                    },
+                    {
+                        "map": "frozen_palace_wolf_room",
+                        "x": 30,
+                        "y": 30
                     }
                 ]
             }
@@ -3545,8 +3625,8 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 34,
-                        "y": 630
+                        "x": 30,
+                        "y": 265
                     },
                     {
                         "map": "somnolent_forest",
@@ -3573,13 +3653,18 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 34,
-                        "y": 510
+                        "x": 75,
+                        "y": 235
                     },
                     {
                         "map": "somnolent_forest",
                         "x": 190,
                         "y": 60
+                    },
+                    {
+                        "map": "graveyard",
+                        "x": 105,
+                        "y": 100
                     }
                 ]
             }
@@ -3595,14 +3680,20 @@
                         "name": "Artisan Bincho - Island of Dragons"
                     },
                     {
+                        "name": "Artisan BP Up - Island of Dragons"
+                    },
+                    {
                         "name": "かじやのトックのビンチョ - ガンリュー島"
+                    },
+                    {
+                        "name": "かじやのトックのBPアップ - ガンリュー島"
                     }
                 ],
                 "map_locations": [
                     {
                         "map": "island_of_dragons",
-                        "x": 112,
-                        "y": 68
+                        "x": 310,
+                        "y": 130
                     }
                 ]
             },
@@ -3619,8 +3710,8 @@
                 "map_locations": [
                     {
                         "map": "island_of_dragons",
-                        "x": 98,
-                        "y": 115
+                        "x": 240,
+                        "y": 175
                     }
                 ]
             },
@@ -3637,8 +3728,8 @@
                 "map_locations": [
                     {
                         "map": "island_of_dragons",
-                        "x": 126,
-                        "y": 177
+                        "x": 250,
+                        "y": 305
                     }
                 ]
             }
@@ -3654,7 +3745,13 @@
                         "name": "MusicianB Bincho - Steamwood Forest"
                     },
                     {
+                        "name": "MusicianB BP Up - Steamwood Forest"
+                    },
+                    {
                         "name": "フーソッシモがくしのビンチョ - スチームウッドの森"
+                    },
+                    {
+                        "name": "フーソッシモがくしのBPアップ - スチームウッドの森"
                     }
                 ],
                 "map_locations": [
@@ -3672,7 +3769,13 @@
                         "name": "Acrobat Bincho - Steamwood Forest"
                     },
                     {
+                        "name": "Acrobat BP Up - Steamwood Forest"
+                    },
+                    {
                         "name": "きょくげいしナムルのビンチョ - スチームウッドの森"
+                    },
+                    {
+                        "name": "きょくげいしナムルのBPアップ - スチームウッドの森"
                     }
                 ],
                 "map_locations": [
@@ -3738,13 +3841,7 @@
                         "name": "MusicianB Bincho - Steamwood Forest"
                     },
                     {
-                        "name": "フーソッシモがくしのビンチョ - スチームウッドの森"
-                    },
-                    {
                         "name": "Acrobat Bincho - Steamwood Forest"
-                    },
-                    {
-                        "name": "きょくげいしナムルのビンチョ - スチームウッドの森"
                     },
                     {
                         "name": "Minku - Steamwood Forest"
@@ -3753,19 +3850,25 @@
                         "name": "Sky Scroll - Sky Island"
                     },
                     {
+                        "name": "Aged Coin Chest - Steamwood Forest"
+                    },
+                    {
+                        "name": "Defeat Sky Crest Guardian BP Up - ToD Arena"
+                    },
+                    {
+                        "name": "フーソッシモがくしのビンチョ - スチームウッドの森"
+                    },
+                    {
+                        "name": "きょくげいしナムルのビンチョ - スチームウッドの森"
+                    },
+                    {
                         "name": "ミンクー - スチームウッドの森"
                     },
                     {
                         "name": "ソラのまき - 空の巻の地"
                     },
                     {
-                        "name": "Aged Coin Chest - Steamwood Forest"
-                    },
-                    {
                         "name": "あなあきコインのはこ - スチームウッドの森"
-                    },
-                    {
-                        "name": "Defeat Sky Crest Guardian BP Up - ToD Arena"
                     },
                     {
                         "name": "倒すタワーオブデスのBPアップ - リカーバレル"
@@ -3774,8 +3877,108 @@
                 "map_locations": [
                     {
                         "map": "grillin_village",
-                        "x": 34,
-                        "y": 570
+                        "x": 85,
+                        "y": 285
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Reservoir",
+        "children": [
+            {
+                "name": "Water Scroll - Grillin Reservoir",
+                "sections": [
+                    {
+                        "name": "Water Scroll - Grillin Reservoir"
+                    },
+                    {
+                        "name": "ミズのまき - アミヤクイ村貯水池"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "reservoir",
+                        "x": 525,
+                        "y": 150
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Grillin Reservoir",
+                "sections": [
+                    {
+                        "name": "Minku - Grillin Reservoir"
+                    },
+                    {
+                        "name": "ミンクー - アミヤクイ村貯水池"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "reservoir",
+                        "x": 240,
+                        "y": 110
+                    }
+                ]
+            },
+            {
+                "name": "Old Shirt Chest - Grillin Reservoir",
+                "sections": [
+                    {
+                        "name": "Old Shirt Chest - Grillin Reservoir"
+                    },
+                    {
+                        "name": "よれよれシャツのはこ - アミヤクイ村貯水池"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "reservoir",
+                        "x": 190,
+                        "y": 275
+                    }
+                ]
+            },
+            {
+                "name": "Used Boot Chest - Grillin Reservoir",
+                "sections": [
+                    {
+                        "name": "Used Boot Chest - Grillin Reservoir"
+                    },
+                    {
+                        "name": "よれよれながぐつのはこ - アミヤクイ村貯水池"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "reservoir",
+                        "x": 460,
+                        "y": 200
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Reservoir Tunnel",
+        "children": [
+            {
+                "name": "Armor Chest - Reservoir Tunnel",
+                "sections": [
+                    {
+                        "name": "Armor Chest - Reservoir Tunnel"
+                    },
+                    {
+                        "name": "ヘこんだヨロイのはこ - アミヤクイ村貯水池"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "reservoir_tunnel",
+                        "x": 430,
+                        "y": 105
                     }
                 ]
             }
@@ -3826,7 +4029,13 @@
                         "name": "Knitter Bincho - Twinpeak Path to Skullpion"
                     },
                     {
+                        "name": "Knitter BP Up - Twinpeak Path to Skullpion"
+                    },
+                    {
                         "name": "ぬのがかりビセットのビンチョ - ヘルズバレー"
+                    },
+                    {
+                        "name": "ぬのがかりビセットのBPアップ - ヘルズバレー"
                     }
                 ],
                 "map_locations": [
@@ -3867,14 +4076,20 @@
                         "name": "SoldierA Bincho - Twinpeak Entrance"
                     },
                     {
+                        "name": "SoldierA BP Up - Twinpeak Entrance"
+                    },
+                    {
                         "name": "ヘいしバラニックのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "ヘいしバラニックのBPアップ - ふたご山"
                     }
                 ],
                 "map_locations": [
                     {
                         "map": "twinpeak_entrance",
-                        "x": 120,
-                        "y": 155
+                        "x": 270,
+                        "y": 230
                     }
                 ]
             },
@@ -3891,8 +4106,566 @@
                 "map_locations": [
                     {
                         "map": "twinpeak_entrance",
-                        "x": 150,
-                        "y": 205
+                        "x": 380,
+                        "y": 190
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Twinpeak First Peak",
+        "children": [
+            {
+                "name": "MercenC Bincho - Twinpeak Around the Bend",
+                "sections": [
+                    {
+                        "name": "MercenC Bincho - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "MercenC BP Up - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "ようへいミーノのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "ようへいミーノのBPアップ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "first_peak",
+                        "x": 490,
+                        "y": 140
+                    }
+                ]
+            },
+            {
+                "name": "Doctor Bincho - Twinpeak Around the Bend",
+                "sections": [
+                    {
+                        "name": "Doctor Bincho - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "Doctor BP Up - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "モルホンいしのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "モルホンいしのBPアップ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "first_peak",
+                        "x": 540,
+                        "y": 250
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Twinpeak Around the Bend",
+                "sections": [
+                    {
+                        "name": "Minku - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "ミンクー - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "first_peak",
+                        "x": 365,
+                        "y": 350
+                    }
+                ]
+            },
+            {
+                "name": "200 Drans Chest - Twinpeak Around the Bend",
+                "sections": [
+                    {
+                        "name": "200 Drans Chest - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "200ドランのはこ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "first_peak",
+                        "x": 495,
+                        "y": 265
+                    }
+                ]
+            },
+            {
+                "name": "Old Book Chest - Twinpeak Around the Bend",
+                "sections": [
+                    {
+                        "name": "Old Book Chest - Twinpeak Around the Bend"
+                    },
+                    {
+                        "name": "しめったしょもつのはこ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "first_peak",
+                        "x": 215,
+                        "y": 215
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Twinpeak End of Stream",
+                "sections": [
+                    {
+                        "name": "Minku - Twinpeak End of Stream"
+                    },
+                    {
+                        "name": "ミンクー - ふたご山の川"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "first_peak",
+                        "x": 525,
+                        "y": 400
+                    }
+                ]
+            },
+            {
+                "name": "Earth Scroll - Twinpeak First Peak",
+                "sections": [
+                    {
+                        "name": "Earth Scroll - Twinpeak First Peak"
+                    },
+                    {
+                        "name": "チのまき - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "first_peak",
+                        "x": 315,
+                        "y": 115
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Twinpeak Second Peak",
+        "children": [
+            {
+                "name": "CarpentA Bincho - Twinpeak Second Peak",
+                "sections": [
+                    {
+                        "name": "CarpentA Bincho - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "CarpentA BP Up - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Second Log - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "だいくツケコンデルのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "だいくツケコンデルのBPアップ - ふたご山"
+                    },
+                    {
+                        "name": "二番目のまるた - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "second_peak",
+                        "x": 410,
+                        "y": 225
+                    }
+                ]
+            },
+            {
+                "name": "KnightB Bincho - Twinpeak Second Peak",
+                "sections": [
+                    {
+                        "name": "KnightB Bincho - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "KnightB BP Up - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "きしラドのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "きしラドのBPアップ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "second_peak",
+                        "x": 90,
+                        "y": 215
+                    }
+                ]
+            },
+            {
+                "name": "Weaver Bincho - Twinpeak Second Peak",
+                "sections": [
+                    {
+                        "name": "Weaver Bincho - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "Weaver BP Up - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "つむぎてエイランチのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "つむぎてエイランチのBPアップ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "second_peak",
+                        "x": 350,
+                        "y": 40
+                    }
+                ]
+            },
+            {
+                "name": "First Log - Twinpeak Second Peak",
+                "sections": [
+                    {
+                        "name": "First Log - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "一番目のまるた - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "second_peak",
+                        "x": 55,
+                        "y": 200
+                    }
+                ]
+            },
+            {
+                "name": "Third Log - Twinpeak Second Peak",
+                "sections": [
+                    {
+                        "name": "Third Log - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "三番目のまるた - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "second_peak",
+                        "x": 325,
+                        "y": 65
+                    }
+                ]
+            },
+            {
+                "name": "Fourth Log - Twinpeak Second Peak",
+                "sections": [
+                    {
+                        "name": "Fourth Log - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "四番目のまるた - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "second_peak",
+                        "x": 125,
+                        "y": 125
+                    }
+                ]
+            },
+            {
+                "name": "Rock Chest - Twinpeak Second Peak",
+                "sections": [
+                    {
+                        "name": "Rock Chest - Twinpeak Second Peak"
+                    },
+                    {
+                        "name": "かがやくいしのはこ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "second_peak",
+                        "x": 190,
+                        "y": 40
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Rope Bridge",
+        "children": [
+            {
+                "name": "Shepherd Bincho - Twinpeak Rope Bridge",
+                "sections": [
+                    {
+                        "name": "Shepherd Bincho - Twinpeak Rope Bridge"
+                    },
+                    {
+                        "name": "Shepherd BP Up - Twinpeak Rope Bridge"
+                    },
+                    {
+                        "name": "うまやばんバッサシのビンチョ - ふたご山"
+                    },
+                    {
+                        "name": "うまやばんバッサシのBPアップ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "rope_bridge",
+                        "x": 320,
+                        "y": 420
+                    }
+                ]
+            },
+            {
+                "name": "Dagger Chest - Twinpeak Rope Bridge",
+                "sections": [
+                    {
+                        "name": "Dagger Chest - Twinpeak Rope Bridge"
+                    },
+                    {
+                        "name": "ふるびたたんけんのはこ - ふたご山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "rope_bridge",
+                        "x": 65,
+                        "y": 395
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Steamwood",
+        "children": [
+            {
+                "name": "Handle #0 - Steamwood 2",
+                "sections": [
+                    {
+                        "name": "Handle #0 - Steamwood 2"
+                    },
+                    {
+                        "name": "0ばんハンドル - スチームウッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood_outside",
+                        "x": 190,
+                        "y": 350
+                    }
+                ]
+            },
+            {
+                "name": "Steamwood 2 outside",
+                "sections": [
+                    {
+                        "name": "Handle #1 - Steamwood 2"
+                    },
+                    {
+                        "name": "Handle #4 - Steamwood 2"
+                    },
+                    {
+                        "name": "Handle #8 - Steamwood 2"
+                    },
+                    {
+                        "name": "Profits - Steamwood 2"
+                    },
+                    {
+                        "name": "1ばんハンドル - スチームウッド"
+                    },
+                    {
+                        "name": "4ばんハンドル - スチームウッド"
+                    },
+                    {
+                        "name": "8ばんハンドル - スチームウッド"
+                    },
+                    {
+                        "name": "うりあげきん - スチームウッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood_outside",
+                        "x": 190,
+                        "y": 275
+                    }
+                ]
+            },
+            {
+                "name": "Profits - Steamwood 2",
+                "sections": [
+                    {
+                        "name": "Profits - Steamwood 2"
+                    },
+                    {
+                        "name": "うりあげきん - スチームウッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood",
+                        "x": 225,
+                        "y": 355
+                    }
+                ]
+            },
+            {
+                "name": "Handle #1 - Steamwood 2",
+                "sections": [
+                    {
+                        "name": "Handle #1 - Steamwood 2"
+                    },
+                    {
+                        "name": "1ばんハンドル - スチームウッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood",
+                        "x": 100,
+                        "y": 320
+                    }
+                ]
+            },
+            {
+                "name": "Handle #4 - Steamwood 2",
+                "sections": [
+                    {
+                        "name": "Handle #4 - Steamwood 2"
+                    },
+                    {
+                        "name": "4ばんハンドル - スチームウッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood",
+                        "x": 100,
+                        "y": 200
+                    }
+                ]
+            },
+            {
+                "name": "Handle #8 - Steamwood 2",
+                "sections": [
+                    {
+                        "name": "Handle #8 - Steamwood 2"
+                    },
+                    {
+                        "name": "8ばんハンドル - スチームウッド"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "steamwood",
+                        "x": 100,
+                        "y": 145
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Volcano",
+        "children": [
+            {
+                "name": "Minku - Near Wind Scroll",
+                "sections": [
+                    {
+                        "name": "Minku - Near Wind Scroll"
+                    },
+                    {
+                        "name": "ミンクー - アミヤクイ村の火山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "volcano",
+                        "x": 355,
+                        "y": 240
+                    }
+                ]
+            },
+            {
+                "name": "Wind Scroll - Grillin Volcano",
+                "sections": [
+                    {
+                        "name": "Wind Scroll - Grillin Volcano"
+                    },
+                    {
+                        "name": "カゼのまき - アミヤクイ村の火山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "volcano",
+                        "x": 260,
+                        "y": 135
+                    }
+                ]
+            },
+            {
+                "name": "Escape from Bincho - Grillin Volcano",
+                "sections": [
+                    {
+                        "name": "Escape from Bincho - Grillin Volcano"
+                    },
+                    {
+                        "name": "ムサシのビンチョ - アミヤクイ村の火山"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "volcano",
+                        "x": 110,
+                        "y": 110
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Sky Island",
+        "children": [
+            {
+                "name": "Sky Scroll - Sky Island",
+                "sections": [
+                    {
+                        "name": "Sky Scroll - Sky Island"
+                    },
+                    {
+                        "name": "ソラのまき - 空の巻の地"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "sky_island",
+                        "x": 175,
+                        "y": 100
                     }
                 ]
             }
@@ -3914,8 +4687,8 @@
                 "map_locations": [
                     {
                         "map": "basement_entrance",
-                        "x": 45,
-                        "y": 218
+                        "x": 120,
+                        "y": 340
                     }
                 ]
             },
@@ -3926,10 +4699,16 @@
                         "name": "Baliff Bincho - Restaurant Basement Behind Pole Jumps"
                     },
                     {
+                        "name": "Baliff BP Up - Restaurant Basement Behind Pole Jumps"
+                    },
+                    {
                         "name": "Powder Chest - Restaurant Basement Teleport Maze"
                     },
                     {
                         "name": "グラムだいかんのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "グラムだいかんのBPアップ - バーの地下"
                     },
                     {
                         "name": "しろいこなのはこ - バーの地下"
@@ -3938,8 +4717,8 @@
                 "map_locations": [
                     {
                         "map": "basement_entrance",
-                        "x": 175,
-                        "y": 160
+                        "x": 205,
+                        "y": 220
                     }
                 ]
             },
@@ -3974,8 +4753,8 @@
                 "map_locations": [
                     {
                         "map": "basement_entrance",
-                        "x": 175,
-                        "y": 260
+                        "x": 270,
+                        "y": 325
                     }
                 ]
             },
@@ -4004,8 +4783,8 @@
                 "map_locations": [
                     {
                         "map": "basement_entrance",
-                        "x": 475,
-                        "y": 260
+                        "x": 515,
+                        "y": 200
                     }
                 ]
             },
@@ -4034,8 +4813,8 @@
                 "map_locations": [
                     {
                         "map": "basement_entrance",
-                        "x": 475,
-                        "y": 160
+                        "x": 445,
+                        "y": 100
                     }
                 ]
             },
@@ -4064,8 +4843,8 @@
                 "map_locations": [
                     {
                         "map": "basement_entrance",
-                        "x": 610,
-                        "y": 218
+                        "x": 600,
+                        "y": 95
                     }
                 ]
             },
@@ -4094,8 +4873,629 @@
                 "map_locations": [
                     {
                         "map": "basement_entrance",
-                        "x": 325,
+                        "x": 245,
+                        "y": 50
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Bowling Entrance",
+        "children": [
+            {
+                "name": "Shield Chest - Restaurant Basement Bowling 1",
+                "sections": [
+                    {
+                        "name": "Shield Chest - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "ふるびたタテのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "bowling_entrance",
+                        "x": 370,
+                        "y": 465
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Bowling 1",
+        "children": [
+            {
+                "name": "MercenA Bincho - Restaurant Basement Bowling 1",
+                "sections": [
+                    {
+                        "name": "MercenA Bincho - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "MercenA BP Up - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "ようへいロースウのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ようへいロースウのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "bowling_1",
+                        "x": 140,
+                        "y": 255
+                    }
+                ]
+            },
+            {
+                "name": "Odd Hat Chest - Restaurant Basement Bowling 1",
+                "sections": [
+                    {
+                        "name": "Odd Hat Chest - Restaurant Basement Bowling 1"
+                    },
+                    {
+                        "name": "ひびわれ・かめんのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "bowling_1",
+                        "x": 75,
+                        "y": 210
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Bowling 2",
+        "children": [
+            {
+                "name": "MercenB Bincho - Restaurant Basement Bowling 2",
+                "sections": [
+                    {
+                        "name": "MercenB Bincho - Restaurant Basement Bowling 2"
+                    },
+                    {
+                        "name": "MercenB BP Up - Restaurant Basement Bowling 2"
+                    },
+                    {
+                        "name": "ようへいカルビのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ようへいカルビのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "bowling_2",
+                        "x": 615,
+                        "y": 285
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Teleport Maze Right Side Area",
+        "children": [
+            {
+                "name": "Baliff Bincho - Restaurant Basement Behind Pole Jumps",
+                "sections": [
+                    {
+                        "name": "Baliff Bincho - Restaurant Basement Behind Pole Jumps"
+                    },
+                    {
+                        "name": "Baliff BP Up - Restaurant Basement Behind Pole Jumps"
+                    },
+                    {
+                        "name": "グラムだいかんのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "グラムだいかんのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "teleport_maze_side_area",
+                        "x": 490,
+                        "y": 315
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Teleport Maze End",
+        "children": [
+            {
+                "name": "Powder Chest - Restaurant Basement Teleport Maze",
+                "sections": [
+                    {
+                        "name": "Powder Chest - Restaurant Basement Teleport Maze"
+                    },
+                    {
+                        "name": "しろいこなのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "teleport_maze_end",
+                        "x": 355,
+                        "y": 270
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Dark Maze 2",
+        "children": [
+            {
+                "name": "CarpentB Bincho - Restaurant Basement Dark Platform Maze 2",
+                "sections": [
+                    {
+                        "name": "CarpentB Bincho - Restaurant Basement Dark Platform Maze 2"
+                    },
+                    {
+                        "name": "CarpentB BP Up - Restaurant Basement Dark Platform Maze 2"
+                    },
+                    {
+                        "name": "だいくニコミテールのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "だいくニコミテールのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "dark_maze_entrance",
+                        "x": 255,
+                        "y": 225
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Dark Maze 3",
+        "children": [
+            {
+                "name": "KnightC Bincho - Restaurant Basement Dark Platform Maze 3",
+                "sections": [
+                    {
+                        "name": "KnightC Bincho - Restaurant Basement Dark Platform Maze 3"
+                    },
+                    {
+                        "name": "KnightC BP Up - Restaurant Basement Dark Platform Maze 3"
+                    },
+                    {
+                        "name": "きしコブクローネのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "きしコブクローネのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "dark_maze_end",
+                        "x": 510,
+                        "y": 200
+                    }
+                ]
+            },
+            {
+                "name": "Helmet Chest - Restaurant Basement Dark Platform Maze 3",
+                "sections": [
+                    {
+                        "name": "Helmet Chest - Restaurant Basement Dark Platform Maze 3"
+                    },
+                    {
+                        "name": "ゆがんだツボのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "dark_maze_end",
+                        "x": 350,
+                        "y": 330
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Rotating Platform Entrance",
+        "children": [
+            {
+                "name": "Librarian Bincho - Restaurant Basement Near Rotating Platforms",
+                "sections": [
+                    {
+                        "name": "Librarian Bincho - Restaurant Basement Near Rotating Platforms"
+                    },
+                    {
+                        "name": "Librarian BP Up - Restaurant Basement Near Rotating Platforms"
+                    },
+                    {
+                        "name": "ゾウモッツしょきのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "ゾウモッツしょきのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "rotating_platforms_entrance",
+                        "x": 515,
+                        "y": 80
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Rotating Platform Planks Over Lava",
+        "children": [
+            {
+                "name": "SoldierB Bincho - Restaurant Basement Planks Over Lava",
+                "sections": [
+                    {
+                        "name": "SoldierB Bincho - Restaurant Basement Planks Over Lava"
+                    },
+                    {
+                        "name": "SoldierB BP Up - Restaurant Basement Planks Over Lava"
+                    },
+                    {
+                        "name": "へいしバーベックのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "へいしバーベックのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "rotating_platforms_lava_and_pendulums",
+                        "x": 140,
+                        "y": 330
+                    }
+                ]
+            },
+            {
+                "name": "Old Pipe Chest - Restaurant Basement Planks Over Lava",
+                "sections": [
+                    {
+                        "name": "Old Pipe Chest - Restaurant Basement Planks Over Lava"
+                    },
+                    {
+                        "name": "あなあきこんぼうのはこ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "rotating_platforms_lava_and_pendulums",
+                        "x": 290,
+                        "y": 380
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Relic Keeper Gauntlet",
+        "children": [
+            {
+                "name": "Taster Bincho - Restaurant Basement Path to Crest Guardian",
+                "sections": [
+                    {
+                        "name": "Taster Bincho - Restaurant Basement Path to Crest Guardian"
+                    },
+                    {
+                        "name": "Taster BP Up - Restaurant Basement Path to Crest Guardian"
+                    },
+                    {
+                        "name": "9だいめどくみやくのビンチョ - バーの地下"
+                    },
+                    {
+                        "name": "9だいめどくみやくのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "relic_keeper_gauntlet",
+                        "x": 265,
+                        "y": 225
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Relic Keeper Arena",
+        "children": [
+            {
+                "name": "Defeat Water Crest Guardian - Relic Keeper Arena",
+                "sections": [
+                    {
+                        "name": "Defeat Water Crest Guardian - Relic Keeper Arena"
+                    },
+                    {
+                        "name": "Defeat Water Crest Guardian BP Up - Relic Keeper Arena"
+                    },
+                    {
+                        "name": "倒すレリクスキーパー - バーの地下"
+                    },
+                    {
+                        "name": "倒すレリクスキーパーのBPアップ - バーの地下"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "relic_keeper_arena",
+                        "x": 30,
                         "y": 30
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Lower Poison Elevator",
+        "children": [
+            {
+                "name": "Minku - Upper Mines",
+                "sections": [
+                    {
+                        "name": "Minku - Upper Mines"
+                    },
+                    {
+                        "name": "ミンクー - アリの巣の入り口"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "poison_elevators",
+                        "x": 415,
+                        "y": 160
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Conveyor Belts",
+        "children": [
+            {
+                "name": "KnightA Bincho - Mine Conveyor Belt Room",
+                "sections": [
+                    {
+                        "name": "KnightA Bincho - Mine Conveyor Belt Room"
+                    },
+                    {
+                        "name": "KnightA BP Up - Mine Conveyor Belt Room"
+                    },
+                    {
+                        "name": "きしニックのビンチョ - ビンチョタイト採掘場"
+                    },
+                    {
+                        "name": "きしニックのBPアップ - ビンチョタイト採掘場"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "conveyor_belts",
+                        "x": 435,
+                        "y": 210
+                    }
+                ]
+            },
+            {
+                "name": "CarpentC Bincho - Mine Conveyor Belt Room",
+                "sections": [
+                    {
+                        "name": "CarpentC Bincho - Mine Conveyor Belt Room"
+                    },
+                    {
+                        "name": "CarpentC BP Up - Mine Conveyor Belt Room"
+                    },
+                    {
+                        "name": "おやかたマーダレーのビンチョ - ビンチョタイト採掘場"
+                    },
+                    {
+                        "name": "おやかたマーダレーのBPアップ - ビンチョタイト採掘場"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "conveyor_belts",
+                        "x": 130,
+                        "y": 95
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Underground Lake",
+        "children": [
+            {
+                "name": "CookA Bincho - Misteria Underground Lake",
+                "sections": [
+                    {
+                        "name": "CookA Bincho - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "CookA BP Up - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "しょくじがかりリブのビンチョ - 地底湖"
+                    },
+                    {
+                        "name": "しょくじがかりリブのBPアップ - 地底湖"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "underground_lake",
+                        "x": 235,
+                        "y": 275
+                    }
+                ]
+            },
+            {
+                "name": "Chief Bincho - Misteria Underground Lake",
+                "sections": [
+                    {
+                        "name": "Chief Bincho - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "Chief BP Up - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "ビールかんとくのビンチョ - 地底湖"
+                    },
+                    {
+                        "name": "ビールかんとくのBPアップ - 地底湖"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "underground_lake",
+                        "x": 170,
+                        "y": 85
+                    }
+                ]
+            },
+            {
+                "name": "Minku - Misteria Underground Lake",
+                "sections": [
+                    {
+                        "name": "Minku - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "ミンクー - 地底湖"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "underground_lake",
+                        "x": 85,
+                        "y": 300
+                    }
+                ]
+            },
+            {
+                "name": "Old Glove Chest - Misteria Underground Lake",
+                "sections": [
+                    {
+                        "name": "Old Glove Chest - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "ほつれたてぶくろのはこ - 地底湖"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "underground_lake",
+                        "x": 395,
+                        "y": 160
+                    }
+                ]
+            },
+            {
+                "name": "Misteria - Misteria Underground Lake",
+                "sections": [
+                    {
+                        "name": "Misteria - Misteria Underground Lake"
+                    },
+                    {
+                        "name": "まばろしのは - 地底湖"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "underground_lake",
+                        "x": 235,
+                        "y": 200
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Scrap Depository",
+        "children": [
+            {
+                "name": "Gondola Gizmo 1 - Scrap Depository",
+                "sections": [
+                    {
+                        "name": "Gondola Gizmo 1 - Scrap Depository"
+                    },
+                    {
+                        "name": "1ばんゴンドラパーツ - スクラップ置き場"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "scrap_depository",
+                        "x": 155,
+                        "y": 250
+                    }
+                ]
+            },
+            {
+                "name": "Gondola Gizmo 2 - Scrap Depository",
+                "sections": [
+                    {
+                        "name": "Gondola Gizmo 2 - Scrap Depository"
+                    },
+                    {
+                        "name": "2ばんゴンドラパーツ - スクラップ置き場"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "scrap_depository",
+                        "x": 210,
+                        "y": 255
+                    }
+                ]
+            },
+            {
+                "name": "Gondola Gizmo 3 - Scrap Depository",
+                "sections": [
+                    {
+                        "name": "Gondola Gizmo 3 - Scrap Depository"
+                    },
+                    {
+                        "name": "3ばんゴンドラパーツ - スクラップ置き場"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "scrap_depository",
+                        "x": 270,
+                        "y": 265
+                    }
+                ]
+            },
+            {
+                "name": "Gondola Gizmo 4 - Scrap Depository",
+                "sections": [
+                    {
+                        "name": "Gondola Gizmo 4 - Scrap Depository"
+                    },
+                    {
+                        "name": "4ばんゴンドラパーツ - スクラップ置き場"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "scrap_depository",
+                        "x": 280,
+                        "y": 315
                     }
                 ]
             }
@@ -4117,8 +5517,8 @@
                 "map_locations": [
                     {
                         "map": "frozen_palace_entrance",
-                        "x": 83,
-                        "y": 63
+                        "x": 135,
+                        "y": 255
                     }
                 ]
             },
@@ -4129,14 +5529,20 @@
                         "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony"
                     },
                     {
+                        "name": "Butcher BP Up - Frozen Palace Atrium Right Balcony"
+                    },
+                    {
                         "name": "にくきりハーラミンのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "にくきりハーラミンのBPアップ - フリーズパレス"
                     }
                 ],
                 "map_locations": [
                     {
                         "map": "frozen_palace_entrance",
-                        "x": 243,
-                        "y": 44
+                        "x": 495,
+                        "y": 195
                     }
                 ]
             }
@@ -4152,7 +5558,13 @@
                         "name": "Janitor Bincho - Frozen Palace Blue Eye Door"
                     },
                     {
+                        "name": "Janitor BP Up - Frozen Palace Blue Eye Door"
+                    },
+                    {
                         "name": "ベんじょのニクジルのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "ベんじょのニクジルのBPアップ - フリーズパレス"
                     }
                 ],
                 "map_locations": [
@@ -4198,7 +5610,13 @@
                         "name": "Chef Bincho - Frozen Palace Crate Pile"
                     },
                     {
+                        "name": "Chef BP Up - Frozen Palace Crate Pile"
+                    },
+                    {
                         "name": "クーパー・シェフのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "クーパー・シェフのBPアップ - フリーズパレス"
                     }
                 ],
                 "map_locations": [
@@ -4206,24 +5624,6 @@
                         "map": "frozen_palace_wolf_room",
                         "x": 95,
                         "y": 178
-                    }
-                ]
-            },
-            {
-                "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony",
-                "sections": [
-                    {
-                        "name": "Butcher Bincho - Frozen Palace Atrium Right Balcony"
-                    },
-                    {
-                        "name": "にくきりハーラミンのビンチョ - フリーズパレス"
-                    }
-                ],
-                "map_locations": [
-                    {
-                        "map": "frozen_palace_entrance",
-                        "x": 243,
-                        "y": 44
                     }
                 ]
             }
@@ -4239,7 +5639,13 @@
                         "name": "MusicianC Bincho - Frozen Palace Green Eye Maze"
                     },
                     {
+                        "name": "MusicianC BP Up - Frozen Palace Green Eye Maze"
+                    },
+                    {
                         "name": "ビビンバッハガくしのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "ビビンバッハガくしのBPアップ - フリーズパレス"
                     }
                 ],
                 "map_locations": [
@@ -4304,8 +5710,8 @@
                 "map_locations": [
                     {
                         "map": "frozen_palace_ramp_hallway",
-                        "x": 182,
-                        "y": 154
+                        "x": 370,
+                        "y": 275
                     }
                 ]
             }
@@ -4321,14 +5727,20 @@
                         "name": "Alchemist Bincho - Frozen Palace Blue Eye Maze"
                     },
                     {
+                        "name": "Alchemist BP Up - Frozen Palace Blue Eye Maze"
+                    },
+                    {
                         "name": "れんきんじゃつしのビンチョ - フリーズパレス"
+                    },
+                    {
+                        "name": "れんきんじゃつしのBPアップ - フリーズパレス"
                     }
                 ],
                 "map_locations": [
                     {
-                        "map": "frozen_palace_red_eye_maze",
-                        "x": 112,
-                        "y": 206
+                        "map": "frozen_palace_blue_eye_maze",
+                        "x": 250,
+                        "y": 275
                     }
                 ]
             },
@@ -4344,9 +5756,9 @@
                 ],
                 "map_locations": [
                     {
-                        "map": "frozen_palace_red_eye_maze",
-                        "x": 56,
-                        "y": 111
+                        "map": "frozen_palace_blue_eye_maze",
+                        "x": 155,
+                        "y": 135
                     }
                 ]
             }
@@ -4368,8 +5780,8 @@
                 "map_locations": [
                     {
                         "map": "frozen_palace_red_eye_hallway",
-                        "x": 60,
-                        "y": 164
+                        "x": 145,
+                        "y": 225
                     }
                 ]
             }
@@ -4393,6 +5805,238 @@
                         "map": "frozen_palace_ramp_to_dragon_church",
                         "x": 195,
                         "y": 116
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Ramp to Dragon Church",
+        "children": [
+            {
+                "name": "Black Cloth Chest - Frost Dragon Door",
+                "sections": [
+                    {
+                        "name": "Defeat Fire Crest Guardian - Frost Dragon Arena"
+                    },
+                    {
+                        "name": "Defeat Fire Crest Guardian BP Up - Frost Dragon Arena"
+                    },
+                    {
+                        "name": "倒すフロストドラグーン - フリーズパレス"
+                    },
+                    {
+                        "name": "倒すフロストドラグーンのBPアップ - フリーズパレス"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "frost_dragon_arena",
+                        "x": 30,
+                        "y": 60
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Rock Slide Bridges",
+        "children": [
+            {
+                "name": "CookB Bincho - Upper Mines",
+                "sections": [
+                    {
+                        "name": "CookB Bincho - Upper Mines"
+                    },
+                    {
+                        "name": "CookB BP Up - Upper Mines"
+                    },
+                    {
+                        "name": "ムッシュ・ワギュウのビンチョ - アリの巣"
+                    },
+                    {
+                        "name": "ムッシュ・ワギュウのBPアップ - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "rock_slide_bridges",
+                        "x": 85,
+                        "y": 100
+                    }
+                ]
+            },
+            {
+                "name": "Large Tool Chest - Upper Mines",
+                "sections": [
+                    {
+                        "name": "Large Tool Chest - Upper Mines"
+                    },
+                    {
+                        "name": "スルドイどうぐのはこ - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "rock_slide_bridges",
+                        "x": 285,
+                        "y": 185
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Upper Poison Elevators",
+        "children": [
+            {
+                "name": "Odd Bone Chest - Upper Mines",
+                "sections": [
+                    {
+                        "name": "Odd Bone Chest - Upper Mines"
+                    },
+                    {
+                        "name": "しんぴのほねぐみのはこ - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "upper_poison_elevators",
+                        "x": 265,
+                        "y": 340
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Upper Large Fan",
+        "children": [
+            {
+                "name": "Minku - Upper Mines Below Big Fan",
+                "sections": [
+                    {
+                        "name": "Minku - Upper Mines Below Big Fan"
+                    },
+                    {
+                        "name": "ミンクー - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "upper_mines_large_fan",
+                        "x": 240,
+                        "y": 270
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Ant Parade",
+        "children": [
+            {
+                "name": "Conductor Bincho - Upper Mines Ant Parade",
+                "sections": [
+                    {
+                        "name": "Conductor Bincho - Upper Mines Ant Parade"
+                    },
+                    {
+                        "name": "Conductor BP Up - Upper Mines Ant Parade"
+                    },
+                    {
+                        "name": "おんがくだんちょうのビンチョ - アリの巣"
+                    },
+                    {
+                        "name": "おんがくだんちょうのBPアップ - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "ant_parade",
+                        "x": 350,
+                        "y": 95
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Dig Area",
+        "children": [
+            {
+                "name": "KnightD Bincho - Upper Mines Before Digging",
+                "sections": [
+                    {
+                        "name": "KnightD Bincho - Upper Mines Before Digging"
+                    },
+                    {
+                        "name": "KnightD BP Up - Upper Mines Before Digging"
+                    },
+                    {
+                        "name": "きしだんちょうのビンチョ - アリの巣"
+                    },
+                    {
+                        "name": "きしだんちょうのBPアップ - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "dig_area_near_knightd",
+                        "x": 200,
+                        "y": 225
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Queen Ant Arena",
+        "children": [
+            {
+                "name": "Defeat Wind Crest Guardian - Queen Ant Arena",
+                "sections": [
+                    {
+                        "name": "Defeat Wind Crest Guardian - Queen Ant Arena"
+                    },
+                    {
+                        "name": "Defeat Wind Crest Guardian BP Up - Queen Ant Arena"
+                    },
+                    {
+                        "name": "倒すアントヒルクィーン - アリの巣"
+                    },
+                    {
+                        "name": "倒すアントヒルクィーンのBPアップ - アリの巣"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "queen_ant_arena",
+                        "x": 30,
+                        "y": 30
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "ToD",
+        "children": [
+            {
+                "name": "Defeat Sky Crest Guardian BP Up - ToD Arena",
+                "sections": [
+                    {
+                        "name": "Defeat Sky Crest Guardian BP Up - ToD Arena"
+                    },
+                    {
+                        "name": "倒すタワーオブデスのBPアップ - リカーバレル"
+                    }
+                ],
+                "map_locations": [
+                    {
+                        "map": "ToD",
+                        "x": 30,
+                        "y": 30
                     }
                 ]
             }

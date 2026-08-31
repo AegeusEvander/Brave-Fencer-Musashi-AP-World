@@ -351,7 +351,7 @@ def set_rules(world: "BFMWorld") -> None:
         world.set_rule(world.get_location(check_location_name("Aqualin - Twinpeak Second Peak", loc_lang)), has_rescued_tim)
         world.set_rule(world.get_location(check_location_name("Rescue Tim - Grillin Village", loc_lang)), has_rescued_tim)
         world.set_rule(world.get_location(check_location_name("Defeat Vambee Soldiers - Grillin Village", loc_lang)), has_completed_chapter_2 & (can_double_jump | wind_scroll_complex) & can_talk_to_father_white)
-        world.set_rule(world.get_location(check_location_name("Return Bell - Grillin Village", loc_lang)), has_rescued_tim & (can_double_jump | wind_scroll_complex) & can_enter_mine & (has_water_scroll | sky_scroll_simple))
+        world.set_rule(world.get_location(check_location_name("Return Bell - Grillin Village", loc_lang)), has_rescued_tim & can_talk_to_towst & can_talk_to_father_white & (can_double_jump | wind_scroll_complex) & can_enter_mine & (has_water_scroll | sky_scroll_simple))
         world.set_rule(world.get_location(check_location_name("Mrs Govern's Pie - Grillin Village", loc_lang)), has_completed_chapter_3 & has_fixed_well)
         world.set_rule(world.get_location(check_location_name("Reward #1 After Extinguishing Village - Grillin Village", loc_lang)), has_completed_chapter_3 & has_fixed_gondola)
         world.set_rule(world.get_location(check_location_name("Reward #2 After Extinguishing Village - Grillin Village", loc_lang)), has_completed_chapter_3 & has_fixed_gondola)

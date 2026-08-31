@@ -58,3 +58,5 @@ cd "$folder"
 
 echo "Files signed with GPG and packaged into an APWorld."
 echo "Don't forget to increment the version!"
+
+#$HOME/Documents/Archipelago6.7/Archipelago/ArchipelagoLauncher "Universal Tracker" -- --connect archipelago://AegeusMusashi:None@localhost:38281 

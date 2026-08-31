@@ -37,6 +37,9 @@ import os
 import time
 import Utils
 import zipfile
+import string
+import settings
+import asyncio
 from BaseClasses import ItemClassification as IC
 
 if TYPE_CHECKING:
@@ -131,7 +134,7 @@ def cmd_deathlink(self: "BizHawkClientCommandProcessor", status = "") -> None:
         else:
             msg = "OFF"
         logger.info(f"Deathlink: {msg}\n"
-                    f"    To change the status, use the command: /deathlink [on/off]")
+                    f"    To change the status, use the command: /death_link [on/off]")
         return
     elif status.lower() == "on":
         client.previous_death_link = ctx.last_death_link
@@ -139,7 +142,7 @@ def cmd_deathlink(self: "BizHawkClientCommandProcessor", status = "") -> None:
     elif status.lower() == "off":
         client.deathlink = 0
     else:
-        logger.info(f"Invalid argument for function ""deathlink""\n")
+        logger.info(f"Invalid argument for function ""death_link""\n")
         return
     
     if client.deathlink == 1:
@@ -173,14 +176,14 @@ def cmd_trap_link(self: "BizHawkClientCommandProcessor", status = "") -> None:
         else:
             msg = "OFF"
         logger.info(f"Traplink: {msg}\n"
-                    f"    To change the status, use the command: /traplink [on/off]")
+                    f"    To change the status, use the command: /trap_link [on/off]")
         return
     elif status.lower() == "on":
         client.trap_link = 1
     elif status.lower() == "off":
         client.trap_link = 0
     else:
-        logger.info(f"Invalid argument for function ""traplink""\n")
+        logger.info(f"Invalid argument for function ""trap_link""\n")
         return
     
     if client.trap_link == 1:
@@ -190,7 +193,7 @@ def cmd_trap_link(self: "BizHawkClientCommandProcessor", status = "") -> None:
 
     logger.info(f"Traplink is now {msg}\n")
 
-def cmd_write_geometry(self: "BizHawkClientCommandProcessor") -> None:
+def cmd_export_geometry(self: "BizHawkClientCommandProcessor") -> None:
     """make an OBJ file """
     from CommonClient import logger
     from worlds._bizhawk.context import BizHawkClientContext
@@ -204,7 +207,7 @@ def cmd_write_geometry(self: "BizHawkClientCommandProcessor") -> None:
     assert isinstance(ctx, BizHawkClientContext)
     client = ctx.client_handler
     assert isinstance(client, BFMClient)
-    logger.info("checking if in area to dump")
+    logger.info("checking if in area to export")
     #game_state: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(0x0b9a08, 2, MAIN_RAM)]))[0]
     #curr_location = int.from_bytes(game_state, "little")
     #if(client.old_location in [0x3025, 0x3026, 0x3029, 0x3073, 0x1094, 0x1095, 0x302b, 0x3024, 0x3043, 0x302c,0x3027, 0x3028, 0x304e, 0x304d, 0x3023, 0x3034, 0x3031] and client.level_transition == 0):
@@ -212,6 +215,75 @@ def cmd_write_geometry(self: "BizHawkClientCommandProcessor") -> None:
         logger.info("writing obj file")
         client.old_location = client.cur_location
         Utils.async_start(client.write_geometry(ctx))
+
+def cmd_export_all_geometry(self: "BizHawkClientCommandProcessor") -> None:
+    """make an OBJ file """
+    from CommonClient import logger
+    from worlds._bizhawk.context import BizHawkClientContext
+    if self.ctx.game != "Brave Fencer Musashi":
+        logger.warning("This command can only be used when playing Brave Fencer Musashi.")
+        return
+    if not self.ctx.server or self.ctx.server.socket.closed or not self.ctx.slot:
+        logger.warning("You must be connected to a server to use this command.")
+        return
+    if(len(self.ctx.player_names) != 2):
+        logger.warning("This command only works in single player.")
+        return
+    ctx = self.ctx
+    assert isinstance(ctx, BizHawkClientContext)
+    client = ctx.client_handler
+    assert isinstance(client, BFMClient)
+    if(client.level_transition == 0 or bfm_portals[client.cur_location].is_cutscene):
+        #logger.info("attempting to export: %s", bfm_portals[client.cur_location])
+        logger.info("attempting to export all areas")
+        client.old_location = client.cur_location
+        Utils.async_start(client.write_all_geometry(ctx))
+
+def cmd_teleport(self: "BizHawkClientCommandProcessor", id:str = "") -> None:
+    """Telport Musashi to the specified area id (in hexidecimal), or chapter 2 town if blank"""
+    from CommonClient import logger
+    from worlds._bizhawk.context import BizHawkClientContext
+    if self.ctx.game != "Brave Fencer Musashi":
+        logger.warning("This command can only be used when playing Brave Fencer Musashi.")
+        return
+    if not self.ctx.server or self.ctx.server.socket.closed or not self.ctx.slot:
+        logger.warning("You must be connected to a server to use this command.")
+        return
+    if(len(self.ctx.player_names) != 2 and len(id) > 0):
+        logger.warning("number of players %s",len(self.ctx.player_names)-1)
+        logger.warning("can only choose area if playing single player")
+        id = "1011"
+    ctx = self.ctx
+    assert isinstance(ctx, BizHawkClientContext)
+    client = ctx.client_handler
+    assert isinstance(client, BFMClient)
+    if(all(s in string.hexdigits for s in id) and len(id) > 0):
+        room_id = int(id,16)
+        if(room_id < 0x1000):
+            for portal_id in bfm_portals.keys():
+                if((portal_id & 0xff) == room_id):
+                    client.target_location = portal_id
+                    break
+        elif(room_id in bfm_portals):
+            client.target_location = room_id
+        else:
+            logger.warning("room id not found")
+            return None
+    elif(len(id)<1):    
+        client.target_location = 0x1011
+    else:
+        logger.warning("room id not found")
+        return None
+
+    if(client.target_location != client.old_location):
+        Utils.async_start(bizhawk.write(
+                ctx.bizhawk_ctx,
+                [(0x0b99de + (client.jp_version * -0xea0), [0x7], MAIN_RAM)]
+            ))
+    else:
+        logger.warning("currently at %s", hex(client.old_location))
+
+
 
 def cmd_goal(self: "BizHawkClientCommandProcessor") -> None:
     """check Goal"""
@@ -298,7 +370,7 @@ class BFMClient(BizHawkClient):
     cur_location = 0
     old_step_count = 0
     level_transition = 0
-    request_hints = 0
+    request_hints = 0 #set back to 0 later
     hair_color_updated = 0
     hair_color_scalp = 0xb0c7
     skin_color = 0xbf1f
@@ -359,16 +431,20 @@ class BFMClient(BizHawkClient):
     sinking_timer = 0
     long_trap_timer = 0
     short_trap_timer = 0
+    update_auto_tabbing = True
+    target_location = 0x1010
     #time_available = [0x200] + ([0x0] * 6)
     time_available = [0x0] * 7
     number_of_time_slots_unlocked = 168
     Commands_Dict = {
-        "deathlink": "cmd_deathlink",
-        "traplink": "cmd_trap_link",
+        "death_link": "cmd_deathlink",
+        "trap_link": "cmd_trap_link",
         "message_level": "cmd_message_level",
         "debug_dump": "cmd_debug_dump",
         "goal": "cmd_goal",
-        "write_geometry": "cmd_write_geometry",
+        "export_geometry": "cmd_export_geometry",
+        "export_all_geometry": "cmd_export_all_geometry",
+        "teleport": "cmd_teleport",
     }
 
 
@@ -504,25 +580,38 @@ class BFMClient(BizHawkClient):
                 (0x0ae671 + (self.jp_version * -0xea0), 9, MAIN_RAM), #bincho sanity
                 (0x0ae650 + (self.jp_version * -0xea0), 2, MAIN_RAM), #minku sanity
                 (0x0ae651 + (self.jp_version * -0xea0), 5, MAIN_RAM), #chest sanity
-                (0x0ba21b + (self.jp_version * -0xea0), 43, MAIN_RAM), #toy sanity
+                (0x0ba21b + (self.jp_version * -0xea0), 43, MAIN_RAM),#toy sanity
             ] + tech_check_locations[self.jp_version] + level_memory_ids[self.jp_version] + quest_item_locations[self.jp_version] +
-            [(0x0b9a08 + (self.jp_version * -0xea0), 2, MAIN_RAM),#25 current location
-            (0x0ae64a + (self.jp_version * -0xea0), 3, MAIN_RAM), #26 Scrolls and LArmor
-            (0x0ba1f3 + (self.jp_version * -0xea0), 1, MAIN_RAM), #27 Geezer   
-            (0x0ba285 + (self.jp_version * -0xea0), 1, MAIN_RAM), #28 Steamwood Status
-            (0x075400 + (self.jp_version * -0xe70), 1, MAIN_RAM), #29 Zone Loaded 
-            (0x078eb4 + (self.jp_version * -0xea0), 2, MAIN_RAM), #30 Current HP 
-            (0x078eb1 + (self.jp_version * -0xea0), 1, MAIN_RAM), #31 in game hour
-            (0x078eba + (self.jp_version * -0xea0), 1, MAIN_RAM)] #32 day of the week
+            [
+                (0x0b9a08 + (self.jp_version * -0xea0), 2, MAIN_RAM), #25 current location
+                (0x0ae64a + (self.jp_version * -0xea0), 3, MAIN_RAM), #26 Scrolls and LArmor
+                (0x0ba1f3 + (self.jp_version * -0xea0), 1, MAIN_RAM), #27 Geezer   
+                (0x0ba285 + (self.jp_version * -0xea0), 1, MAIN_RAM), #28 Steamwood Status
+                (0x075400 + (self.jp_version * -0xe70), 1, MAIN_RAM), #29 Zone Loaded 
+                (0x078eb4 + (self.jp_version * -0xea0), 2, MAIN_RAM), #30 Current HP 
+                (0x078eb1 + (self.jp_version * -0xea0), 1, MAIN_RAM), #31 in game hour
+                (0x078eba + (self.jp_version * -0xea0), 1, MAIN_RAM)] #32 day of the week
             ))
             if check_game_state != game_state[0]:
-                self.received_count = 0
-                self.hair_color_updated = 0
-                self.old_step_count = 0
-                self.check_if_lumina_needs_removed = 1
-                self.max_hp_updated = False
-                self.xp_gain_updated = False
-                self.num_bosses_killed = -1
+                if(game_state[0][0] in [7,8]): #in debug menu
+                    debug_menu_state: bytes = (await bizhawk.read(ctx.bizhawk_ctx, [
+                        (0x0b99e4 + (self.jp_version * -0xea0), 1, MAIN_RAM)
+                    ]))[0]
+                    if(debug_menu_state[0] == 0x1):
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x0b99e4 + (self.jp_version * -0xea0), [2], MAIN_RAM),
+                            (0x0b9a08 + (self.jp_version * -0xea0), self.target_location.to_bytes(2, 'little'), MAIN_RAM),
+                            (0x078ec0 + (self.jp_version * -0xea0), [0], MAIN_RAM)]
+                        )
+                else:
+                    self.received_count = 0
+                    self.hair_color_updated = 0
+                    self.old_step_count = 0
+                    self.check_if_lumina_needs_removed = 1
+                    self.max_hp_updated = False
+                    self.xp_gain_updated = False
+                    self.num_bosses_killed = -1
                 return
             self.old_game_state = game_state
             #global bincho_checks
@@ -1866,7 +1955,7 @@ class BFMClient(BizHawkClient):
                     self.level_transition = 0
                     self.check_for_logs = 0
                     #if("Tracker" in ctx.tags):
-                    if(True):
+                    if(self.update_auto_tabbing == True):
                         """self.completed_progression = calc_completed_progression_state(ctx, game_state)
                         logger.info("caclulating completed progression : %s", self.completed_progression)
                         connection_data = bfm_portals[curr_location]
@@ -1907,7 +1996,7 @@ class BFMClient(BizHawkClient):
                                     ctx.bizhawk_ctx,
                                     [(dialog_id[self.jp_version]+4, barray, MAIN_RAM)]
                                 )
-                            else:
+                            elif(self.request_hints < 2):
                                 logger.info("no scout information found try reentering area (after taking a couple steps)")
                                 await ctx.send_msgs([{
                                     "cmd": "LocationScouts",
@@ -1940,7 +2029,7 @@ class BFMClient(BizHawkClient):
                                         ctx.bizhawk_ctx,
                                         [(dialog_id[self.jp_version]+4, barray, MAIN_RAM)]
                                     )
-                                else:
+                                elif(self.request_hints < 2):
                                     logger.info("no scout information found try reentering area (after taking a couple steps)")
                                     if(not standard_location_name_to_id["Earth Scroll - Twinpeak First Peak"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                         for i in range(5):
@@ -1991,7 +2080,7 @@ class BFMClient(BizHawkClient):
                                     self.bakery_dialog = self.bakery_dialog + [s]
                                     s = ctx.player_names[ctx.locations_info[loc_id].player]
                                     self.bakery_dialog = self.bakery_dialog + [s]
-                                else:
+                                elif(self.request_hints < 2):
                                     if(not standard_location_name_to_id["Item 1 - Bakery"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                         for i in range(7):
                                             self.table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Bakery"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -2106,7 +2195,7 @@ class BFMClient(BizHawkClient):
                                         self.restaurant_dialog = self.restaurant_dialog + [s]
                                         s = ctx.player_names[ctx.locations_info[loc_id].player]
                                         self.restaurant_dialog = self.restaurant_dialog + [s]
-                                    else:
+                                    elif(self.request_hints < 2):
                                         if(not standard_location_name_to_id["Item 1 - Restaurant"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                             for i in range(7):
                                                 self.table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Restaurant"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -2246,7 +2335,7 @@ class BFMClient(BizHawkClient):
                                     self.grocery_dialog = self.grocery_dialog + [s]
                                     s = ctx.player_names[ctx.locations_info[loc_id].player]
                                     self.grocery_dialog = self.grocery_dialog + [s]
-                                else:
+                                elif(self.request_hints < 2):
                                     if(not standard_location_name_to_id["Item 1 - Grocery"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                         for i in range(12):
                                             self.table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Grocery"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -2330,7 +2419,7 @@ class BFMClient(BizHawkClient):
                                     loc_id = standard_location_name_to_id["Musashi - Toy Shop"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset)
                                     if(loc_id in ctx.locations_info):
                                         self.toy_dialog[i] = await self.assemble_binary_array_for_toyshop(ctx,loc_id,toy_shop_dialog_length[self.jp_version][i])
-                                    else:
+                                    elif(self.request_hints < 2):
                                         if(not standard_location_name_to_id["Musashi - Toy Shop"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                             for i in range(30):
                                                 self.table_ids_to_hint.append(standard_location_name_to_id["Musashi - Toy Shop"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -2389,7 +2478,7 @@ class BFMClient(BizHawkClient):
                                     loc_id = standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset)
                                     if(loc_id in ctx.locations_info):
                                         self.tech_dialog[i] = await self.assemble_binary_array_for_textbox(ctx,loc_id)
-                                    else:
+                                    elif(self.request_hints < 2):
                                         if(not standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                             for i in range(7):
                                                 self.table_ids_to_hint.append(standard_location_name_to_id["Improved Fusion (Artisan) - Allucaneet Castle"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -2479,7 +2568,7 @@ class BFMClient(BizHawkClient):
                                         ctx.bizhawk_ctx,
                                         [(dialog_id[self.jp_version][0]+4, barray, MAIN_RAM)]
                                     )
-                                else:
+                                elif(self.request_hints < 2):
                                     if(not standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                         for i in range(4):
                                             self.table_ids_to_hint.append(standard_location_name_to_id["Defeat Earth Crest Guardian - Skullpion Arena"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -3086,7 +3175,7 @@ class BFMClient(BizHawkClient):
                                             barray.append(0x00)
                                         
                                         write_instructions.append((dialog_id[self.jp_version]+4, barray, MAIN_RAM))
-                                else:
+                                elif(self.request_hints < 2):
                                     if(not standard_location_name_to_id["Well H20 - Grillin Village"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                                         for i in range(29):
                                             self.table_ids_to_hint.append(standard_location_name_to_id["Well H20 - Grillin Village"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -3563,10 +3652,12 @@ class BFMClient(BizHawkClient):
                                     0x078ec0 + (self.jp_version * -0xea0), 1, MAIN_RAM
                                 )]))[0]
                                 lumina_state = int.from_bytes(save_data, byteorder='little')
-                                lumina_state = lumina_state & 0b11111110
+                                #lumina_state = lumina_state & 0b11111110
+                                #if(lumina_state == 1):
                                 await bizhawk.write(
                                     ctx.bizhawk_ctx,
-                                    [(0x078ec0 + (self.jp_version * -0xea0), [lumina_state], MAIN_RAM)]
+                                    #[(0x078ec0 + (self.jp_version * -0xea0), [lumina_state], MAIN_RAM)]
+                                    [(0x078ec0 + (self.jp_version * -0xea0), [0], MAIN_RAM)]
                                 )
                                 self.check_if_lumina_needs_removed = 0
                             else:
@@ -4112,41 +4203,48 @@ class BFMClient(BizHawkClient):
     def on_package(self, ctx: "BizHawkClientContext", cmd: str, args: dict) -> None:
         """For handling packages from the server. Called from `BizHawkClientContext.on_package`."""
         #taken from ape escape https://github.com/Thedragon005/Archipelago-Ape-Escape/blob/12dace2cdecf019ae7cfcb49dfd64ecb56a6c409/worlds/apeescape/Client.py#L504
+        
+        from CommonClient import logger
         if cmd == "Bounced":
-            if "tags" in args:
-                assert ctx.slot is not None
-                source_name = args["data"]["source"]
-                if "TrapLink" in args["tags"] and args["data"]["source"] != ctx.slot_info[ctx.slot].name:
-                    trap_name: str = args["data"]["trap_name"]
-                    if(trap_name in trap_conversion):
-                        trap_name = trap_conversion[trap_name]
-                    
-                    from CommonClient import logger
-                    if(trap_name not in trap_weight):
-                        if(self.message_level > 2):
-                            logger.info("[TrapLink] received <%s> from <%s>, but it was not implemented", trap_name, source_name)
-                        return
-                    if(self.message_level > 0):
-                        logger.info("[TrapLink] received <%s> from <%s>", trap_name, source_name)
-                    write_instructions = self.add_trap(trap_name)
-                    if(len(write_instructions)>0):
-                        Utils.async_start(bizhawk.write(
-                            ctx.bizhawk_ctx,
-                            write_instructions
-                        ))
-                    message = f"TrapLink {trap_name} from {source_name}"
-                    self.messagequeue.append(message)
-                    if(trap_name == "Instant Death Trap"):
-                        Utils.async_start(bizhawk.guarded_write(
-                            ctx.bizhawk_ctx,
-                            [(0x126b58 + (self.jp_version * 0xa70), [0x1a], MAIN_RAM),
-                            (PLAYER_CURR_HP_MEMORY + (self.jp_version * -0xea0), [0, 0], MAIN_RAM)],
-                            [(0x0b99de + (self.jp_version * -0xea0), [0xb], MAIN_RAM)]
-                        ))
-                        if(self.has_died == 0 and ((ctx.slot_data["deathlink"] and self.deathlink == -1) or self.deathlink == 1)):
-                            Utils.async_start(ctx.send_death(f"{ctx.username} was slain by a trap from the multiworld!"))
-                        self.death_link_timer = 240
-                        #self.has_died = 1
+            #logger.info("Packet cmd : %s", cmd)
+            #logger.info("Packet args: %s", args)
+            if "tags" in args and ctx.slot is not None and len(args) > 0 and "data" in args and ctx.slot_info is not None:
+                #assert ctx.slot is not None
+                if(args["data"] is not None):
+                    source_name = "empty"
+                    if("source" in args["data"]):
+                        source_name = args["data"]["source"]
+                    if "TrapLink" in args["tags"] and source_name != ctx.slot_info[ctx.slot].name and "trap_name" in args["data"]:
+                        trap_name: str = args["data"]["trap_name"]
+                        if(trap_name in trap_conversion):
+                            trap_name = trap_conversion[trap_name]
+                        
+                        #from CommonClient import logger
+                        if(trap_name not in trap_weight):
+                            if(self.message_level > 2):
+                                logger.info("[TrapLink] received <%s> from <%s>, but it was not implemented", trap_name, source_name)
+                            return
+                        if(self.message_level > 0):
+                            logger.info("[TrapLink] received <%s> from <%s>", trap_name, source_name)
+                        write_instructions = self.add_trap(trap_name)
+                        if(len(write_instructions)>0):
+                            Utils.async_start(bizhawk.write(
+                                ctx.bizhawk_ctx,
+                                write_instructions
+                            ))
+                        message = f"TrapLink {trap_name} from {source_name}"
+                        self.messagequeue.append(message)
+                        if(trap_name == "Instant Death Trap"):
+                            Utils.async_start(bizhawk.guarded_write(
+                                ctx.bizhawk_ctx,
+                                [(0x126b58 + (self.jp_version * 0xa70), [0x1a], MAIN_RAM),
+                                (PLAYER_CURR_HP_MEMORY + (self.jp_version * -0xea0), [0, 0], MAIN_RAM)],
+                                [(0x0b99de + (self.jp_version * -0xea0), [0xb], MAIN_RAM)]
+                            ))
+                            if(self.has_died == 0 and ((ctx.slot_data["deathlink"] and self.deathlink == -1) or self.deathlink == 1)):
+                                Utils.async_start(ctx.send_death(f"{ctx.username} was slain by a trap from the multiworld!"))
+                            self.death_link_timer = 240
+                            #self.has_died = 1
 
 
         if cmd in {"PrintJSON"} and "type" in args and ctx.slot_data is not None:
@@ -4182,7 +4280,7 @@ class BFMClient(BizHawkClient):
 
                         self.messagequeue.append(message)
                         if(itemName == "Instant Death Trap" and recieverID == ctx.slot):
-                            from CommonClient import logger
+                            #from CommonClient import logger
                             logger.info("Instant Death Trap received")
                             Utils.async_start(bizhawk.guarded_write(
                                 ctx.bizhawk_ctx,
@@ -4505,7 +4603,7 @@ class BFMClient(BizHawkClient):
                 self.restaurant_dialog = self.restaurant_dialog + [s]
                 s = ctx.player_names[ctx.locations_info[loc_id].player]
                 self.restaurant_dialog = self.restaurant_dialog + [s]
-            else:
+            elif(self.request_hints < 2):
                 if(not standard_location_name_to_id["Item 1 - Restaurant"] + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) in self.table_ids_to_hint):
                     for i in range(7):
                         self.table_ids_to_hint.append(standard_location_name_to_id["Item 1 - Restaurant"] + i + ((ctx.slot_data["set_lang"] - 1) * jp_id_offset))
@@ -4715,6 +4813,38 @@ class BFMClient(BizHawkClient):
                 (0x14ae6c + (self.jp_version * 0x2d0), time_modifier.to_bytes(2, 'little'), MAIN_RAM)] #update time increment
             )
 
+    async def write_all_geometry(self, ctx: "BizHawkClientContext"):
+        folder_path = settings.get_settings().brave_fencer_musashi_settings.export_folder
+        from CommonClient import logger
+        for loc in bfm_geometry:
+            if(not loc in bfm_portals or loc in [0x3005]):
+                continue
+            name = bfm_portals[loc].region.replace(" ","")
+            obj_path = os.path.join(folder_path, name + 'Level.obj')
+            if(not os.path.isfile(obj_path)):
+                logger.info("path : %s", obj_path)
+                self.target_location = loc
+                if(self.target_location != self.old_location):
+                    await bizhawk.write(
+                        ctx.bizhawk_ctx,
+                        [(0x0b99de + (self.jp_version * -0xea0), [0x7], MAIN_RAM)]
+                    )
+                    timeout = 30
+                    while((self.old_location != self.target_location or self.level_transition != 0) and timeout > 0):
+                        logger.info("waiting %s", timeout)
+                        timeout = timeout - 1
+                        await asyncio.sleep(1)
+                    await asyncio.sleep(1)
+                if(self.old_location != self.target_location):
+                    logger.info("timeout try command again")
+                    return None
+                logger.info("exporting ")
+                await self.write_geometry(ctx)
+                logger.info("done exporting ")
+        logger.info("Exported every zone")
+            
+
+
     async def write_geometry(self, ctx: "BizHawkClientContext"):#, received_list: List[int]):
         from CommonClient import logger
         import traceback
@@ -4727,7 +4857,7 @@ class BFMClient(BizHawkClient):
             if(self.old_location == 0x302a):
                 row_num = 4096
                 col_num = 2816
-            if(self.old_location == 0x3008):
+            if(self.old_location in [0x3008, 0x3025, 0x3026, 0x3029]):
                 row_num = 768
                 col_num = 1408
             if(self.old_location == 0x300b):
@@ -4824,341 +4954,403 @@ class BFMClient(BizHawkClient):
                 0x3034: 0x19a5a0, #restaurant basement entrance
                 0x3031: 0x18ef08, #restaurant basement toward teleport maze
             }
-            number_of_tri_list = [round((geo.texture_pointer_end-geo.texture_pointer_start)/0xc)+1 for geo in bfm_geometry[self.old_location]]
-            #number_of_tri = round((last_address_dict[self.old_location]-starting_address)/0xc)+1
-            logger.info("num of tri/quad : %s", number_of_tri_list)
-            
-            save_data_list = []
-            #for i in range(math.ceil(number_of_tri/250.0)):
-            #    addresses_to_read = [(starting_address + 4 + (j * 0xc), 8, MAIN_RAM) for j in range(i*250,min(number_of_tri,(i+1)*250))]
-            #    logger.info("reading vertex pointers")
+            if(self.old_location == 0x3073):
+                number_of_tri_list = [round((geo.texture_pointer_end-geo.texture_pointer_start)/0x24)+1 for geo in bfm_geometry[self.old_location]]
+                logger.info("num of tri/quad : %s", number_of_tri_list)
+                save_data_list = []
+                for i, geo in enumerate(bfm_geometry[self.old_location]):     
+                    for j in range(math.ceil(number_of_tri_list[i]/250.0)):
+                        addresses_to_read = [(geo.texture_pointer_start + 0x14 + (k * 0x24), 16, MAIN_RAM) for k in range(j*250,min(number_of_tri_list[i],(j+1)*250))]
+                        logger.info("reading vertex pointers")
 
-            #    save_data = (await bizhawk.read(
-            #        ctx.bizhawk_ctx,
-            #        addresses_to_read
-            #    ))
-            #    save_data_list.append(save_data)      
-            for i, geo in enumerate(bfm_geometry[self.old_location]):     
-                for j in range(math.ceil(number_of_tri_list[i]/250.0)):
-                    addresses_to_read = [(geo.texture_pointer_start + 4 + (k * 0xc), 8, MAIN_RAM) for k in range(j*250,min(number_of_tri_list[i],(j+1)*250))]
-                    logger.info("reading vertex pointers")
+                        save_data = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            addresses_to_read
+                        ))
+                        save_data_list.append((i,save_data))
+                logger.info("done reading vertex pointers")
+                save_data_list_2 = []
+                is_quad: List[bool]= []
+                logger.info("looking up vertex")
+                for i, save_data in save_data_list:
+                    #logger.info("looking up vertex")
+                    vertex_addresses_to_read = []
+                    for data in save_data:
+                        #vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (int.from_bytes([data[0], data[1]], byteorder='little') * 8), 6, MAIN_RAM))
+                        #vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (int.from_bytes([data[4], data[5]], byteorder='little') * 8), 6, MAIN_RAM))
+                        #vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (int.from_bytes([data[8], data[9]], byteorder='little') * 8), 6, MAIN_RAM))
+                        vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (int.from_bytes([data[2], data[3]], byteorder='little') * 8), 6, MAIN_RAM))
+                        vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (int.from_bytes([data[6], data[7]], byteorder='little') * 8), 6, MAIN_RAM))
+                        vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (int.from_bytes([data[10], data[11]], byteorder='little') * 8), 6, MAIN_RAM))
+                        fourth_id = int.from_bytes([data[14], data[15]], byteorder='little')
+                        #if(fourth_id in [2,3] or (fourth_id - fourth_id % 8) != 0):
+                        if(True):
+                            #vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (fourth_id * 8), 6, MAIN_RAM))
+                            vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].texture + (fourth_id * 8), 6, MAIN_RAM))
+                            is_quad.append(True)
+                        else:
+                            is_quad.append(False)
 
-                    save_data = (await bizhawk.read(
+                    #logger.info("reading")
+                    save_data_2 = (await bizhawk.read(
                         ctx.bizhawk_ctx,
-                        addresses_to_read
+                        vertex_addresses_to_read
                     ))
-                    save_data_list.append((i,save_data))
+                    save_data_list_2.append(save_data_2)
+                #logger.info("vertex indexes : %s", save_data_list)
+                #logger.info("vertex values : %s", save_data_list_2)
+                has_textures:List[bool] = [False] * sum(number_of_tri_list)
 
-            logger.info("done reading vertex pointers")
-            vertex_pointer_dict = {
-                0x3025: 0x196310,
-                0x3026: 0x1a2e8c,
-                0x3029: 0x19cda0,
-                0x3073: 0x1f33e0, #minecart
-                0x1094: 0x1a8cd0, #chp5 town
-                0x1095: 0x197da4, #chp5 upper town
-                0x302b: 0x18aba8, #path to skullpion
-                0x3024: 0x19738c, #skullpion
-                0x3043: 0x1885f4, #mine entrance
-                0x302c: 0x185fc8, #waterfall cave
-                0x3028: 0x191ff4, #rope bridge
-                0x3027: 0x183eb8, #twinpeak cave 1
-                0x304e: 0x19abc8, #well
-                0x304d: 0x18cd20, #well tunnel
-                #0x3023: 0x1969a4, #wind scroll
-                0x3023: 0x19cba8, #wind scroll
-                0x3034: 0x18e97c, #restaurant basement entrance
-                0x3031: 0x18e3a4, #restaurant basement toward teleport maze
-            }
-            save_data_list_2 = []
-            #start_of_vertex_address = vertex_pointer_dict[self.old_location]#0x196310
-            is_quad: List[bool]= []
-            #is_skip: List[bool]= []
-            
-            #for save_data in save_data_list:
-                #logger.info("looking up vertex")
-                ##logger.info("save_data: %s", save_data)
-                #vertex_addresses_to_read = []
-                #for data in save_data:
-                #    #logger.info("data : %s", data)
-                #    #if((int.from_bytes([data[0], data[1]], byteorder='little') != 0) and (int.from_bytes([data[2], data[3]], byteorder='little') != 0) and (int.from_bytes([data[4], data[5]], byteorder='little') != 0) and (int.from_bytes([data[6], data[7]], byteorder='little') != 0)):
-                #    vertex_addresses_to_read.append((start_of_vertex_address + int.from_bytes([data[0], data[1]], byteorder='little'), 6, MAIN_RAM))
-                #    vertex_addresses_to_read.append((start_of_vertex_address + int.from_bytes([data[2], data[3]], byteorder='little'), 6, MAIN_RAM))
-                #    vertex_addresses_to_read.append((start_of_vertex_address + int.from_bytes([data[4], data[5]], byteorder='little'), 6, MAIN_RAM))
-                #    fourth_id = int.from_bytes([data[6], data[7]], byteorder='little')
-                #    if(fourth_id != 6 and (fourth_id - fourth_id % 8) != 0):
-                #        vertex_addresses_to_read.append((start_of_vertex_address + (fourth_id - fourth_id % 8), 6, MAIN_RAM))
-                #        is_quad.append(True)
-                #    else:
-                #        is_quad.append(False)
-                #    #is_skip.append(False)
-                ##else:
-                ##    is_quad.append(False)
-                ##    is_skip.append(True)
-
-                #logger.info("reading")
-                #save_data_2 = (await bizhawk.read(
-                #    ctx.bizhawk_ctx,
-                #    vertex_addresses_to_read
-                #))
-                #save_data_list_2.append(save_data_2)
+            else:
+                number_of_tri_list = [round((geo.texture_pointer_end-geo.texture_pointer_start)/0xc)+1 for geo in bfm_geometry[self.old_location]]
+                #number_of_tri = round((last_address_dict[self.old_location]-starting_address)/0xc)+1
+                logger.info("num of tri/quad : %s", number_of_tri_list)
                 
-            logger.info("looking up vertex")
-            for i, save_data in save_data_list:
-                #logger.info("looking up vertex")
-                vertex_addresses_to_read = []
-                for data in save_data:
-                    vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + int.from_bytes([data[0], data[1]], byteorder='little'), 6, MAIN_RAM))
-                    vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + int.from_bytes([data[2], data[3]], byteorder='little'), 6, MAIN_RAM))
-                    vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + int.from_bytes([data[4], data[5]], byteorder='little'), 6, MAIN_RAM))
-                    fourth_id = int.from_bytes([data[6], data[7]], byteorder='little')
-                    if(fourth_id in [2,3] or (fourth_id - fourth_id % 8) != 0):
-                        if(not self.old_location in [0x3008, 0x3009, 0x300b, 0x300d, 0x300e, 0x301b, 0x301f, 0x3022, 0x302a, 0x3024]):
-                            vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + (fourth_id - fourth_id % 8), 6, MAIN_RAM))
-                        else:
-                            vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + ((fourth_id - fourth_id % 8) >> 1), 6, MAIN_RAM))
+                save_data_list = []
+                #for i in range(math.ceil(number_of_tri/250.0)):
+                #    addresses_to_read = [(starting_address + 4 + (j * 0xc), 8, MAIN_RAM) for j in range(i*250,min(number_of_tri,(i+1)*250))]
+                #    logger.info("reading vertex pointers")
 
-                        is_quad.append(True)
-                    else:
-                        is_quad.append(False)
+                #    save_data = (await bizhawk.read(
+                #        ctx.bizhawk_ctx,
+                #        addresses_to_read
+                #    ))
+                #    save_data_list.append(save_data)      
+                for i, geo in enumerate(bfm_geometry[self.old_location]):     
+                    for j in range(math.ceil(number_of_tri_list[i]/250.0)):
+                        addresses_to_read = [(geo.texture_pointer_start + 4 + (k * 0xc), 8, MAIN_RAM) for k in range(j*250,min(number_of_tri_list[i],(j+1)*250))]
+                        logger.info("reading vertex pointers")
 
-                #logger.info("reading")
-                save_data_2 = (await bizhawk.read(
-                    ctx.bizhawk_ctx,
-                    vertex_addresses_to_read
-                ))
-                save_data_list_2.append(save_data_2)
+                        save_data = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            addresses_to_read
+                        ))
+                        save_data_list.append((i,save_data))
 
+                logger.info("done reading vertex pointers")
+                vertex_pointer_dict = {
+                    0x3025: 0x196310,
+                    0x3026: 0x1a2e8c,
+                    0x3029: 0x19cda0,
+                    0x3073: 0x1f33e0, #minecart
+                    0x1094: 0x1a8cd0, #chp5 town
+                    0x1095: 0x197da4, #chp5 upper town
+                    0x302b: 0x18aba8, #path to skullpion
+                    0x3024: 0x19738c, #skullpion
+                    0x3043: 0x1885f4, #mine entrance
+                    0x302c: 0x185fc8, #waterfall cave
+                    0x3028: 0x191ff4, #rope bridge
+                    0x3027: 0x183eb8, #twinpeak cave 1
+                    0x304e: 0x19abc8, #well
+                    0x304d: 0x18cd20, #well tunnel
+                    #0x3023: 0x1969a4, #wind scroll
+                    0x3023: 0x19cba8, #wind scroll
+                    0x3034: 0x18e97c, #restaurant basement entrance
+                    0x3031: 0x18e3a4, #restaurant basement toward teleport maze
+                }
+                save_data_list_2 = []
+                #start_of_vertex_address = vertex_pointer_dict[self.old_location]#0x196310
+                is_quad: List[bool]= []
+                #is_skip: List[bool]= []
+                
+                #for save_data in save_data_list:
+                    #logger.info("looking up vertex")
+                    ##logger.info("save_data: %s", save_data)
+                    #vertex_addresses_to_read = []
+                    #for data in save_data:
+                    #    #logger.info("data : %s", data)
+                    #    #if((int.from_bytes([data[0], data[1]], byteorder='little') != 0) and (int.from_bytes([data[2], data[3]], byteorder='little') != 0) and (int.from_bytes([data[4], data[5]], byteorder='little') != 0) and (int.from_bytes([data[6], data[7]], byteorder='little') != 0)):
+                    #    vertex_addresses_to_read.append((start_of_vertex_address + int.from_bytes([data[0], data[1]], byteorder='little'), 6, MAIN_RAM))
+                    #    vertex_addresses_to_read.append((start_of_vertex_address + int.from_bytes([data[2], data[3]], byteorder='little'), 6, MAIN_RAM))
+                    #    vertex_addresses_to_read.append((start_of_vertex_address + int.from_bytes([data[4], data[5]], byteorder='little'), 6, MAIN_RAM))
+                    #    fourth_id = int.from_bytes([data[6], data[7]], byteorder='little')
+                    #    if(fourth_id != 6 and (fourth_id - fourth_id % 8) != 0):
+                    #        vertex_addresses_to_read.append((start_of_vertex_address + (fourth_id - fourth_id % 8), 6, MAIN_RAM))
+                    #        is_quad.append(True)
+                    #    else:
+                    #        is_quad.append(False)
+                    #    #is_skip.append(False)
+                    ##else:
+                    ##    is_quad.append(False)
+                    ##    is_skip.append(True)
 
-            texture_pointer_list = []
-            #for i in range(math.ceil(number_of_tri/250.0)):
-            #    addresses_to_read = [(starting_address + (j * 0xc), 3, MAIN_RAM) for j in range(i*250,min(number_of_tri,(i+1)*250))]
-            #    logger.info("reading texture pointers")
-
-            #    save_data = (await bizhawk.read(
-            #        ctx.bizhawk_ctx,
-            #        addresses_to_read
-            #    ))
-            #    texture_pointer_list.append(save_data)
-            logger.info("reading texture pointers")
-
-            for i, geo in enumerate(bfm_geometry[self.old_location]):     
-                for j in range(math.ceil(number_of_tri_list[i]/250.0)):
-                    addresses_to_read = [(geo.texture_pointer_start + (k * 0xc), 4, MAIN_RAM) for k in range(j*250,min(number_of_tri_list[i],(j+1)*250))]
-                    #logger.info("reading texture pointers")
-
-                    save_data = (await bizhawk.read(
-                        ctx.bizhawk_ctx,
-                        addresses_to_read
-                    ))
+                    #logger.info("reading")
+                    #save_data_2 = (await bizhawk.read(
+                    #    ctx.bizhawk_ctx,
+                    #    vertex_addresses_to_read
+                    #))
+                    #save_data_list_2.append(save_data_2)
                     
-                    for k, texture_pointer in enumerate(save_data):
-                        if(texture_pointer[3] < 0x80):
-                            save_data[k] = (geo.texture + int.from_bytes(texture_pointer[:3], byteorder='little')).to_bytes(4,'little')
-                    texture_pointer_list.append(save_data)
-            logger.info("texture pointer list len : %s", len(texture_pointer_list))
-            texture_info_lists = []
-            #logger.info("reading texture info")
-            #for i in range(math.ceil(number_of_tri/250.0)):
-            #    addresses_to_read = []
-            #    for j in range(0,min(number_of_tri,(i+1)*250)-(i)*250):
-            #        #if j==0:
-            #        #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
-            #        #if j==1:
-            #        #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
-            #        addresses_to_read.append((int.from_bytes(texture_pointer_list[i][j][:3], byteorder='little'), 16, MAIN_RAM)) 
-            #    logger.info("reading texture info")
+                logger.info("looking up vertex")
+                for i, save_data in save_data_list:
+                    #logger.info("looking up vertex")
+                    vertex_addresses_to_read = []
+                    for data in save_data:
+                        vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + int.from_bytes([data[0], data[1]], byteorder='little'), 6, MAIN_RAM))
+                        vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + int.from_bytes([data[2], data[3]], byteorder='little'), 6, MAIN_RAM))
+                        vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + int.from_bytes([data[4], data[5]], byteorder='little'), 6, MAIN_RAM))
+                        fourth_id = int.from_bytes([data[6], data[7]], byteorder='little')
+                        if(fourth_id in [2,3] or (fourth_id - fourth_id % 8) != 0):
+                            if(not self.old_location in [0x3008, 0x3009, 0x300b, 0x300d, 0x300e, 0x301b, 0x301f, 0x3022, 0x302a, 0x3024]):
+                                vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + (fourth_id - fourth_id % 8), 6, MAIN_RAM))
+                            else:
+                                vertex_addresses_to_read.append((bfm_geometry[self.old_location][i].vertex + ((fourth_id - fourth_id % 8) >> 1), 6, MAIN_RAM))
 
-            #    save_data = (await bizhawk.read(
-            #        ctx.bizhawk_ctx,
-            #        addresses_to_read
-            #    ))
-            #    texture_info_lists.append(save_data)
-            for i in texture_pointer_list:
-                logger.info("texture pointer list len : %s", len(i))
-            counter = 0
-            logger.info("reading texture info")
-            for i, geo in enumerate(bfm_geometry[self.old_location]):  
-                for j in range(math.ceil(number_of_tri_list[i]/250.0)):
-                    addresses_to_read = []
-                    for k in range(min(number_of_tri_list[i]-(j)*250,250)):
-                        #if j==0:
-                        #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
-                        #if j==1:
-                        #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
-                        addresses_to_read.append((int.from_bytes(texture_pointer_list[counter][k], byteorder='little') & 0xffffff, 16, MAIN_RAM)) 
-                    #logger.info("reading texture info")
-                    counter = counter + 1
-
-                    save_data = (await bizhawk.read(
-                        ctx.bizhawk_ctx,
-                        addresses_to_read
-                    ))
-                    texture_info_lists.append(save_data)
-
-            has_textures:List[bool] = []
-            uv_table = [[[0,0,0,0] for _ in range(2)] for _ in range(sum(number_of_tri_list))]
-            counter = 0
-            curr_4_bit_x_lower = 0
-            curr_4_bit_x_higher = 0
-            curr_4_bit_y_lower = row_num - 1
-            #curr_4_bit_y_higher = 0
-            logger.info("looking up textures")
-            four_bit_texture_lookup: Dict[tuple[int],tuple[int]] = {}
-            for i, texture_info_list in enumerate(texture_info_lists):
-                for j, texture_info in enumerate(texture_info_list):
-                    #logger.info("looking up texture")
-                    card_x = texture_info[10] & 0xf
-                    card_y = (texture_info[10] >> 4)%2
-                    memory_domain = texture_info[10] >> 4
-                    #cards are 128 bytes wide and 256 bytes tall
-                    #jump over first 5 cards as that is where the frames are rendered
-                    if(memory_domain in [0, 1, 2, 3, 6, 7, 8, 9, 0xa, 0xb] and card_x>4):
-                        has_textures.append(True)
-                        u0=(texture_info[4] >> (1 * (memory_domain in [0, 1, 2, 3, 6, 7])))+((card_x-5) * 128)
-                        v0=texture_info[5]+(card_y * 256)
-                        u1=(texture_info[8] >> (1 * (memory_domain in [0, 1, 2, 3, 6, 7])))+((card_x-5) * 128)
-                        v1=texture_info[9]+(card_y * 256)
-                        u2=(texture_info[12] >> (1 * (memory_domain in [0, 1, 2, 3, 6, 7])))+((card_x-5) * 128)
-                        v2=texture_info[13]+(card_y * 256)
-                        #uv_table[250*i+j][0][0] = u0
-                        try:
-                            uv_table[counter][0][0] = u0
-                            uv_table[counter][1][0] = v0
-                            uv_table[counter][0][1] = u1
-                            uv_table[counter][1][1] = v1
-                            uv_table[counter][0][2] = u2
-                            uv_table[counter][1][2] = v2
-                        except Exception:
-                            logger.info(traceback.format_exc())
-                            logger.info("counter : %s", counter)
-                            logger.info("len table : %s", len(uv_table))
-                            logger.info("number of tris : %s", sum(number_of_tri_list))
-                        lowu = 0
-                        highu = 0
-                        lowv = 0
-                        highv = 0
-                        if(is_quad[counter]):
-                            u3=(texture_info[14] >> (1 * (memory_domain in [0, 1, 2, 3, 6, 7])))+((card_x-5) * 128)
-                            v3=texture_info[15]+(card_y * 256)
-                            uv_table[counter][0][3] = u3
-                            uv_table[counter][1][3] = v3
-                            lowu = min(u0,u1,u2,u3)
-                            highu = max(u0,u1,u2,u3)
-                            lowv = min(v0,v1,v2,v3)
-                            highv = max(v0,v1,v2,v3)
+                            is_quad.append(True)
                         else:
-                            lowu = min(u0,u1,u2)
-                            highu = max(u0,u1,u2)
-                            lowv = min(v0,v1,v2)
-                            highv = max(v0,v1,v2)
-                        if(memory_domain in [0, 1, 2, 3, 6, 7]):
-                            if(not (lowu,highu,lowv,highv) in four_bit_texture_lookup):
-                                if(self.old_location in [0x300d, 0x301d, 0x302a]):
-                                    if(0 >= (curr_4_bit_y_lower - (highv-lowv))):
-                                        curr_4_bit_y_lower = row_num - 1
-                                        curr_4_bit_x_lower = min(curr_4_bit_x_higher, (col_num - 256))
-                                else:
-                                    if(256 > (curr_4_bit_y_lower - (highv-lowv))):
-                                        curr_4_bit_y_lower = row_num - 1
-                                        if(self.old_location in [0x3008, 0x300b]):
-                                            curr_4_bit_x_lower = min(curr_4_bit_x_higher, (col_num - 256))
-                                        else:
-                                            curr_4_bit_x_lower = min(curr_4_bit_x_higher, 900)
-                                curr_4_bit_y_lower = curr_4_bit_y_lower - (highv - lowv)
-                                if(curr_4_bit_x_higher < (curr_4_bit_x_lower + (highu - lowu)*2)):
-                                    curr_4_bit_x_higher = curr_4_bit_x_lower + (highu - lowu)*2
-                        for k in range(3 + (is_quad[counter] * 1)):
-                            u_change = 0
-                            v_change = 0
-                            if(uv_table[counter][0][k]==lowu):
-                                u_change = 1
-                            if(uv_table[counter][0][k]==highu):
-                                u_change = -1
-                            if(uv_table[counter][1][k]==lowv):
-                                v_change = 1
-                            if(uv_table[counter][1][k]==highv):
-                                v_change = -1
-                            if(memory_domain in [0, 1, 2, 3, 6, 7]):
+                            is_quad.append(False)
+
+                    #logger.info("reading")
+                    save_data_2 = (await bizhawk.read(
+                        ctx.bizhawk_ctx,
+                        vertex_addresses_to_read
+                    ))
+                    save_data_list_2.append(save_data_2)
+
+
+                texture_pointer_list = []
+                #for i in range(math.ceil(number_of_tri/250.0)):
+                #    addresses_to_read = [(starting_address + (j * 0xc), 3, MAIN_RAM) for j in range(i*250,min(number_of_tri,(i+1)*250))]
+                #    logger.info("reading texture pointers")
+
+                #    save_data = (await bizhawk.read(
+                #        ctx.bizhawk_ctx,
+                #        addresses_to_read
+                #    ))
+                #    texture_pointer_list.append(save_data)
+                logger.info("reading texture pointers")
+
+                for i, geo in enumerate(bfm_geometry[self.old_location]):     
+                    for j in range(math.ceil(number_of_tri_list[i]/250.0)):
+                        addresses_to_read = [(geo.texture_pointer_start + (k * 0xc), 4, MAIN_RAM) for k in range(j*250,min(number_of_tri_list[i],(j+1)*250))]
+                        #logger.info("reading texture pointers")
+
+                        save_data = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            addresses_to_read
+                        ))
+                        
+                        for k, texture_pointer in enumerate(save_data):
+                            if(texture_pointer[3] < 0x80):
+                                save_data[k] = (geo.texture + int.from_bytes(texture_pointer[:3], byteorder='little')).to_bytes(4,'little')
+                        texture_pointer_list.append(save_data)
+                logger.info("texture pointer list len : %s", len(texture_pointer_list))
+                texture_info_lists = []
+                #logger.info("reading texture info")
+                #for i in range(math.ceil(number_of_tri/250.0)):
+                #    addresses_to_read = []
+                #    for j in range(0,min(number_of_tri,(i+1)*250)-(i)*250):
+                #        #if j==0:
+                #        #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
+                #        #if j==1:
+                #        #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
+                #        addresses_to_read.append((int.from_bytes(texture_pointer_list[i][j][:3], byteorder='little'), 16, MAIN_RAM)) 
+                #    logger.info("reading texture info")
+
+                #    save_data = (await bizhawk.read(
+                #        ctx.bizhawk_ctx,
+                #        addresses_to_read
+                #    ))
+                #    texture_info_lists.append(save_data)
+                for i in texture_pointer_list:
+                    logger.info("texture pointer list len : %s", len(i))
+                counter = 0
+                logger.info("reading texture info")
+                for i, geo in enumerate(bfm_geometry[self.old_location]):  
+                    for j in range(math.ceil(number_of_tri_list[i]/250.0)):
+                        addresses_to_read = []
+                        for k in range(min(number_of_tri_list[i]-(j)*250,250)):
+                            #if j==0:
+                            #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
+                            #if j==1:
+                            #    logger.info("texture pointer : %x",int.from_bytes(texture_pointer_list[i][j], byteorder='little'))
+                            addresses_to_read.append((int.from_bytes(texture_pointer_list[counter][k], byteorder='little') & 0xffffff, 16, MAIN_RAM)) 
+                        #logger.info("reading texture info")
+                        counter = counter + 1
+
+                        save_data = (await bizhawk.read(
+                            ctx.bizhawk_ctx,
+                            addresses_to_read
+                        ))
+                        texture_info_lists.append(save_data)
+
+                has_textures:List[bool] = []
+                uv_table = [[[0,0,0,0] for _ in range(2)] for _ in range(sum(number_of_tri_list))]
+                counter = 0
+                curr_4_bit_x_lower = 0
+                curr_4_bit_x_higher = 0
+                curr_4_bit_y_lower = row_num - 1
+                #curr_4_bit_y_higher = 0
+                logger.info("looking up textures")
+                four_bit_texture_lookup: Dict[tuple[int],tuple[int]] = {}
+                for i, texture_info_list in enumerate(texture_info_lists):
+                    for j, texture_info in enumerate(texture_info_list):
+                        #logger.info("looking up texture")
+                        card_x = texture_info[10] & 0xf
+                        card_y = (texture_info[10] >> 4)%2
+                        memory_domain = texture_info[10] >> 4
+                        #cards are 128 bytes wide and 256 bytes tall
+                        #jump over first 5 cards as that is where the frames are rendered
+                        if(memory_domain in [0, 1, 2, 3, 6, 7, 8, 9, 0xa, 0xb, 0xe, 0xf] and card_x>4):
+                            has_textures.append(True)
+                            is_four_bit = memory_domain in [0, 1, 2, 3, 6, 7]
+                            #is_eight_bit = memory_domain in [0xe, 0xf]
+                            u0=(texture_info[4] >> (1 * (is_four_bit)))+((card_x-5) * 128)
+                            v0=texture_info[5]+(card_y * 256)
+                            u1=(texture_info[8] >> (1 * (is_four_bit)))+((card_x-5) * 128)
+                            v1=texture_info[9]+(card_y * 256)
+                            u2=(texture_info[12] >> (1 * (is_four_bit)))+((card_x-5) * 128)
+                            v2=texture_info[13]+(card_y * 256)
+                            #uv_table[250*i+j][0][0] = u0
+                            try:
+                                uv_table[counter][0][0] = u0
+                                uv_table[counter][1][0] = v0
+                                uv_table[counter][0][1] = u1
+                                uv_table[counter][1][1] = v1
+                                uv_table[counter][0][2] = u2
+                                uv_table[counter][1][2] = v2
+                            except Exception:
+                                logger.info(traceback.format_exc())
+                                logger.info("counter : %s", counter)
+                                logger.info("len table : %s", len(uv_table))
+                                logger.info("number of tris : %s", sum(number_of_tri_list))
+                            lowu = 0
+                            highu = 0
+                            lowv = 0
+                            highv = 0
+                            if(is_quad[counter]):
+                                u3=(texture_info[14] >> (1 * (is_four_bit)))+((card_x-5) * 128)
+                                v3=texture_info[15]+(card_y * 256)
+                                uv_table[counter][0][3] = u3
+                                uv_table[counter][1][3] = v3
+                                lowu = min(u0,u1,u2,u3)
+                                highu = max(u0,u1,u2,u3)
+                                lowv = min(v0,v1,v2,v3)
+                                highv = max(v0,v1,v2,v3)
+                            else:
+                                lowu = min(u0,u1,u2)
+                                highu = max(u0,u1,u2)
+                                lowv = min(v0,v1,v2)
+                                highv = max(v0,v1,v2)
+                            if(is_four_bit):
                                 if(not (lowu,highu,lowv,highv) in four_bit_texture_lookup):
-                                    uv_table[counter][0][k] = uv_table[counter][0][k] * 2
-                                    uv_table[counter][0][k] = uv_table[counter][0][k] - (lowu * 2 - curr_4_bit_x_lower)
-                                    uv_table[counter][1][k] = uv_table[counter][1][k] - (lowv - curr_4_bit_y_lower)
-                                else:
-                                    uv_table[counter][0][k] = uv_table[counter][0][k] * 2
-                                    uv_table[counter][0][k] = uv_table[counter][0][k] - (lowu * 2 - four_bit_texture_lookup[(lowu,highu,lowv,highv)][0])
-                                    uv_table[counter][1][k] = uv_table[counter][1][k] - (lowv - four_bit_texture_lookup[(lowu,highu,lowv,highv)][1])
-                            uv_table[counter][0][k] = uv_table[counter][0][k] + u_change
-                            uv_table[counter][1][k] = uv_table[counter][1][k] + v_change
-                        clutx = (texture_info[6] * 32) % 2048
-                        cluty = texture_info[7] * 4 + math.floor(texture_info[6] / 64) - 256 #subtracting 256 due to clut only in bottom half
-                            
+                                    if(self.old_location in [0x300d, 0x301d, 0x302a]):
+                                        if(0 >= (curr_4_bit_y_lower - (highv-lowv))):
+                                            curr_4_bit_y_lower = row_num - 1
+                                            curr_4_bit_x_lower = min(curr_4_bit_x_higher, (col_num - 256))
+                                    else:
+                                        if(256 > (curr_4_bit_y_lower - (highv-lowv))):
+                                            curr_4_bit_y_lower = row_num - 1
+                                            if(self.old_location in [0x3008, 0x300b]):
+                                                curr_4_bit_x_lower = min(curr_4_bit_x_higher, (col_num - 256))
+                                            else:
+                                                curr_4_bit_x_lower = min(curr_4_bit_x_higher, 900)
+                                    curr_4_bit_y_lower = curr_4_bit_y_lower - (highv - lowv)
+                                    if(curr_4_bit_x_higher < (curr_4_bit_x_lower + (highu - lowu)*2)):
+                                        curr_4_bit_x_higher = curr_4_bit_x_lower + (highu - lowu)*2
+                            for k in range(3 + (is_quad[counter] * 1)):
+                                u_change = 0
+                                v_change = 0
+                                if(uv_table[counter][0][k]==lowu):
+                                    u_change = 1
+                                if(uv_table[counter][0][k]==highu):
+                                    u_change = -1
+                                if(uv_table[counter][1][k]==lowv):
+                                    v_change = 1
+                                if(uv_table[counter][1][k]==highv):
+                                    v_change = -1
+                                if(is_four_bit):
+                                    if(not (lowu,highu,lowv,highv) in four_bit_texture_lookup):
+                                        uv_table[counter][0][k] = uv_table[counter][0][k] * 2
+                                        uv_table[counter][0][k] = uv_table[counter][0][k] - (lowu * 2 - curr_4_bit_x_lower)
+                                        uv_table[counter][1][k] = uv_table[counter][1][k] - (lowv - curr_4_bit_y_lower)
+                                    else:
+                                        uv_table[counter][0][k] = uv_table[counter][0][k] * 2
+                                        uv_table[counter][0][k] = uv_table[counter][0][k] - (lowu * 2 - four_bit_texture_lookup[(lowu,highu,lowv,highv)][0])
+                                        uv_table[counter][1][k] = uv_table[counter][1][k] - (lowv - four_bit_texture_lookup[(lowu,highu,lowv,highv)][1])
+                                uv_table[counter][0][k] = uv_table[counter][0][k] + u_change
+                                uv_table[counter][1][k] = uv_table[counter][1][k] + v_change
+                            clutx = (texture_info[6] * 32) % 2048
+                            cluty = texture_info[7] * 4 + math.floor(texture_info[6] / 64) - 256 #subtracting 256 due to clut only in bottom half
+                                
 
-                        if(not memory_domain in [0, 1, 2, 3, 6, 7] or not (lowu,highu,lowv,highv) in four_bit_texture_lookup):
-                            if(memory_domain in [0, 1, 2, 3, 6, 7]):    
-                                four_bit_texture_lookup[(lowu,highu,lowv,highv)] = (curr_4_bit_x_lower, curr_4_bit_y_lower)
-                            for x in range(lowu, highu+1):
-                                for y in range(lowv, highv+1):
-                                    for q in range(1 + (memory_domain in [0, 1, 2, 3, 6, 7])):
-                                        try:
-                                            clut_index = texture_val_array[y][x] * 2
-                                        
-                                        except Exception:
-                                            logger.info(traceback.format_exc())
-                                            logger.info("X : %s", x)
-                                            logger.info("Y : %s", y)
-                                            logger.info("Lowu : %s", lowu)
-                                            logger.info("highu : %s", highu)
-                                            logger.info("Memory : %s", texture_info[10])
-                                            logger.info("CardX : %s", card_x)
-                                        if(memory_domain in [0, 1, 2, 3, 6, 7]):
-                                            clut_index = ((texture_val_array[y][x] >> (4*q)) & 0xF) * 2
-                                        
-                                        cx = (clutx + clut_index) % 2048
-                                        cy = cluty + math.floor((clutx + clut_index) / 2048)
-                                        color_rgb555 = int.from_bytes([CLUT_array[cy][cx],CLUT_array[cy][cx + 1]], byteorder='little')
-                                        if(self.old_location in [0x301d] and texture_info[7] >= 0x40): #why is steamwood so weird
-                                            cx = 1024 + clut_index  #X Card 13 (-5 to account for skipped cards)
-                                            cy = (texture_info[7] - 0x40) * 4 + math.floor(texture_info[6] / 64)
-                                            color_rgb555 = int.from_bytes([texture_val_array[cy][cx],texture_val_array[cy][cx + 1]], byteorder='little')
-
-                                        x_pos = x
-                                        y_pos = y
-                                        if(memory_domain in [0, 1, 2, 3, 6, 7]):
-                                            x_pos = (x - lowu) * 2 + q + curr_4_bit_x_lower
-                                            y_pos = y - (lowv - curr_4_bit_y_lower)
-                                        if(color_rgb555 == 0):
-                                            img_array[y_pos][x_pos][3] = 0
-                                        elif((color_rgb555 >> 15) == 1):
-                                            img_array[y_pos][x_pos][3] = 128
-                                        if(color_rgb555 & 0b11111)>0:
+                            if(not is_four_bit or not (lowu,highu,lowv,highv) in four_bit_texture_lookup):
+                                if(is_four_bit):    
+                                    four_bit_texture_lookup[(lowu,highu,lowv,highv)] = (curr_4_bit_x_lower, curr_4_bit_y_lower)
+                                for x in range(lowu, highu+1):
+                                    for y in range(lowv, highv+1):
+                                        for q in range(1 + (is_four_bit)):
                                             try:
-                                                img_array[y_pos][x_pos][0] = (color_rgb555 & 0b11111) << 3 #Red 8 bytes
+                                                clut_index = texture_val_array[y][x] * 2
+                                            
                                             except Exception:
                                                 logger.info(traceback.format_exc())
-                                                logger.info("X : %s", x_pos)
-                                                logger.info("Y : %s", y_pos)
-                                                logger.info("lowu : %s", lowu)
-                                                logger.info("old x : %s", x)
-                                                logger.info("lowerbound : %s", curr_4_bit_x_lower)
-                                        if((color_rgb555 >> 5) & 0b11111)>0:
-                                            img_array[y_pos][x_pos][1] = ((color_rgb555 >> 5) & 0b11111) << 3 #Green 8 bytes
-                                        if((color_rgb555 >> 10) & 0b11111)>0:
-                                            img_array[y_pos][x_pos][2] = ((color_rgb555 >> 10) & 0b11111) << 3 #Blue 8 bytes
-                                    #if(counter == 0):
-                                        #counter = 1
-                                    #    logger.info("lowu %s ,high u %s ,lowv %s, highv %s",lowu, highu, lowv, highv)
-                                    #    logger.info("cx %s , cy %s", cx, cy)
-                                    #    logger.info("color %s", color_rgb555)
-                                    #    logger.info("r %s , g %s , b %s", img_array[y][x][0], img_array[y][x][1], img_array[y][x][2])
-                    else:
-                        has_textures.append(False)
-                    counter = counter + 1
+                                                logger.info("X : %s", x)
+                                                logger.info("Y : %s", y)
+                                                logger.info("Lowu : %s", lowu)
+                                                logger.info("highu : %s", highu)
+                                                logger.info("Memory : %s", texture_info[10])
+                                                logger.info("CardX : %s", card_x)
+                                            if(is_four_bit):
+                                                clut_index = ((texture_val_array[y][x] >> (4*q)) & 0xF) * 2
+                                            
+                                            cx = min(((clutx + clut_index) % 2048),1023)
+                                            cy = min((cluty + math.floor((clutx + clut_index) / 2048)),255)
+                                            try:
+                                                color_rgb555 = int.from_bytes([CLUT_array[cy][cx],CLUT_array[cy][cx + 1]], byteorder='little')
+                                            except Exception:
+                                                logger.info(traceback.format_exc())
+                                                logger.info("clutx : %s", clutx)
+                                                logger.info("cluty : %s", cluty)
+                                                logger.info("CX : %s", cx)
+                                                logger.info("CY : %s", cy)
+                                            if(self.old_location in [0x301d] and texture_info[7] >= 0x40): #why is steamwood so weird
+                                                cx = 1024 + clut_index  #X Card 13 (-5 to account for skipped cards)
+                                                cy = (texture_info[7] - 0x40) * 4 + math.floor(texture_info[6] / 64)
+                                                color_rgb555 = int.from_bytes([texture_val_array[cy][cx],texture_val_array[cy][cx + 1]], byteorder='little')
+
+                                            x_pos = x
+                                            y_pos = y
+                                            if(is_four_bit):
+                                                x_pos = (x - lowu) * 2 + q + curr_4_bit_x_lower
+                                                y_pos = y - (lowv - curr_4_bit_y_lower)
+                                            if(color_rgb555 == 0):
+                                                img_array[y_pos][x_pos][3] = 0
+                                            elif((color_rgb555 >> 15) == 1):
+                                                img_array[y_pos][x_pos][3] = 128
+                                            else:
+                                                img_array[y_pos][x_pos][3] = 255
+                                            if(color_rgb555 & 0b11111)>0:
+                                                try:
+                                                    img_array[y_pos][x_pos][0] = (color_rgb555 & 0b11111) << 3 #Red 8 bytes
+                                                except Exception:
+                                                    logger.info(traceback.format_exc())
+                                                    logger.info("X : %s", x_pos)
+                                                    logger.info("Y : %s", y_pos)
+                                                    logger.info("lowu : %s", lowu)
+                                                    logger.info("old x : %s", x)
+                                                    logger.info("lowerbound : %s", curr_4_bit_x_lower)
+                                            if((color_rgb555 >> 5) & 0b11111)>0:
+                                                img_array[y_pos][x_pos][1] = ((color_rgb555 >> 5) & 0b11111) << 3 #Green 8 bytes
+                                            if((color_rgb555 >> 10) & 0b11111)>0:
+                                                img_array[y_pos][x_pos][2] = ((color_rgb555 >> 10) & 0b11111) << 3 #Blue 8 bytes
+                                        #if(counter == 0):
+                                            #counter = 1
+                                        #    logger.info("lowu %s ,high u %s ,lowv %s, highv %s",lowu, highu, lowv, highv)
+                                        #    logger.info("cx %s , cy %s", cx, cy)
+                                        #    logger.info("color %s", color_rgb555)
+                                        #    logger.info("r %s , g %s , b %s", img_array[y][x][0], img_array[y][x][1], img_array[y][x][2])
+                        else:
+                            has_textures.append(False)
+                        counter = counter + 1
 
 
 
+            folder_path = settings.get_settings().brave_fencer_musashi_settings.export_folder
             name = bfm_portals[self.old_location].region.replace(" ","")
-            file_path = Utils.local_path('geometry_data', name + 'Level.obj')
+            file_path = os.path.join(folder_path, name + 'Level.obj')
+            #name = bfm_portals[self.old_location].region.replace(" ","")
+            #file_path = Utils.local_path('geometry_data', name + 'Level.obj')
             with open(file_path, "w") as f:
                 for save_data in save_data_list_2:
                     for data in save_data:
@@ -5170,11 +5362,18 @@ class BFMClient(BizHawkClient):
                 f.write("\n")
                 counter = 0
                 for i in range(sum(number_of_tri_list)):
-                    f.write(f"vt {(uv_table[i][0][0]/col_num):.8f} {(1-(uv_table[i][1][0]/row_num)):.8f}\n")
-                    f.write(f"vt {(uv_table[i][0][1]/col_num):.8f} {(1-(uv_table[i][1][1]/row_num)):.8f}\n")
-                    f.write(f"vt {(uv_table[i][0][2]/col_num):.8f} {(1-(uv_table[i][1][2]/row_num)):.8f}\n")
-                    if(is_quad[i]):
-                        f.write(f"vt {(uv_table[i][0][3]/col_num):.8f} {(1-(uv_table[i][1][3]/row_num)):.8f}\n")
+                    if(has_textures[i]):
+                        f.write(f"vt {(uv_table[i][0][0]/col_num):.8f} {(1-(uv_table[i][1][0]/row_num)):.8f}\n")
+                        f.write(f"vt {(uv_table[i][0][1]/col_num):.8f} {(1-(uv_table[i][1][1]/row_num)):.8f}\n")
+                        f.write(f"vt {(uv_table[i][0][2]/col_num):.8f} {(1-(uv_table[i][1][2]/row_num)):.8f}\n")
+                        if(is_quad[i]):
+                            f.write(f"vt {(uv_table[i][0][3]/col_num):.8f} {(1-(uv_table[i][1][3]/row_num)):.8f}\n")
+                    else:
+                        f.write(f"vt 0 0\n")
+                        f.write(f"vt 0 0\n")
+                        f.write(f"vt 0 0\n")
+                        if(is_quad[i]):
+                            f.write(f"vt 0 0\n")
                 f.write("\n")
                 counter = 0
                 for i in range(sum(number_of_tri_list)):
@@ -5197,23 +5396,26 @@ class BFMClient(BizHawkClient):
                 #f.write("mtllib "+ name + "mtllib.mtl\n")
                 f.write("usemtl Level\n")
             #file_path = Utils.local_path('geometry_data', name + 'mtllib.mtl')
-            """
-            file_path = Utils.local_path('geometry_data', name + 'Level.mtl')
+            
+            #file_path = Utils.local_path('geometry_data', name + 'Level.mtl')
+            
+            file_path = os.path.join(folder_path, name + 'Level.mtl')
             with open(file_path, "w") as f:
                 f.write("newmtl Level\n")
                 f.write("Ka 1.000 1.000 1.000\n")
                 f.write("Kd 1.000 1.000 1.000\n")
                 f.write("Ks 0.000 0.000 0.000\n")
                 f.write("Ns 10.000\n")
-                f.write("map_Kd "+name+"texture.png\n")
-                f.write("map_Ks "+name+"texture.png\n")
+                f.write("map_Kd "+name+"Level.png\n")
+                f.write("map_Ks "+name+"Level.png\n")
                 
-            """
-            file_path = Utils.local_path('geometry_data', name + 'Level.png')
+            
+            file_path = os.path.join(folder_path, name + 'Level.png')
+            #file_path = Utils.local_path('geometry_data', name + 'Level.png')
             #file_path = Utils.local_path('geometry_data', name + 'texture.png')
             await self.saveAsPNG(img_array, file_path)
             
-            if(self.old_location in [0x301f]):
+            if(self.old_location in [0x301f] and False):
                 file_path = Utils.local_path('geometry_data', 'address.txt')
                 with open(file_path, "w") as f:
                     #pointer_to_next_vert = 0x801971fc
