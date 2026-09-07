@@ -4485,6 +4485,7 @@ class BFMClient(BizHawkClient):
         ))[0]
         curr_max_bp: int = int.from_bytes(curr_max_bp_bytes, byteorder='little')
         new_bp = ctx.slot_data["starting_bp"]
+        max_bp = new_bp
         large_bp = 0
         if(ctx.slot_data["bp_bundles"] < 13):
             small_bp = 350 / ctx.slot_data["bp_bundles"]
@@ -4506,9 +4507,12 @@ class BFMClient(BizHawkClient):
                 max_bp += small_bp
             if(ctx.items_received[i][0] == 0x406 + ((ctx.slot_data["set_lang"] == 2) * jp_id_offset)):
                 large_bp += 25
-        if(large_bp >= 150):
+        if(large_bp >= 150): #to account for the Musashi bincho giving 50 BP
             large_bp += 25
         max_bp += large_bp
+        if(ctx.slot_data["bp_sanity"] == False):
+            new_bp = new_bp + min(sum(self.bincho_checks), 35) * 5 + max(0, self.num_bosses_killed) * 25
+            max_bp = max_bp + min(sum(self.bincho_checks), 35) * 5 + max(0, self.num_bosses_killed) * 25
         max_bp = min(round(max_bp), 500)
         new_bp = min(round(new_bp), 500)
         if(curr_max_bp != new_bp and curr_max_bp != max_bp):

@@ -2,7 +2,7 @@
     "game": "Brave Fencer Musashi",
     "authors": ["AegeusEvander"],
     "minimum_ap_version": "0.6.7",
-    "world_version": "0.8.0",
+    "world_version": "0.8.1",
     "flags": [
         "tracker_included"
     ]

@@ -5,6 +5,10 @@ class BFMConnection(NamedTuple):
     destination: int
     door: int
     other: Optional[int] = 0
+	#short_name: str
+	#door_name: str
+    #connection_group: Optional[str] = ""
+	#can_be_disconnected: Optional[bool] = True
 
 class BFMConnectionData(NamedTuple):
 	region: str
