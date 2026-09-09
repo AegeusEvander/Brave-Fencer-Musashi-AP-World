@@ -18,7 +18,8 @@ quest_item_locations=[[
     (0x0b9322, 2, MAIN_RAM), #Bell Status
     (0x0b9347, 12, MAIN_RAM),#Inventory
     (0x0b9388, 1, MAIN_RAM), #Vambee Solider Toy
-    (0x0b93e5, 1, MAIN_RAM), #Steam Status/Steamwood completion
+    #(0x0b93e5, 1, MAIN_RAM), #Steam Status/Steamwood completion
+    (0x0b9396, 1, MAIN_RAM), #21 Topo Toy (same time as profits)
     (0x0b93ea, 4, MAIN_RAM), #Tree Status
     (0x0b93f6, 1, MAIN_RAM), #Gondola Gizmo Status
     (0x0b9476, 2, MAIN_RAM)  #Wid Status
