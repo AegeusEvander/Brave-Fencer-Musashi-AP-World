@@ -312,7 +312,7 @@ def set_rules(world: "BFMWorld") -> None:
 #    options = world.options
     loc_lang = options.set_lang.value == 2 and (options.spoiler_items_in_english.value == False or world.using_ut == True)
     bincho_rules: Dict[str, Rules] = {name: has_lumina for name in location_name_groups["Bincho"]}
-    if(options.level_sanity.value == True and options.starting_hp.value != 1):
+    if(options.level_sanity.value == True and options.xp_gain.value != 1):
         for index, name in enumerate(location_name_groups["Level"]):
             if("Lum" in name):
                 world.set_rule(world.get_location(check_location_name(name, loc_lang)), has_lumina) 
@@ -428,7 +428,7 @@ def set_rules(world: "BFMWorld") -> None:
         world.set_rule(world.get_location(check_location_name("Minku - Twinpeak Around the Bend", loc_lang)), can_catch_minku)
         world.set_rule(world.get_location(check_location_name("Minku - Skullpion Arena", loc_lang)), can_catch_minku)
         world.set_rule(world.get_location(check_location_name("Minku - Misteria Underground Lake", loc_lang)), can_catch_minku)
-        world.set_rule(world.get_location(check_location_name("Minku - Upper Mines Below Big Fan", loc_lang)), can_catch_minku)
+        world.set_rule(world.get_location(check_location_name("Minku - Upper Mines Below Large Fan", loc_lang)), can_catch_minku)
         world.set_rule(world.get_location(check_location_name("Minku - Upper Mines", loc_lang)), can_catch_minku)
         world.set_rule(world.get_location(check_location_name("Minku - Near Wind Scroll", loc_lang)), can_catch_minku)
         if(options.toy_sanity.value == True):

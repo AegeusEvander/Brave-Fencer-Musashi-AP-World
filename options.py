@@ -40,6 +40,24 @@ class PlaythroughMethod(Choice):
     option_open_world = 2
     default = 1
 
+class StartingLocation(Choice):
+    """
+    Vanilla -  Start at Chapter 1
+    Grillin Village - Start at Chapter 2 (going down Zipline)
+    """
+    internal_name = "starting_location"
+    display_name = "Starting Location"
+    option_vanilla = 1
+    option_grillin_village = 2
+    default = 2
+
+class EntranceRando(DefaultOnToggle):
+    """
+    PLACEHOLDER :3
+    """
+    internal_name = "entrance_rando"
+    display_name = "Entrance Rando"
+
 class SkipOverBosses(Toggle):
     """
     PLACEHOLDER DOESN'T DO ANYTHING YET
@@ -142,14 +160,14 @@ class MaxHpLogic(Range):
     range_end = 500
     default = 400
 
-class LuminaRandomized(Toggle):
+class LuminaRandomized(DefaultOnToggle):
     """
     Randomize the sword of legend
     """
     internal_name = "lumina_randomzied"
     display_name = "Lumina Randomzied"
 
-class BakerySanity(Toggle):
+class BakerySanity(DefaultOnToggle):
     """
     Randomize the bakery's list of items for sale into the multiworld
     """
@@ -198,7 +216,7 @@ class TechSanity(Toggle):
     internal_name = "tech_sanity"
     display_name = "Tech Sanity"
 
-class ScrollSanity(Toggle):
+class ScrollSanity(DefaultOnToggle):
     """
     Randomize the Five Legendary Scrolls into the multiworld
     """
@@ -236,7 +254,21 @@ class SkyScrollLogic(Choice):
     option_complex = 3
     default = 1
 
-class CoreSanity(Toggle):
+class RumparoniLogic(Toggle):
+    """
+    Turn on to have some wide gaps to be in logic with Rumparoni Special from KnightD
+    """
+    internal_name = "rumparoni_logic"
+    display_name = "Rumparoni Special Logic"
+
+class DoubleJumpLogic(Toggle):
+    """
+    Turn on to have some less expected double jump uses expected
+    """
+    internal_name = "double_jump_logic"
+    display_name = "Double Jump Logic"
+
+class CoreSanity(DefaultOnToggle):
     """
     Randomize the first four elemental Boss Cores needed to activate the elemental crests into the multiworld
     """
@@ -310,7 +342,7 @@ class XPGainMind(Choice):
     option_one_hundred_fold = 7
     default = 1
 
-class QuestItemSanity(Toggle):
+class QuestItemSanity(DefaultOnToggle):
     """
     Randomize the items needed to progress the story (i.e. Jon's Key, Logs, Steamwood handles, etc.)
     """
@@ -775,6 +807,8 @@ class BFMOptions(PerGameCommonOptions):
     set_lang: SetLang
     spoiler_items_in_english: SpoilerItemsInEnglish
     playthrough_method: PlaythroughMethod
+    starting_location: StartingLocation
+    entrance_rando: EntranceRando
     skip_over_bosses: SkipOverBosses
     goal: SetGoal
     npc_goal: NPCGoal
@@ -794,6 +828,8 @@ class BFMOptions(PerGameCommonOptions):
     scroll_sanity: ScrollSanity
     wind_scroll_logic: WindScrollLogic
     sky_scroll_logic: SkyScrollLogic
+    rumparoni_logic: RumparoniLogic
+    double_jump_logic: DoubleJumpLogic
     core_sanity: CoreSanity
     level_sanity: LevelSanity
     level_bundles: LevelBundles

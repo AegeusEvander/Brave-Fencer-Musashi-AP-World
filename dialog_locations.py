@@ -60,9 +60,9 @@ dialog_location_table: Dict[int, Dict[int, List[int]]] = {
     0x305e: {standard_location_name_to_id["Red Eye Chest - Frozen Palace Red Eye Room"]: [0x185df0, 0x185fc4]},
     0x305f: {standard_location_name_to_id["Chef Bincho - Frozen Palace Crate Pile"]: [0x18881c, 0x1889f0]},
     0x3060: {standard_location_name_to_id["MusicianC Bincho - Frozen Palace Green Eye Maze"]: [0x18bc74, 0x18bde0],
-    standard_location_name_to_id["Green Eye Chest - Frozen Palace Green Eye Maze"]: [0x18ba54, 0x18bc28],
+    standard_location_name_to_id["Green Eye Chest - Frozen Palace Green Eye Room"]: [0x18ba54, 0x18bc28],
     standard_location_name_to_id["White Cloth Chest - Frozen Palace Green Eye Maze"]: [0x18bb94, 0x18bd30]},
-    0x3061: {standard_location_name_to_id["Red Cloth Chest - Frozen Palace Green Eye Maze"]: [0x18382c, 0x183a00]},
+    0x3061: {standard_location_name_to_id["Red Cloth Chest - Frozen Palace Ramp Hallway"]: [0x18382c, 0x183a00]},
     0x3062: {standard_location_name_to_id["Alchemist Bincho - Frozen Palace Blue Eye Maze"]: [0x1899e8, 0x189bac],
     standard_location_name_to_id["Blue Eye Chest - Frozen Palace Blue Eye Maze"]: [0x189984, 0x189b58]},
     0x3063: {standard_location_name_to_id["Long Tube Chest - Frozen Palace Red Eye Door"]: [0x188db4, 0x188f88]},
@@ -79,7 +79,7 @@ short_text_boxes: List[int] = [
     standard_location_name_to_id["Glasses Chest - Somnolent Forest"],
     standard_location_name_to_id["Red Eye Chest - Frozen Palace Red Eye Room"],
     standard_location_name_to_id["Blue Eye Chest - Frozen Palace Blue Eye Maze"],
-    standard_location_name_to_id["Green Eye Chest - Frozen Palace Green Eye Maze"]
+    standard_location_name_to_id["Green Eye Chest - Frozen Palace Green Eye Room"]
 ]
 
 castle_dialog: List[List[int]] = [[

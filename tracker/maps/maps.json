@@ -2,854 +2,854 @@
     {
         "name": "grillin_village",
         "location_size": 18,
-        "location_border_thickness": 1,
-        "location_icon_size": 13,
+        "location_border_thickness": 4,
+        "location_icon_size": 15,
         "img": "images/maps/Village/grillin_village.jpg"
     },
     {
         "name": "castle_outside",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/castle_outside.jpg"
     },
     {
         "name": "castle_bedroom",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/castle_bedroom.jpg"
     },
     {
         "name": "castle_library",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/castle_library.jpg"
     },
     {
         "name": "castle_meeting_room",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/castle_meeting_room.jpg"
     },
     {
         "name": "castle_gondola",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/castle_gondola.jpg"
     },
     {
         "name": "cutscene_moon",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/cutscene_moon.jpg"
     },
     {
         "name": "cutscene_summon_crystal",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/cutscene_summon_crystal.jpg"
     },
     {
         "name": "starting_forest",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/starting_forest.jpg"
     },
     {
         "name": "spiral_tower_outside",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/spiral_tower_outside.jpg"
     },
     {
         "name": "spiral_tower_inside",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/spiral_tower_inside.jpg"
     },
     {
         "name": "spiral_tower_roof",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/spiral_tower_roof.jpg"
     },
     {
         "name": "cutscene_castle_outside_steam_knight",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/cutscene_castle_outside_steam_knight.jpg"
     },
     {
         "name": "castle_steam_knight_fight",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Castle/castle_steam_knight_fight.jpg"
     },
     {
         "name": "toy_shop",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/toy_shop.jpg"
     },
     {
         "name": "somnolent_forest",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/somnolent_forest.jpg"
     },
     {
         "name": "bakery",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/bakery.jpg"
     },
     {
         "name": "grocery",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/grocery.jpg"
     },
     {
         "name": "inn",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/inn.jpg"
     },
     {
         "name": "conner",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/conner.jpg"
     },
     {
         "name": "church",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/church.jpg"
     },
     {
         "name": "restaurant",
         "location_size": 18,
-        "location_border_thickness": 1,
+        "location_border_thickness": 4,
         "location_icon_size": 13,
         "img": "images/maps/Village/restaurant.jpg"
     },
     {
         "name": "meandering_forest",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/meandering_forest.jpg"
     },
     {
         "name": "steamwood_forest",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/steamwood_forest.jpg"
     },
     {
         "name": "steamwood",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/steamwood.jpg"
     },
     {
         "name": "steamwood_outside",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/steamwood_outside.jpg"
     },
     {
         "name": "island_of_dragons",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/island_of_dragons.jpg"
     },
     {
         "name": "graveyard",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/graveyard.jpg"
     },
     {
         "name": "volcano",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/volcano.jpg"
     },
     {
         "name": "hells_valley_arena",
-        "location_size": 18,
-        "location_border_thickness": 2,
-        "location_icon_size": 25,
+        "location_size": 10,
+        "location_border_thickness": 4,
+        "location_icon_size": 10,
         "img": "images/maps/Twinpeak/hells_valley_arena.jpg"
     },
     {
         "name": "twinpeak_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Twinpeak/twinpeak_entrance.jpg"
     },
     {
         "name": "first_peak",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Twinpeak/first_peak.jpg"
     },
     {
         "name": "cave_1",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Twinpeak/cave_1.jpg"
     },
     {
         "name": "rope_bridge",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Twinpeak/rope_bridge.jpg"
     },
     {
         "name": "second_peak",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Twinpeak/second_peak.jpg"
     },
     {
         "name": "rafting",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Twinpeak/rafting.jpg"
     },
     {
         "name": "valley",
-        "location_size": 18,
-        "location_border_thickness": 2,
-        "location_icon_size": 25,
+        "location_size": 10,
+        "location_border_thickness": 4,
+        "location_icon_size": 10,
         "img": "images/maps/Twinpeak/valley.jpg"
     },
     {
         "name": "waterfall_cave",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Twinpeak/waterfall_cave.jpg"
     },
     {
         "name": "relic_keeper_gauntlet",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/relic_keeper_gauntlet.jpg"
     },
     {
         "name": "bowling_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/bowling_entrance.jpg"
     },
     {
         "name": "bowling_1",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/bowling_1.jpg"
     },
     {
         "name": "bowling_2",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/bowling_2.jpg"
     },
     {
         "name": "teleport_maze_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/teleport_maze_entrance.jpg"
     },
     {
         "name": "teleport_maze",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/teleport_maze.jpg"
     },
     {
         "name": "teleport_maze_side_area",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/teleport_maze_side_area.jpg"
     },
     {
         "name": "basement_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/basement_entrance.jpg"
     },
     {
         "name": "dark_maze_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/dark_maze_entrance.jpg"
     },
     {
         "name": "dark_maze_sliding_block_puzzle",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/dark_maze_sliding_block_puzzle.jpg"
     },
     {
         "name": "dark_maze",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/dark_maze.jpg"
     },
     {
         "name": "dark_maze_vertical_maze",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/dark_maze_vertical_maze.jpg"
     },
     {
         "name": "dark_maze_end",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/dark_maze_end.jpg"
     },
     {
         "name": "rotating_platforms_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/rotating_platforms_entrance.jpg"
     },
     {
         "name": "rotating_platforms_long_platforms",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/rotating_platforms_long_platforms.jpg"
     },
     {
         "name": "rotating_platforms_first_lava_area",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/rotating_platforms_first_lava_area.jpg"
     },
     {
         "name": "rotating_platforms_lava_and_pendulums",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/rotating_platforms_lava_and_pendulums.jpg"
     },
     {
         "name": "rotating_platforms_final_pendulum_room",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/rotating_platforms_final_pendulum_room.jpg"
     },
     {
         "name": "teleport_maze_arrow_traps",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/teleport_maze_arrow_traps.jpg"
     },
     {
         "name": "moat_and_platforming_over_lava",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/moat_and_platforming_over_lava.jpg"
     },
     {
         "name": "teleport_maze_end",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/teleport_maze_end.jpg"
     },
     {
         "name": "relic_keeper_arena",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/relic_keeper_arena.jpg"
     },
     {
         "name": "lower_mines_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/lower_mines_entrance.jpg"
     },
     {
         "name": "ferris_wheel_1",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/ferris_wheel_1.jpg"
     },
     {
         "name": "lower_mines_large_fan",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/lower_mines_large_fan.jpg"
     },
     {
         "name": "conveyor_belts",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/conveyor_belts.jpg"
     },
     {
         "name": "underground_lake",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/underground_lake.jpg"
     },
     {
         "name": "poison_ferris_wheel",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/poison_ferris_wheel.jpg"
     },
     {
         "name": "poison_elevators",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/poison_elevators.jpg"
     },
     {
         "name": "chapter_3_start",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/chapter_3_start.jpg"
     },
     {
         "name": "scrap_depository",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/scrap_depository.jpg"
     },
     {
         "name": "outside_relic_keeper",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Basement/outside_relic_keeper.jpg"
     },
     {
         "name": "reservoir_tunnel",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/reservoir_tunnel.jpg"
     },
     {
         "name": "reservoir",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Village/reservoir.jpg"
     },
     {
         "name": "ferris_wheel_2",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/LowerMines/ferris_wheel_2.jpg"
     },
     {
         "name": "church_vambee_fight",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Village/church_vambee_fight.jpg"
     },
     {
         "name": "frozen_palace_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_entrance.jpg"
     },
     {
         "name": "frozen_palace_blue_eye_hallway",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_blue_eye_hallway.jpg"
     },
     {
         "name": "frozen_palace_red_eye_room",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_red_eye_room.jpg"
     },
     {
         "name": "frozen_palace_wolf_room",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_wolf_room.jpg"
     },
     {
         "name": "frozen_palace_green_eye_maze",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_green_eye_maze.jpg"
     },
     {
         "name": "frozen_palace_ramp_hallway",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_ramp_hallway.jpg"
     },
     {
         "name": "frozen_palace_blue_eye_maze",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_blue_eye_maze.jpg"
     },
     {
         "name": "frozen_palace_red_eye_hallway",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_red_eye_hallway.jpg"
     },
     {
         "name": "frozen_palace_spike_bridge",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_spike_bridge.jpg"
     },
     {
         "name": "frozen_palace_ramp_to_dragon_church",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frozen_palace_ramp_to_dragon_church.jpg"
     },
     {
         "name": "dragon_church",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/dragon_church.jpg"
     },
     {
         "name": "frost_dragon_arena",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/frost_dragon_arena.jpg"
     },
     {
         "name": "courtyard",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/FrozenPalace/courtyard.jpg"
     },
     {
         "name": "chapter_4_start",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/chapter_4_start.jpg"
     },
     {
         "name": "upper_mines_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/upper_mines_entrance.jpg"
     },
     {
         "name": "rock_slide_bridges",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/rock_slide_bridges.jpg"
     },
     {
         "name": "upper_poison_elevators",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/upper_poison_elevators.jpg"
     },
     {
         "name": "windy_path",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/windy_path.jpg"
     },
     {
         "name": "upper_mines_large_fan",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/upper_mines_large_fan.jpg"
     },
     {
         "name": "ant_parade",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/ant_parade.jpg"
     },
     {
         "name": "dig_area_near_knightd",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/dig_area_near_knightd.jpg"
     },
     {
         "name": "gondola_station",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/gondola_station.jpg"
     },
     {
         "name": "gondola_minigame",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/gondola_minigame.jpg"
     },
     {
         "name": "above_queen_ant",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/above_queen_ant.jpg"
     },
     {
         "name": "queen_ant_arena",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/UpperMines/queen_ant_arena.jpg"
     },
     {
         "name": "chapter_5_start",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/chapter_5_start.jpg"
     },
     {
         "name": "sky_island",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/Forest/sky_island.jpg"
     },
     {
         "name": "electric_walls",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/electric_walls.jpg"
     },
     {
         "name": "tumble_dryer",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/tumble_dryer.jpg"
     },
     {
         "name": "calendar_maze_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/calendar_maze_entrance.jpg"
     },
     {
         "name": "calendar_maze_middle",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/calendar_maze_middle.jpg"
     },
     {
         "name": "calendar_maze_torches",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/calendar_maze_torches.jpg"
     },
     {
         "name": "calendar_maze_end",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/calendar_maze_end.jpg"
     },
     {
         "name": "ed_fight",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/ed_fight.jpg"
     },
     {
         "name": "garden",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/garden.jpg"
     },
     {
         "name": "garden_2_hedge_maze",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/garden_2_hedge_maze.jpg"
     },
     {
         "name": "factory_entrance",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/factory_entrance.jpg"
     },
     {
         "name": "factory_steam_knight_head",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/factory_steam_knight_head.jpg"
     },
     {
         "name": "topo_dance_battle",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/topo_dance_battle.jpg"
     },
     {
         "name": "spiral_to_ToD",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/spiral_to_ToD.jpg"
     },
     {
         "name": "ToD",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/ToD.jpg"
     },
     {
         "name": "ben_fight",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/ben_fight.jpg"
     },
     {
         "name": "garden_3_more_gates",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/garden_3_more_gates.jpg"
     },
     {
         "name": "garden_4_climb",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/garden_4_climb.jpg"
     },
     {
         "name": "dark_lumina_1",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/dark_lumina_1.jpg"
     },
     {
         "name": "dark_lumina_2_climb",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/dark_lumina_2_climb.jpg"
     },
     {
         "name": "dark_lumina_2_fight",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/dark_lumina_2_fight.jpg"
     },
     {
         "name": "outside_soda_fountain",
         "location_size": 18,
-        "location_border_thickness": 2,
+        "location_border_thickness": 4,
         "location_icon_size": 25,
         "img": "images/maps/SodaFountain/outside_soda_fountain.jpg"
     }

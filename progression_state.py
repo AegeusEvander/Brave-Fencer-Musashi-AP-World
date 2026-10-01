@@ -91,6 +91,7 @@ progression_state_table: Dict[int, str] = {
 }
 
 def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progression_state: int, progression_flags: List[bool], completed_progression_states: Set[int], received_list: List[int], time_available: List[int]) -> (int, str):
+    is_er = len(ctx.slot_data["er_pairings"]) > 0
     if(loc_id == 0x3000): #Castle Outside 
         if(old_progression_state in [0x0294, 0x29e] and ctx.slot_data["skip_minigame_town_on_fire"] == False): #0x029e: "A fire starts in the village",
             return 0, ""
@@ -196,8 +197,13 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x32, "" #0x0032: "Feed Jon",
     if(loc_id == 0x3024): #"Skullpion Arena", 
         if(not 0xc8 in completed_progression_states and old_progression_state != 0xa0): #0x00c8: "Acquire your first crest",
-            if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list):
+            if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list and item_name_to_id["Earth Scroll"] in received_list):
                 return 0xa0, "" #0x00a0: "Allies open the gate to Hell's Valley",
+        if(is_er):
+            #if(0xc8 in completed_progression_states and (standard_location_name_to_id["Minku - Skullpion Arena"] in ctx.checked_locations or standard_location_name_to_id["Minku - Skullpion Arena"] + jp_id_offset in ctx.checked_locations)):
+            #    if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list and item_name_to_id["Earth Scroll"] in received_list):
+                    #return 0xa0, "" #0x00a0: "Allies open the gate to Hell's Valley", apparently the teleport out is single use
+            return 0xc8, ""
         if(0xc8 in completed_progression_states):
             return 0xc8, ""
         #TODO add entrance rando logic if not all npcs present
@@ -264,9 +270,13 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x172, "" #0x0172: "Open all blue eyes",
         if(not 0x17c in completed_progression_states and not 0x172 in completed_progression_states and 0x14a in completed_progression_states and old_progression_state != 0x14a):
             return 0x14a, "" #0x014a: "Meet the restaurant owner at the basement",
+        if(is_er):
+            return 0x14a, "" #0x014a: "Meet the restaurant owner at the basement",
     if(loc_id == 0x3042): #"Relic Keeper Arena", 
         if(not 0x258 in completed_progression_states and old_progression_state != 0x1e0):
             return 0x1e0, "" #0x01e0: "Return the bell to the village",
+        #if(is_er): #only works once for some reason
+        #    return 0x1e0, "" #0x01e0: "Return the bell to the village",
     if(loc_id == 0x3047): #"Misteria Underground Lake", 
         if(not 0xe6 in completed_progression_states and old_progression_state != 0xdc):
             return 0xdc, "" #0x00dc: "Acquire Mine's Key",
@@ -307,14 +317,27 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x30c, "" #0x030c: "Open and enter the big gate of the 3 eyes in the ice palace",
 	#0x3068: "Frozen Palace Courtyard", 
 	#0x3069: "Chapter 4 Village on Fire", 
-	#0x306f: "Upper Mine Big Fan", 
+    if(loc_id == 0x306b): #"Upper Mine Entrance"
+        if(old_progression_state != 0x492):
+            if(0x492 in completed_progression_states or not is_er):
+                return 0x492, "" #0x0492: "GiAnt breaks open entrance to Upper Mines",
+            if(is_er):
+                if(progression_flags[17][21] & 0b10000000 == 0b10000000): #cleared poison
+                    return 0x04b0, "" #"Defeat Queen Ant",
+                return 0x0398, "" #"Complete 4 chapter",
     if(loc_id == 0x3072): #"Upper Mine Gondola Station", 
         if(old_progression_state != 0x492):
-            return 0x492, "" #0x0492: "GiAnt breaks open entrance to Upper Mines",
+            if(0x492 in completed_progression_states or not is_er):
+                return 0x492, "" #0x0492: "GiAnt breaks open entrance to Upper Mines",
+            if(is_er):
+                return 0x0398, "" #"Complete 4 chapter",
 	#0x3074: "Upper Mine Above Queen Ant", 
     if(loc_id == 0x3075): #"Queen Ant Arena",
         if(old_progression_state != 0x492):
-            return 0x492, "" #0x0492: "GiAnt breaks open entrance to Upper Mines",
+            if(0x492 in completed_progression_states or not is_er):
+                return 0x492, "" #0x0492: "GiAnt breaks open entrance to Upper Mines",
+            if(is_er):
+                return 0x0398, "" #"Complete 4 chapter",
 	#0x3081: "Sky Island",    
     if(loc_id in [0x1010, 0x1052, 0x1077, 0x1094]): #"Chapter 2 Grillin Village", 
         if(old_progression_state in [0x78]):
@@ -560,6 +583,10 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
 
         if(old_progression_state == 0x3c0):
             return 0x4b0, "Nothing to do in town right now" #0x04b0: "Defeat Queen Ant",\
+
+
+        if(is_er):
+            return 0x0258, "Nothing to do in town right now" #"Relic Keeper Defeated",
         #0x005a: "Find Bracelet",
         #0x0064: "Equip L-Brace",
         #0x006e: "Agree to help the mayor with Steamwood",
@@ -663,6 +690,7 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
     return 0, ""
 
 def calc_completed_progression_state(ctx: "BizHawkClientContext", progression_flags: List[List[bytes]]) -> Set[int]:
+    is_er = len(ctx.slot_data["er_pairings"]) > 0
     val = set()
     if(progression_flags[17][11] & 0b10 == 0b10): # or progression_flags[17][16] & 0b1000 == 0b1000):
         val.add(0x0014)#: "Rescue Leno",
@@ -724,7 +752,7 @@ def calc_completed_progression_state(ctx: "BizHawkClientContext", progression_fl
     if(progression_flags[17][14] & 0b100000 == 0b100000 or progression_flags[17][14] & 0b1000000 == 0b1000000): 
         val.add(0x0136)#: "Talk to the drunk and discover you",
         val.add(0x0140)#: "Wanda talks about the vambees' nest",
-    if(progression_flags[17][5] & 0b1000000 == 0b1000000): 
+    if(progression_flags[17][5] & 0b1000000 == 0b1000000 or is_er): 
         val.add(0x014a)#: "Meet the restaurant owner at the basement",
     if(progression_flags[17][15] & 0b11110 == 0b11110): 
         val.add(0x0172)#: "Open all blue eyes",
@@ -800,7 +828,7 @@ def calc_completed_progression_state(ctx: "BizHawkClientContext", progression_fl
         val.add(0x044c)#: "Get the Wind Scroll",
         val.add(0x0460)#: "break your own bincho field",
     #if(False): #TODO manually record when this happens Probably
-    if(progression_flags[17][21] & 0b10000000 == 0b10000000): #clear poison mist, probably want to track manually as well
+    if(progression_flags[17][21] & 0b10000000 == 0b10000000 and not is_er): #clear poison mist, probably want to track manually as well
         val.add(0x047e)#: "See the mutant ant at the mountain entrance",
         val.add(0x0488)#: "hop on gondola to squish ant",
         val.add(0x0492)#: "GiAnt breaks open entrance to Upper Mines",

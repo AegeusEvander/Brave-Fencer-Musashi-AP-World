@@ -60,9 +60,9 @@ bfm_regions: dict[str, tuple[str]] = {
     "Frozen Palace Atrium Right Balcony": tuple(),
     "Upper Mines": ("Upper Mines Behind Poison",),
     "Upper Mines Behind Poison": ("Upper Mines Poison Elevators",),
-    "Upper Mines Poison Elevators": ("Upper Mines Big Fan Room","Queen Ant Arena"),
+    "Upper Mines Poison Elevators": ("Upper Mines Large Fan Room","Queen Ant Arena"),
     "Queen Ant Arena": tuple(),
-    "Upper Mines Big Fan Room": ("Upper Mines Ant Parade",),
+    "Upper Mines Large Fan Room": ("Upper Mines Ant Parade",),
     "Upper Mines Ant Parade": ("Upper Mines Before Digging",),
     "Upper Mines Before Digging": tuple(),
     "Toy Shop Series 1": ("Toy Shop Series 2","Toy Shop Series 3","Toy Shop Series 4","Toy Shop Series 5","Toy Shop Series 6","Toy Shop Series Special"),
@@ -73,3 +73,350 @@ bfm_regions: dict[str, tuple[str]] = {
     "Toy Shop Series 6": tuple(),
     "Toy Shop Series Special": tuple()
 }
+
+bfm_er_static_regions: dict[int, dict[str, tuple[str]]] = {
+    #0x1010: {
+    #    "Grillin Village": ("Village Ramp","Village Path by Windmill","Village Through Portcullis","Village Bakery","Village to Somnolent Forest","Village to Deadend Somnolent Forest","Village Restaurant","Village Grocery","Village Toy Shop","Village Inn","Village Conner","Village Church Door","Village Lower Mine Door","Village Church Roof","Village Climb Down Well Rope"),
+    #},
+    0x1011: {
+        "Upper Village": ("Upper Village Ramp","Upper Village Mountain Pass","Upper Village Steam Pipe","Upper Village Upper Open Vent","Upper Village Take Gondola"),
+    },
+    0x1053: {
+    },
+    0x1078: {
+    },
+    0x1095: {
+    },
+    #0x3000: {
+    #    "Castle Outside": ("Select Library","Select Visit","Select Gondola","Select Room","Select Village","Select Village (On Fire)"),
+    #    "Select Library": ("Library Door",),
+    #    "Select Visit": ("Meeting Room Door",),
+    #    "Select Gondola": ("Take Gondola to Castle",),
+    #    "Select Room": ("Bedroom Door",),
+    #    "Select Village": ("Village Through Portcullis",),
+    #    "Library Door": ("Castle Library",),
+    #    "Meeting Room Door": (,),
+    #},
+    0x3004: {
+    },
+    0x3014: {
+        "Somnolent Forest Deadend": ("Somnolent Forest Deadend Exit","Somnolent Forest Deadend Fall From Sky"),
+        "Somnolent Forest": ("Somnolent Forest Town Exit","Somnolent Forest to Meandering","Somnolent Forest Large Pipe","Somnolent Forest to Island of Dragons","Somnolent Forest Behind Steam"),
+        "Somnolent Forest Behind Steam": tuple(),
+        "Menu": ("Defeat First Boss",),
+        "Defeat First Boss": ("Defeat Second Boss",),
+        "Defeat Second Boss": ("Defeat Third Boss",),
+        "Defeat Third Boss": ("Defeat Fourth Boss",),
+        "Defeat Fourth Boss": tuple(),
+    },
+    0x301c: {
+        "Steamwood Forest": ("Steamwood Forest top of Wind Crest Cliff","Steamwood Forest Pipe","Steamwood Forest to Village","Steamwood Forest top of Cliff"),
+        "Steamwood Forest top of Wind Crest Cliff": ("Steamwood Forest Wind Crest",),
+    },
+    0x301e: {
+        "Steamwood Outside": ("Outside Steamwood South","Outside Steamwood Enter Steamwood","Outside Steamwood Pipe"),
+    },
+    0x3025: {
+        "Twinpeak Entrance": ("Twinpeak Entrance East Path","Twinpeak Entrance Cliff","Twinpeak Entrance South Path","Twinpeak Entrance Near Split in River"),
+        "Twinpeak Entrance Near Split in River": ("Twinpeak Entrance West Path","Twinpeak Entrance Dock"),
+        "Twinpeak Entrance Cliff": ("Twinpeak Entrance Cliff Upper East Path","Twinpeak Entrance Rafting Exit"),
+    },
+    0x3026: {
+        "Twinpeak Around the Bend": ("Twinpeak Around the Bend Along River East","Twinpeak Around the Bend Cave Entrance"),
+        "Twinpeak Doctor Rock": ("Twinpeak Around the Bend","Twinpeak Around the Bend Rafting Shortcut Exit"),
+    },
+    0x3029: {
+        "Twinpeak Second Peak": ("Twinpeak Second Peak Aqualin","Twinpeak Second Peak Cave Entrance","Twinpeak Second Peak Raft","Twinpeak Second Peak Dock"),
+        "Twinpeak Second Peak Aqualin": tuple(),
+    },
+    0x302b: {
+        "Twinpeak Path to Skullpion": ("Path to Skullpion South","Path to Skullpion North"),
+        "Twinpeak Path to Skullpion Cliff": ("Path to Skullpion Upper Cliff South",),
+    },
+    0x302e: {
+        "Restaurant Basement Bowling Entrance": ("Bowling Entrance South Door","Bowling Entrance Broken Wall Behind Plant","Bowling Entrance Upper Door"),
+        "Bowling Entrance Hidden Room": ("Bowling Entrance Hidden Room South",),
+    },
+    0x302f: {
+        "Bowling Arrow Trap": ("Bowling Arrow Trap East","Bowling Arrow Trap North"),
+        "Bowling 1 Plant Room": ("Bowling 1 Plant Room South","Bowling 1 Plant Room East"),
+        "Restaurant Basement Bowling 1": ("Bowling 1 West","Bowling 1 North","Bowling 1 Elevator"),
+        "Bowling 1 MercenA Room": ("Bowling 1 MercenA Room South","Bowling 1 MercenA Room East"),
+        "Bowling 1 Odd Hat Room": ("Bowling 1 Odd Hat Room West",),
+        "Fire Totem Room": ("Fire Totem Room West","Fire Totem Room Elevator"),
+        "Wall Crush Trap Room": ("Wall Crush Trap Room North","Wall Crush Trap Room East"),
+    },
+    0x3030: {
+        "Bowling 2 Piston Trap Room": ("Bowling 2 Piston Trap West","Bowling 2 Piston Trap North"),
+        "Bowling 2 Plant Room": ("Bowling 2 Plant Room South","Bowling 2 Plant Room West"),
+        "Restaurant Basement Bowling 2": ("Bowling 2 East","Bowling 2 North","Bowling 2 Elevator"),
+        "Bowling 2 MercenB Room": ("Bowling 2 MercenB Room South",),
+        "Bowling 2 Top of Elevator Room": ("Bowling 2 Top of Elevator","Bowling 2 Top of Elevator North"),
+        "Bowling End Eye Room": ("Bowling End Eye Room South","Bowling End Eye Room Teleport Back"),
+    },
+    0x3031: {#TODO fix 2 way when 1 way
+        "Teleport Maze Start": ("Teleport Maze Start Room South","Teleport Maze Start Room North","Teleport Maze Starting Room Return Pad"),
+        "Teleport Maze Sliding Platform Room": ("Teleport Maze Sliding Platform Room South","Teleport Maze Sliding Platform Room Upper North","Teleport Maze Sliding Platform Room West","Teleport Maze Sliding Platform Room East"),
+        "Teleport Maze Sliding Platform Room Lower Area": ("Teleport Maze Sliding Platform Room Lower North",),
+        "Teleport Maze Two Tiered Platforms (lit) Upper Platform": ("Teleport Maze Two Tiered Platforms Upper North","Teleport Maze Two Tiered Platforms Upper Pad"),
+        "Teleport Maze Two Tiered Platforms (lit) Lower Platform": ("Teleport Maze Two Tiered Platforms Lower South","Teleport Maze Two Tiered Platforms Lower Pad"),
+        "Teleport Maze Return Teleport Pad Room": ("Teleport Maze Return Teleport South", "Teleport Maze Return Teleport Pad"),
+    },
+    0x3032: {
+        "Teleport Maze Left Dark Hallway": ("Teleport Maze Left Dark Hallway East","Teleport Maze Left Dark Hallway West"),
+        "Teleport Maze Left Dark Hallway Upper Platform": ("Teleport Maze Left Dark Hallway Upper North","Teleport Maze Left Dark Hallway Upper Pad"),
+        "Teleport Maze Left Dark L Spike Hallway": ("Teleport Maze Left Dark L Spike Hallway East","Teleport Maze Left Dark L Spike Hallway North"),
+        "Teleport Maze First Teleport Choice Room": ("Teleport Maze First Teleport Choice South","Teleport Maze First Teleport Choice Left Pad","Teleport Maze First Teleport Choice Right Pad"),
+        "Teleport Maze Left Dark L Hallway": ("Teleport Maze Left Dark L Hallway South","Teleport Maze Left Dark L Hallway East"),
+        "Teleport Maze Third Teleport Choice Room": ("Teleport Maze Third Teleport Choice West","Teleport Maze Third Teleport Choice Left Pad","Teleport Maze Third Teleport Choice Right Pad"),
+    },
+    0x3033: {
+        "Teleport Maze Right Dark Hallway": ("Teleport Maze Right Dark Hallway West","Teleport Maze Right Dark Hallway East"),
+        "Teleport Maze Right Dark Hallway Upper Platform": ("Teleport Maze Right Dark Hallway Upper North","Teleport Maze Right Dark Hallway Upper Pad"),
+        "Teleport Maze Right Dark J Spike Hallway": ("Teleport Maze Right Dark J Spike Hallway West","Teleport Maze Right Dark J Spike Hallway North"),
+        "Teleport Maze Bailiff Room": ("Teleport Maze Bailiff Room South",),
+        "Teleport Maze Right J Hallway": ("Teleport Maze Right J Hallway South","Teleport Maze Right J Hallway West"),
+        "Teleport Maze Second Teleport Choice Room": ("Teleport Maze Second Teleport Choice East","Teleport Maze Second Teleport Choice Left Pad","Teleport Maze Second Teleport Choice Right Pad"),
+    },
+    0x3034: {
+        "Restaurant Basement Entrance": ("Basement Exit (Upper South)","Basement South West Door (Bowling)","Basement North West Door (Teleport Maze)","Basement South East Door (Dark Maze)","Basement North East Door (Rotating Platforms)","Basement Lower Angel Statue Door","Restaurant Basement Entrance Behind Cracked Wall","Restaurant Basement Entrance Behind 4 Eye Door","Basement Return Pad Center Crossroad"),
+        "Restaurant Basement Entrance Behind Cracked Wall": tuple(),
+        "Restaurant Basement Entrance Behind 4 Eye Door": tuple(),
+    },
+    0x3035: {
+        "Dark Maze Vambees on Pillars Room": ("Dark Maze Vambees on Pillars South West", "Dark Maze Vambees on Pillars North East"),
+        "Dark Maze Crossroads with Sliding Blocks Lower Path": ("Dark Maze Crossroads with Sliding Blocks South West","Dark Maze Crossroads with Sliding Blocks North East"),
+        "Dark Maze Crossroads with Sliding Blocks Upper Path": ("Dark Maze Crossroads with Sliding Blocks South East","Dark Maze Crossroads with Sliding Blocks North West"),
+        "Dark Maze 2": ("Dark Maze 2 East","Dark Maze 2 West"),
+    },
+    0x3036: {
+        "Dark Maze Crushing Blocks Vambees and Slimes Path": ("Dark Maze Crushing Blocks South West","Dark Maze Crushing Blocks North West","Dark Maze Crushing Blocks Crushing Blocks Path"),
+        "Dark Maze Crushing Blocks Crushing Blocks Path": ("Dark Maze Crushing Blocks North East","Dark Maze Crushing Blocks South East"),
+        "Dark Maze Sliding Block Puzzle 1 Block": ("Dark Maze Sliding Block Puzzle 1 Block East","Dark Maze Sliding Block Puzzle 1 Block North"),
+        "Dark Maze Sliding Block Puzzle 3 Blocks": ("Dark Maze Sliding Block Puzzle 3 Blocks South","Dark Maze Sliding Block Puzzle 3 Blocks North"),
+        "Dark Maze Two Large Floating Platforms": ("Dark Maze Two Large Floating Platforms Left South West","Dark Maze Two Large Floating Platforms Right South West"),
+    },
+    0x3037: {
+        "Dark Maze Slow Elevating Platform": ("Dark Maze Slow Elevating Platform North West","Dark Maze Slow Elevating Platform South West"),
+        "Restaurant Basement Dark Maze": ("Dark Maze 1 North","Dark Maze 1 West"),
+    },
+    0x3038: {
+        "Restaurant Basement Dark Maze Vertical Maze": ("Dark Maze Vertical Maze Lower West",),
+    },
+    0x3039: {
+        "Dark Maze 3": ("Dark Maze 3 East","Dark Maze 3 West","Dark Maze 3 Teleport Pad"),
+        "Dark Maze KnightC Room": ("Dark Maze KnightC Room South","Dark Maze KnightC Room Teleport"),
+        "Dark Maze End Eye Room": ("Dark Maze End Eye Room South","Dark Maze End Eye Room Teleport Back"),
+    },
+    0x303a: {
+        "Restaurant Basement Rotating Platforms Entrance": ("Rotating Platforms Entrance South West","Rotating Platforms Entrance North East"),
+        "Rotating Platforms Entrance Librarian Room": ("Rotating Platforms Entrance Librarian South West","Rotating Platforms Entrance Librarian North East"),
+    },
+    0x303c: {
+        "Rotating Platforms Small Lava Room Spiked Rotating Walls": ("Rotating Platforms Small Lava Room Spiked Rotating Walls Lower South East","Rotating Platforms Small Lava Room Spiked Rotating Walls Upper South East"),
+        "Rotating Platforms Orbiting Platforms": ("Rotating Platforms Orbiting Platforms North West","Rotating Platforms Orbiting Platforms North East"),
+    },
+    0x303d: {
+        "Restaurant Basement Rotating Platforms Lava and Pendulums": ("Rotating Platforms Small Lava Room Swinging Pendulums South West","Rotating Platforms Small Lava Room Swinging Pendulums South East"),
+        "Rotating Platforms Large Lava Room Spiked Rotating Walls Wooden Planks": ("Rotating Platforms Large Lava Room Spiked Rotating Walls Wooden Planks North West","Rotating Platforms Large Lava Room Spiked Rotating Walls Wooden Planks South West"),
+    },
+    0x303e: {
+        "Restaurant Basement Rotating Platforms Final Pendulum Room": ("Rotating Platforms Large Lava Room Swinging Pendulums North East","Rotating Platforms Large Lava Room Swinging Pendulums South West"),
+        "Rotating Platforms End Eye Room": ("Rotating Platforms End Eye Room South","Rotating Platforms End Eye Room Teleport Back"),
+    },
+    0x303f: {
+        "Restaurant Basement Teleport Maze Arrow Traps": ("Teleport Maze Arrow Trap Lower West",),
+    },
+    0x3040: {
+        "Basement Water Moat": ("Basement Water Moat South","Basement Water Moat North"),
+        "Basement Platforming Over Lava": ("Basement Platforming Over Lava South West","Basement Platforming Over Lava North East"),
+    },
+    0x3041: {
+        "Teleport Maze End Spike Hallway": ("Teleport Maze End Spike Hallway South","Teleport Maze End Spike Hallway North"),
+        "Teleport Maze End Eye Room": ("Teleport Maze End Eye Room South","Teleport Maze End Eye Room Teleport Back"),
+    },
+    0x3043: {
+        "Lower Mine Entrance": ("Lower Mine Entrance Towards Village","Lower Mine Entrance Towards Mine (Upper Exit near Toadstool)","Lower Mine Entrance Towards Reservoir"),
+    },
+    0x3045: {
+        "Lower Mine Large Fan": ("Lower Mine Large Fan Upper West","Lower Mine Large Fan Upper East","Lower Mine Below Large Fan"),
+        "Lower Mine Below Large Fan": ("Lower Mine Large Fan Lower West","Lower Mine Large Fan Lower East"),
+    },
+    0x3049: {
+        "Lower Mine Poison Elevators": ("Lower Mine Poison Elevators Lower West","Lower Mine Poison Elevators Upper West"),
+    },
+    0x304e: {
+        "Grillin Reservoir": ("Grillin Reservoir Eastern Mine Exit","Grillin Reservoir Climb Rope"),
+    },
+    0x305c: {
+        "Frozen Palace Lobby": ("Frozen Palace Lobby Painting","Frozen Palace Lobby Main Entrance","Frozen Palace Lobby Red Eye Door","Frozen Palace Lobby North West Doorway","Frozen Palace Lobby Frozen Three Eye Door Balcony","Frozen Palace Lobby North East Doorway","Frozen Palace Lobby East Doorway"),
+        "Frozen Palace Lobby Frozen Three Eye Door Balcony": ("Frozen Palace Lobby Left Balcony Door","Frozen Palace Lobby Right Balcony Door","Frozen Palace Lobby Frozen Three Eye Door"),
+    },
+    0x305d: {
+        "Frozen Palace Blue Eye Door Hallway": ("Blue Eye Door Hallway Lower South East","Blue Eye Door Hallway North East","Blue Eye Door Hallway Blue Eye Door",),
+        "Blue Eye Door Hallway Upper Path": ("Blue Eye Door Hallway Upper South East","Blue Eye Door Hallway Upper North West"),
+        "Blue Eye Door Stairwell Blue Eye Door Room": ("Blue Eye Door Stairwell Blue Eye Door","Blue Eye Door Stairwell Upper Level Doorway"),
+    },
+    0x305e: {
+        "Sliding Ice Block Room": ("Sliding Ice Block Room South West","Sliding Ice Block Room North East","Sliding Ice Block Room South East"),
+        "Red Eye Room": ("Red Eye Room Doorway",),
+    },
+    0x305f: {
+        "Frozen Palace Wolf Room": ("Wolf Room South","Wolf Room Infront of Crates North East"),
+        "Penguin Room With Broken Stairs Room": ("Penguin Room With Broken Stairs Lower South West",),
+    },
+    0x3060: {
+        "Green Eye Maze": ("Green Eye Maze Middle Doorway South West","Green Eye Maze Right Doorway South West","Green Eye Maze Ontop of Ice Blocks"),
+        "Green Eye Room": ("Green Eye Room Doorway",),
+        "Green Eye Maze Ontop of Ice Blocks": ("Green Eye Maze Green Eye Door",),
+    },
+    0x3061: {
+        "Frozen Palace Ramp Hallway": ("Ramp Hallway Lower North West","Ramp Hallway Upper Balcony North West","Ramp Hallway End of Ramps East"),
+        "Frozen Palace Tiny Room with Mapper Flower": ("Frozen Palace Tiny Room with Mapper Flower North East","Frozen Palace Tiny Room with Mapper Flower North West"),
+        "Ramp Hallway Upper Balcony South West": ("Ramp Hallway Upper Balcony North West",),
+    },
+    0x3062: {
+        "Blue Eye Maze": ("Blue Eye Maze South East","Blue Eye Maze North West","Blue Eye Maze North East"),
+        "Blue Eye Room": ("Blue Eye Room Doorway",),
+    },
+    0x3063: {
+        "Slow Guy and Cool Plant Room With Broken Stairs": ("Slow Guy and Cool Plant Room With Broken Stairs Upper South East","Slow Guy and Cool Plant Room With Broken Stairs Lower North West"),
+        "Red Eye Hallway": ("Red Eye Hallway North East","Red Eye Hallway Near Fallen Pillars South East"),
+    },
+    0x306f: {
+        "Upper Mine Large Fan": ("Upper Mine Large Fan Lower West",),
+    },
+    0x3084: {
+        "Calendar Maze Initial Reset Room": ("Initial Fire Door (After walking into reset wall)","Calendar Maze Initial Reset Room (From Ben Fight)"),
+        "Calendar Maze Start": ("Calendar Maze Start Lower Door Under Fan","Calendar Maze Start Fake Fire Door (Under Fan)","Calendar Maze Start Earth Door","Calendar Maze Start Upper Door Left of Fan"),
+        "Calendar Maze Start Wind Scroll Jump": ("Calendar Maze Start Sky Door Near Fan Foreground","Calendar Maze Start Doorway at Wind Scroll Jump Background"),
+        "Calendar Maze Earth Scroll Puzzle Room": ("Calendar Maze Earth Scroll Puzzle Room Earth Door West Foreground","Calendar Maze Earth Scroll Puzzle Room Near 4X Button and Fake Wind Scroll Door"),
+        "Calendar Maze Earth Scroll Puzzle Room Under Extendable Platform Foreground": ("Calendar Maze Earth Scroll Puzzle Room Fake Water Door Under Extendable Platform Foreground",),
+        "Calendar Maze Earth Scroll Puzzle Room Near 4X Button and Fake Wind Scroll Door": ("Calendar Maze Earth Scroll Puzzle Room Fake Wind Door Near 4X Button Background",),
+        "Calendar Maze Earth Scroll Puzzle Room East Behind Wall": ("Calendar Maze Earth Scroll Puzzle Room Sun Door Background",),
+        "Calendar Maze Reset Room (From a Foreground Door)": ("Reset Fire Door (Blank Door Along Back Wall)",),
+        "Calendar Maze Reset Room (From a Background Door)": ("Reset Fire Door (No Blank Door Along Back Wall)",),
+        "Calendar Maze Small Room Wind Scroll Door": ("Calendar Maze Small Room Wind Scroll Door Background","Calendar Maze Small Room Doorway To Wind Scroll Jump Foreground"),
+    },
+    0x3085: {
+        "Calendar Maze Sky Scroll Over Spikes and Retracting Panel": ("Calendar Maze Sky Scroll Over Spikes and Retracting Panel Sun Door Foreground","Calendar Maze Sky Scroll Over Spikes and Retracting Panel Fake Sky Door Background"),
+        "Calendar Maze Washing Pole Room": ("Calendar Maze Washing Pole Room Backwards C With a Line Door Background","Calendar Maze Washing Pole Room Fire Door Foreground"),
+    },
+    0x3086: {
+        "Calendar Maze Torches and Smashing Block Room Near Fire Door": ("Calendar Maze Torches and Smashing Block Room Near Smashing Block","Calendar Maze Torches and Smashing Block Fire Door Background"),
+        "Calendar Maze Torches and Smashing Block Room Near Smashing Block": ("Calendar Maze Torches and Smashing Block Fake Wind Door Background","Calendar Maze Torches and Smashing Block Water Door Foreground"),
+        "Calendar Maze Extinguish Torches Room Upper": ("Calendar Maze Extinguish Torches Water Door Background","Calendar Maze Extinguish Torches Fake Backwards C With a Line Door Foreground"),
+        "Calendar Maze Extinguish Torches Room Lower": ("Calendar Maze Extinguish Torches Wind Door Foreground","Calendar Maze Extinguish Torches Fake Sky Door Background"),
+    },
+    0x3087: {
+        "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Upper Level": ("Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Sky Scroll Door Background","Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Fake Fire Door Foreground"),
+        "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Upper Shaft": ("Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Lower Shaft",),
+        "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Lower Shaft": tuple(),
+    },
+    0x308b: {
+        "Factory Large Gap in Floor": ("Factory Entrance","Factory Entrance Over Large Gap Past Gate North"),
+        "Green Vats and Servers": ("Green Vats","Factory Green Vats and Servers Past Gate North"),
+    },
+    0x308c: {
+        "Soda Fountain Factory Steam Knight Head": ("Factory Steam Knight Head Entrance","Factory Steam Knight Head Top of Elevator Past Gate North"),
+        "Factory Elevator": ("Factory Elevator Door","Factory Elevator Up Elevator"),
+    },
+    0x308d: {
+        "Soda Fountain Topo Dance Battle": ("Factory Elevator Topo Room","Defeat Topo"),
+        "Loot Room After Topo": ("Topo Elevator Loot Room","Loot Room After Topo North"),
+    }
+}
+
+bfm_er_static_one_way_connections: dict[str, str] = {
+    "Teleport Maze Two Tiered Platforms (lit) Upper Platform": "Teleport Maze Two Tiered Platforms (lit) Lower Platform",
+    "Teleport Maze Left Dark Hallway Upper Platform": "Teleport Maze Left Dark Hallway",
+    "Teleport Maze Right Dark Hallway Upper Platform": "Teleport Maze Right Dark Hallway",
+    "Teleport Maze Sliding Platform Room": "Teleport Maze Sliding Platform Room Lower Area",
+    "Teleport Maze Arrow Trap Upper West": "Restaurant Basement Teleport Maze Arrow Traps",
+    "Bowling 1 MercenA Room Upper": "Bowling 1 MercenA Room",
+    "Dark Maze Crossroads with Sliding Blocks Upper Path": "Dark Maze Crossroads with Sliding Blocks Lower Path",
+    "Dark Maze Vertical Maze Upper East": "Restaurant Basement Dark Maze Vertical Maze",
+    "Dark Maze 3": "Dark Maze 3 Lower North",
+    "Lower Mine Entrance Towards Mine Return (Upper Exit Inaccessible From Below)": "Lower Mine Entrance",
+    "Lower Mine Poison Elevators Upper East (Inaccessible From Below)": "Lower Mine Poison Elevators",
+    "Penguin Room With Broken Stairs Green Eye Door (Inaccessible From Below)": "Penguin Room With Broken Stairs Room",
+    "Blue Eye Door Hallway Upper Path": "Frozen Palace Blue Eye Door Hallway",
+    "Path to Skullpion Upper Cliff South": "Path to Skullpion South",
+    "Calendar Maze Start Wind Scroll Jump": "Calendar Maze Start",
+    "Calendar Maze Earth Scroll Puzzle Room": "Calendar Maze Earth Scroll Puzzle Room Under Extendable Platform Foreground",
+    "Calendar Maze Earth Scroll Puzzle Room Near 4X Button and Fake Wind Scroll Door": "Calendar Maze Earth Scroll Puzzle Room East Behind Wall",
+    "Calendar Maze Sky Scroll Over Spikes and Retracting Panel": "Calendar Maze Sky Scroll Over Spikes and Retracting Panel Backwards C with a Line Door Foreground",
+    "Calendar Maze Washing Pole Room": "Calendar Maze Washing Pole Room Backwards Fake Earth Door Background",
+    "Calendar Maze Torches and Smashing Block Room Near Fire Door": "Calendar Maze Torches and Smashing Block Fake Sun Door Foreground",
+    "Calendar Maze Torches and Smashing Block Room Near Smashing Block": "Calendar Maze Torches and Smashing Block Fake Sun Door Foreground",
+    "Calendar Maze Torches and Smashing Block Water Door Foreground": "Calendar Maze Torches and Smashing Block Fake Wind Door Background",
+    "Calendar Maze Extinguish Torches Room Upper": "Calendar Maze Extinguish Torches Room Lower",
+    "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Upper Level": "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Upper Shaft",
+    "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Upper Shaft": "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Blank Door Background",
+    "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Lower Shaft": "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Fake Water Door Background",
+    "Upper Mine Large Fan": "Upper Mine Large Fan Near Switch Upper West",
+    "Fire Totem Room": "Fire Totem Room East",
+    "Grillin Reservoir": "Grillin Reservoir Submerged Tunnel", 
+    "Wolf Room Behind Crates North West": "Frozen Palace Wolf Room",
+    "Frozen Palace Lobby Left Balcony Door": "Frozen Palace Lobby",
+    "Frozen Palace Lobby Right Balcony Door": "Frozen Palace Lobby",
+    "Squish Ant": "Upper Village",
+}
+
+
+region_alias: dict[str, str] = {
+    "Chapter 2 Grillin Village": "Grillin Village",
+    "Chapter 2 Upper Village": "Upper Village",
+    "Chapter 2 Toy Shop": "Toy Shop",
+    "Chapter 2 Bakery": "Bakery",
+    "Chapter 2 Grocery": "Grocery",
+    "Chapter 2 Inn": "Inn",
+    "Chapter 2 Conner": "Conner",
+    "Chapter 2 Church": "Church",
+    "Chapter 2 Restaurant": "Restaurant",
+    "Chapter 3 Grillin Village": "Grillin Village",
+    "Chapter 3 Upper Village": "Upper Village",
+    "Chapter 4 Grillin Village": "Grillin Village",
+    "Chapter 4 Upper Village": "Upper Village",
+    "Chapter 5-6 Grillin Village": "Grillin Village",
+    "Chapter 5-6 Upper Village": "Upper Village",
+    "Restaurant Basement Teleport Maze Entrance": "Teleport Maze Start",
+    "Castle Gondola": "Take Gondola to Upper Village",
+    "Restaurant Basement Teleport Maze": "Teleport Maze Left Dark Hallway",
+    "Restaurant Basement Teleport Maze Side Area": "Teleport Maze Right Dark Hallway",
+    "Restaurant Basement Teleport Maze End": "Teleport Maze End Spike Hallway",
+    "Restaurant Basement Dark Maze Entrance": "Dark Maze Vambees on Pillars Room",
+    "Restaurant Basement Dark Maze Sliding Block Puzzle": "Dark Maze Sliding Block Puzzle 1 Block",
+    "Restaurant Basement Dark Maze End": "Dark Maze 3",
+    "Restaurant Basement Rotating Platforms First Lava Area": "Rotating Platforms Small Lava Room Spiked Rotating Walls",
+    "Restaurant Basement Moat and Platforming Over Lava": "Basement Water Moat",
+    "Frozen Palace Green Eye Maze and Green Eye Room": "Green Eye Maze",
+    "Frozen Palace Ice Block and Red Eye Room": "Sliding Ice Block Room",
+    "Frozen Palace Blue Eye Maze and Blue Eye Room": "Blue Eye Maze",
+    "Frozen Palace Red Eye Hallway to Blue Eye Maze": "Red Eye Hallway",
+    "Soda Fountain Calendar Maze Entrance": "Calendar Maze Start",
+    "Soda Fountain Calendar Maze Middle": "Calendar Maze Sky Scroll Over Spikes and Retracting Panel",
+    "Soda Fountain Calendar Maze Torches": "Calendar Maze Torches and Smashing Block Room Near Fire Door",
+    "Soda Fountain Calendar Maze End": "Calendar Maze End Sky Scroll Over Spikes and Descend Shafts Upper Level",
+    "Soda Fountain Factory Entrance": "Factory Large Gap in Floor",
+
+}
+
+region_alias_reverse: dict[str, str] = {v: k for k, v in region_alias.items()}
+
+
+short_name_substitute: dict[int,str] = {
+    0x3001: "003",
+    0x3002: "002",
+    0x3003: "001",
+    0x3004: "00",
+    0x1010: "005",
+    0x3034: "10",
+}
+
+def expand_region_id(short_id:int) -> int:
+    if(short_id in [0x10, 0x11, 0x52, 0x53, 0x77, 0x78, 0x94, 0x95]):
+        return short_id + 0x1000
+    if(short_id in [0x13, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5b, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f, 0x80, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d]):
+        return short_id + 0x2000
+    return short_id + 0x3000

@@ -1,11 +1,12 @@
 from typing import Dict, List, Any, Tuple, TypedDict, ClassVar, Union, Set, TextIO
 from logging import warning
-from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState
+from BaseClasses import Region, Location, Item, Tutorial, ItemClassification, MultiWorld, CollectionState, EntranceType
 from .items import item_name_to_id, item_table, item_name_groups, jp_id_offset, item_base_id, item_id_to_name
 from .locations import location_table, location_name_groups, standard_location_name_to_id, en_standard_location_name_to_id
 from .rulebuilder import set_rules
+from .rulebuilder_er import set_er_rules
 from .rules import set_region_rules, set_location_rules
-from .regions import bfm_regions
+from .regions import bfm_regions, bfm_er_static_regions, region_alias, bfm_er_static_one_way_connections,short_name_substitute,expand_region_id,region_alias_reverse
 from .options import BFMOptions
 from worlds.AutoWorld import WebWorld, World
 from Options import PlandoConnection, OptionError
@@ -25,6 +26,8 @@ import math
 from worlds.LauncherComponents import Component, Type, components
 from .launch import run_client
 from .settings import BFMSettings
+from .portals import bfm_portals, BFMConnection, bfm_portals_short_to_door_names, bfm_portals_door_names_to_short,bfm_portals_short_to_door_names_no_ignore
+from entrance_rando import randomize_entrances, disconnect_entrance_for_randomization, ERPlacementState, EntranceRandomizationError
 
 
 components.append(
@@ -66,7 +69,7 @@ class BFMWorld(UTMxin, World):
     options: BFMOptions
     settings_key = "brave_fencer_musashi_settings"
     settings: ClassVar[BFMSettings]
-    required_client_version = (0, 2, 5)
+    required_client_version = (0, 6, 7)
     web = BFMWeb()
     hair_selection: str = hair_color_options[2]
     scalp_selection: str = hair_color_options[2]
@@ -96,6 +99,9 @@ class BFMWorld(UTMxin, World):
     ut_can_gen_without_yaml = True  # class var that tells it to ignore the player yaml
     #tracker_world: ClassVar = ut_stuff.tracker_world
 
+    entrance_ids_connected: List[Tuple[str,str]] = []
+    er_pairings: Dict[str,str] = {}
+
     def generate_early(self) -> None:
         tracker.setup_options_from_slot_data(self)
         if(getattr(self.multiworld, "generation_is_fake", False)):
@@ -104,6 +110,22 @@ class BFMWorld(UTMxin, World):
             warning(" >UT Gen<")
 
         self.player_location_table = en_standard_location_name_to_id.copy()
+
+
+        if(self.options.entrance_rando.value):
+            if(self.options.sky_scroll_logic.value == 1):
+                self.options.sky_scroll_logic.value = 2
+            self.options.toy_sanity.value = False
+            self.options.playthrough_method.value = 2
+            #self.options.time_sanity.value = False
+            #self.options.level_sanity.value = False
+            #self.options.scroll_sanity.value = True
+            self.options.skip_over_calendar_maze.value = False
+            self.options.skip_minigame_ant_gondola.value = False
+            self.options.soda_fountain_boss_rush.value = False
+            self.options.force_soda_fountain_last.value = False
+            self.options.restaurant_teleport_maze_no_fail.value = False
+            self.options.fast_walk.value = True
         """
         if(self.using_ut == True):
             item_id_to_name: Dict[int, str] = {(item_base_id * (data.item_group == "NPC") + data.item_id_offset): name for name, data in item_table.items()}
@@ -194,32 +216,158 @@ class BFMWorld(UTMxin, World):
             if(self.options.time_sanity.value == True and self.options.lumina_randomzied.value == True and self.options.bakery_sanity.value == False):
                 warning("extremely restrictive settings are turned on with early skullpion, turning off early_skullpion")
                 self.options.early_skullpion.value = False
+
         #if(self.options.set_lang.value == 2):
             #temp_locations: Dict[str, int] = {location_table[location_name].jp_name: location_id for location_name, location_id in self.player_location_table.items()}
             #self.player_location_table = temp_locations
         
     def create_regions(self) -> None:
-        
-        for region_name in bfm_regions:
+        if(self.options.entrance_rando.value == False):
+            for region_name in bfm_regions:
                 region = Region(region_name, self.player, self.multiworld)
                 self.multiworld.regions.append(region)
 
-        for region_name, exits in bfm_regions.items():
-            region = self.get_region(region_name)
-            region.add_exits(exits)
+            for region_name, exits in bfm_regions.items():
+                region = self.get_region(region_name)
+                region.add_exits(exits)
 
-        for location_name, location_id in self.player_location_table.items():
-            region = self.get_region(location_table[location_name].region)
-            final_location_name = location_name
-            #if(self.options.set_lang.value == 2):
-            #    if(self.options.spoiler_items_in_english.value == True):
-            #        return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name], self.player)
-            #return BFMItem(name, itemclass, self.item_name_to_id[name], self.player)
-            if(self.options.set_lang.value == 2):
-                if(self.options.spoiler_items_in_english.value == False or self.using_ut == True):
-                    final_location_name = location_table[location_name].jp_name
-            location = BFMLocation(self.player, final_location_name, location_id + ((self.options.set_lang.value == 2) * jp_id_offset), region)
-            region.locations.append(location)
+            for location_name, location_id in self.player_location_table.items():
+                region = self.get_region(location_table[location_name].region)
+                final_location_name = location_name
+                #if(self.options.set_lang.value == 2):
+                #    if(self.options.spoiler_items_in_english.value == True):
+                #        return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name], self.player)
+                #return BFMItem(name, itemclass, self.item_name_to_id[name], self.player)
+                if(self.options.set_lang.value == 2):
+                    if(self.options.spoiler_items_in_english.value == False or self.using_ut == True):
+                        final_location_name = location_table[location_name].jp_name
+                location = BFMLocation(self.player, final_location_name, location_id + ((self.options.set_lang.value == 2) * jp_id_offset), region)
+                region.locations.append(location)
+        else:
+            #for short_name, door_name in bfm_portals_short_to_door_names.items():
+            #    region = Region(door_name, self.player, self.multiworld)
+            #    self.multiworld.regions.append(region)
+            #region = Region("Menu", self.player, self.multiworld)
+            #self.multiworld.regions.append(region)
+            region_names = []
+            self.entrance_ids_connected = []
+            for id, connection_data in bfm_portals.items():
+                num_not_ignore = 0
+                for connection in connection_data.connections:
+                    if(connection.connection_group != "Ignore" and not connection.door_name in region_names):
+                        region_names.append(connection.door_name)
+                        num_not_ignore = num_not_ignore + 1
+                        region = Region(connection.door_name, self.player, self.multiworld)
+                        self.multiworld.regions.append(region)
+                if(not id in bfm_er_static_regions and num_not_ignore > 0):
+                    if(connection_data.region in region_alias):
+                        if(not region_alias[connection_data.region] in region_names):
+                            region_names.append(region_alias[connection_data.region])
+                            region = Region(region_alias[connection_data.region], self.player, self.multiworld)
+                            self.multiworld.regions.append(region)
+                    elif(not connection_data.region in region_names):
+                        region_names.append(connection_data.region)
+                        region = Region(connection_data.region, self.player, self.multiworld)
+                        self.multiworld.regions.append(region)
+
+
+            for id, connection_data in bfm_er_static_regions.items():
+                for region_name, connections in connection_data.items():
+                    if(not region_name in region_names):
+                        region_names.append(region_name)
+                        region = Region(region_name, self.player, self.multiworld)
+                        self.multiworld.regions.append(region)
+
+            for id, connection_data in bfm_portals.items():
+                if(not "Nightmare" in connection_data.region):
+                    #try:
+
+                        num_not_ignore = 0
+                        for connection in connection_data.connections:
+                            if(connection.connection_group != "Ignore"):
+                                num_not_ignore = num_not_ignore + 1
+                                break
+                        if(num_not_ignore > 0):
+                            if(connection_data.region in region_alias):
+                                origin_region = self.get_region(region_alias[connection_data.region])
+                            else:
+                                origin_region = self.get_region(connection_data.region)
+
+                            regions = []
+                            if(not id in bfm_er_static_regions):
+                                for connection in connection_data.connections:
+                                    if(connection.connection_group != "Ignore"):
+                                        regions.append(connection.door_name)
+                                        region = self.get_region(connection.door_name)
+                                        region.connect(origin_region)
+                                origin_region.add_exits(regions)
+                            else:
+                                for region_name, connections in bfm_er_static_regions[id].items():
+                                    origin_region = self.get_region(region_name)
+                                    origin_region.add_exits(connections)
+                                    for connection in connections:
+                                        region = self.get_region(connection)
+                                        region.connect(origin_region)
+                            for connection in connection_data.connections:
+                                if(connection.connection_group != "Ignore"):
+                                    short_name = hex(connection.destination)[4:] + hex(connection.door)[2:]
+                                    origin_region = self.get_region(connection.door_name)
+                                    if(short_name in ["000", "004", "107"] and id in short_name_substitute):
+                                        short_name = short_name_substitute[id]
+                                    if(short_name in bfm_portals_short_to_door_names):
+                                        if(bfm_portals_short_to_door_names[short_name] in region_alias):
+                                            region = self.get_region(region_alias[bfm_portals_short_to_door_names[short_name]])
+                                        else:
+                                            region = self.get_region(bfm_portals_short_to_door_names[short_name])
+                                        self.entrance_ids_connected.append((connection.short_name,short_name))
+                                        #if(not (short_name,connection.short_name) in self.entrance_ids_connected): #TODO is this needed?
+                                        origin_region.connect(region)
+                                    else:
+                                        if(connection.destination in bfm_portals):
+                                            if(bfm_portals[connection.destination].region in region_alias):
+                                                region = self.get_region(region_alias[bfm_portals[connection.destination].region])
+                                            else:
+                                                region = self.get_region(bfm_portals[connection.destination].region)
+                                            origin_region.connect(region)
+                    #except KeyError:
+                    #    warning("Missing %s", connection_data.region)
+                    #    warning("Missing %s", region_name)
+            warning("connected : %s", self.entrance_ids_connected)
+            for origin_region_name, region_name in bfm_er_static_one_way_connections.items():
+                origin_region = self.get_region(origin_region_name)
+                region = self.get_region(region_name)
+                origin_region.connect(region)
+            origin_region = self.get_region("Menu")
+            #region = self.get_region("Upper Village")
+            #region = self.get_region("Zipline")
+            region = self.get_region("Cutscene MOON")
+            origin_region.connect(region)
+            #self.get_entrance("Menu -> Cutscene MOON").randomization_type = EntranceType.TWO_WAY
+
+
+                        
+            #for region_name, exits in bfm_regions.items():
+            #    region = self.get_region(region_name)
+            #    region.add_exits(exits)
+            #visualize_regions(self.multiworld.get_region("Castle Bedroom", self.player), "my_world.puml")
+            #visualize_regions(self.multiworld.get_region("Menu", self.player), "my_world.puml")
+            is_er = self.options.entrance_rando.value
+
+            for location_name, location_id in self.player_location_table.items():
+                if(is_er):
+                    region = self.get_region(location_table[location_name].er_region)
+                else:
+                    region = self.get_region(location_table[location_name].region)
+                final_location_name = location_name
+                #if(self.options.set_lang.value == 2):
+                #    if(self.options.spoiler_items_in_english.value == True):
+                #        return BFMItem(self.item_id_to_name[item_name_to_id[name]-jp_id_offset], itemclass, self.item_name_to_id[name], self.player)
+                #return BFMItem(name, itemclass, self.item_name_to_id[name], self.player)
+                if(self.options.set_lang.value == 2):
+                    if(self.options.spoiler_items_in_english.value == False or self.using_ut == True):
+                        final_location_name = location_table[location_name].jp_name
+                location = BFMLocation(self.player, final_location_name, location_id + ((self.options.set_lang.value == 2) * jp_id_offset), region)
+                region.locations.append(location)
 
         if(self.options.goal.value == 1): #save all NPCs
             self.multiworld.completion_condition[self.player] = lambda state: state.has_group("NPC", self.player, 35)
@@ -238,10 +386,17 @@ class BFMWorld(UTMxin, World):
             self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Queen Ant Arena", self.player)
             #self.multiworld.completion_condition[self.player] = lambda state: can_enter_frozen_palace(state, self) and can_identify_gondola_gizmo(state, self) and can_fight_skullpion(state, self) and can_fight_frost_dragon(state, self) and has_wind_scroll(state, self) and has_fire_boss_core(state, self)
         elif(self.options.goal.value == 7 or self.options.goal.value == 8): #defeat sky crest guardian or final boss
-            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Soda Fountain", self.player)
+            if(self.options.entrance_rando.value):
+                if(self.options.goal.value == 7):
+                    self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Defeat ToD", self.player)
+                else:
+                    self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Defeat DL3", self.player)
+            else:
+                self.multiworld.completion_condition[self.player] = lambda state: state.can_reach_region("Soda Fountain", self.player)
         elif(self.options.goal.value == 9): #defeat x crest guardian
             self.multiworld.completion_condition[self.player] = lambda state: state.has("Boss killed", self.player, self.options.guardian_goal.value) or (state.has("Boss killed", self.player, self.options.guardian_goal.value - 1) and state.has("ToD killed", self.player))
             
+        visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_with_locations.puml")
             #self.multiworld.completion_condition[self.player] = lambda state: has_all_scrolls(state, self) and has_earth_boss_core(state, self) and has_wind_boss_core(state, self) and has_ex_drink(state, self) and state.has_all({"Lumina", "Bracelet"}, self.player)
         #self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "Taster", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "Janitor", "Artisan", "CarpentC", "MusicianC", "Knitter", "Chef", "MercenA", "Chief", "CookB", "Conductor", "Butcher", "KnightC", "Doctor", "KnightD", "Alchemist", "Librarian"}, self.player)
         #self.multiworld.completion_condition[self.player] = lambda state: saved_everyone(state, self.world)
@@ -251,6 +406,7 @@ class BFMWorld(UTMxin, World):
             "version": __version__,
             "set_lang": self.options.set_lang.value,
             "playthrough_method": self.options.playthrough_method.value,
+            "starting_location": self.options.starting_location.value,
             "skip_over_bosses": self.options.skip_over_bosses.value,
             "goal": self.options.goal.value,
             "npc_goal": self.options.npc_goal.value,
@@ -274,6 +430,8 @@ class BFMWorld(UTMxin, World):
             "scroll_sanity": self.options.scroll_sanity.value,
             "wind_scroll_logic": self.options.wind_scroll_logic.value,
             "sky_scroll_logic": self.options.sky_scroll_logic.value,
+            "rumparoni_logic": self.options.rumparoni_logic.value,
+            "double_jump_logic": self.options.double_jump_logic.value,
             "core_sanity": self.options.core_sanity.value,
             "level_sanity": self.options.level_sanity.value,
             "level_bundles": self.options.level_bundles.value,
@@ -314,7 +472,8 @@ class BFMWorld(UTMxin, World):
             "topo_dance_battle_logic": self.options.topo_dance_battle_logic.value,
             "soda_fountain_boss_rush": self.options.soda_fountain_boss_rush.value,
             "message_level": self.options.message_level.value,
-            "fast_walk": self.options.fast_walk.value
+            "fast_walk": self.options.fast_walk.value,
+            "er_pairings": self.er_pairings,
         }
         return slot_data
 
@@ -349,6 +508,8 @@ class BFMWorld(UTMxin, World):
         items_to_create: Dict[str, int] = {item: data.quantity_in_item_pool for item, data in item_table.items()}
         if(self.options.lumina_randomzied.value == False):
             del items_to_create["Lumina"]
+            if(self.options.entrance_rando.value):
+                self.get_region("Spiral Tower Roof").add_event("Can Grab Lumina", "Has Lumina", location_type = BFMLocation, item_type = BFMItem)
         if(self.options.bakery_sanity.value == False):
             del items_to_create["Progressive Bread"]
         #print(item_name_groups)
@@ -372,6 +533,12 @@ class BFMWorld(UTMxin, World):
             for name in item_name_groups["Scroll"]:
                 if(name in item_table):
                     del items_to_create[name] 
+            if(self.options.entrance_rando.value):
+                self.get_region("Twinpeak Around the Bend").add_event("Can Free Earth Scroll", "Has Earth Scroll", location_type = BFMLocation, item_type = BFMItem)
+                self.get_region("Grillin Reservoir").add_event("Can Free Water Scroll", "Has Water Scroll", location_type = BFMLocation, item_type = BFMItem)
+                self.get_region("Island of Dragons").add_event("Can Free Fire Scroll", "Has Fire Scroll", location_type = BFMLocation, item_type = BFMItem)
+                self.get_region("Grillin Volcano").add_event("Can Free Wind Scroll", "Has Wind Scroll", location_type = BFMLocation, item_type = BFMItem)
+                self.get_region("Free Sky Scroll").add_event("Can Free Sky Scroll", "Has Sky Scroll", location_type = BFMLocation, item_type = BFMItem)
         if(self.options.core_sanity.value == False):
             for name in item_name_groups["Core"]:
                 if(name in item_table):
@@ -491,10 +658,47 @@ class BFMWorld(UTMxin, World):
         self.get_region("Frost Dragon Arena").add_event("Fire Crest Guardian", "Frost Dragon killed", location_type = BFMLocation, item_type = BFMItem)
         self.get_region("Queen Ant Arena").add_event("Wind Crest Guardian", "Queen Ant killed", location_type = BFMLocation, item_type = BFMItem)
         if(self.options.playthrough_method.value == 2):
-            self.get_region("Soda Fountain").add_event("Sky Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+            if(self.options.entrance_rando.value):
+                self.get_region("Defeat ToD").add_event("Sky Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
+            else:
+                self.get_region("Soda Fountain").add_event("Sky Crest Guardian Defeated", "Boss killed", location_type = BFMLocation, item_type = BFMItem)
         else:
-            self.get_region("Soda Fountain").add_event("Sky Crest Guardian Defeated", "ToD killed", location_type = BFMLocation, item_type = BFMItem)
+            if(self.options.entrance_rando.value):
+                self.get_region("Defeat ToD").add_event("Sky Crest Guardian Defeated", "ToD killed", location_type = BFMLocation, item_type = BFMItem)
+            else:
+                self.get_region("Soda Fountain").add_event("Sky Crest Guardian Defeated", "ToD killed", location_type = BFMLocation, item_type = BFMItem)
 
+        if(self.options.entrance_rando.value):
+            self.get_region("Twinpeak Entrance").add_event("Can Reach Twinpeak Entrance", "Can Reach Twinpeak Entrance", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Graveyard").add_event("Can Reach Graveyard", "Can Reach Graveyard", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Twinpeak Second Peak Aqualin").add_event("Can Reach Aqualin", "Can Reach Aqualin", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Restaurant Basement Entrance Behind 4 Eye Door").add_event("Can Reach Ugly Belt Chest", "Can Reach Ugly Belt Chest", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Castle Meeting Room").add_event("Can Reach Castle Meeting Room", "Can Reach Castle Meeting Room", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Misteria Underground Lake").add_event("Can Reach Misteria", "Can Reach Misteria", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Waterfall Cave West").add_event("Can Reach Waterfall Cave", "Can Reach Hotelo", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Lower Mine Scrap Depository").add_event("Can Reach Scrap Depository", "Can Reach Gondola Gizmo", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Chapter 3 Church Vambee Fight").add_event("Can Reach Chapter 3 Church Vambee Fight", "Church Vambee Fight", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Grillin Reservoir").add_event("Can Reach Grillin Reservoir", "Can Reach Water Crest", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Restaurant Basement Bowling Entrance").add_event("Can Reach Restaurant Basement Bowling Entrance", "Can Bowl", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Bowling 1 Plant Room").add_event("Can Reach Bowling 1 Plant Room", "Can Bowl", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Bowling 2 Plant Room").add_event("Can Reach Bowling 2 Plant Room", "Can Bowl", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Green Eye Maze").add_event("Green Eye Maze Clone", "Has Clone", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Blue Eye Door Hallway Upper Path").add_event("Blue Eye Door Hallway Upper Path Clone", "Has Clone", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Red Eye Hallway").add_event("Red Eye Hallway Clone", "Has Clone", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Red Eye Hallway Near Fallen Pillars South East").add_event("Red Eye Hallway Near Fallen Pillars South East Clone", "Has Clone", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Green Eye Maze").add_event("Green Eye Maze Steel", "Has Steel", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Blue Eye Maze").add_event("Blue Eye Maze Steel", "Has Steel", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Teleport Maze End Eye Room").add_event("Can Reach Teleport Maze End Eye Room", "Eye Switch", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Bowling End Eye Room").add_event("Can Reach Bowling End Eye Room", "Eye Switch", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Dark Maze End Eye Room").add_event("Can Reach Dark Maze End Eye Room", "Eye Switch", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Rotating Platforms End Eye Room").add_event("Can Reach Rotating Platforms End Eye Room", "Eye Switch", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Upper Mine Large Fan Near Switch Upper West").add_event("Can Reach Upper Mine Large Fan Near Switch Upper West", "Mine Power Switch On", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Squish Ant").add_event("Can Reach Squish Ant Cutscene", "Squish Ant Cutscene", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Grillin Reservoir Tunnel").add_event("Can Reach Grillin Reservoir Tunnel", "Can Reach Fire Crest", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Lower Mine Entrance").add_event("Can Reach Lower Mine Entrance", "Can Reach Lower Mine Entrance", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Island of Dragons").add_event("Can Reach Island of Dragons", "Can Reach Island of Dragons", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Steamwood Outside").add_event("Can Reach Steamwood Outside", "Can Reach Steamwood Outside", location_type = BFMLocation, item_type = BFMItem)
+            self.get_region("Upper Village Steam Pipe").add_event("Can Reach Upper Village Steam Pipe", "Can Reach Fores", location_type = BFMLocation, item_type = BFMItem)
         #final_boss_room.add_event(
         #"Final Boss Defeated", "Victory", location_type=APQuestLocation, item_type=items.APQuestItem)
 
@@ -508,7 +712,12 @@ class BFMWorld(UTMxin, World):
 
     def set_rules(self) -> None:
         #print(self.options.set_lang.value)
-        set_rules(self)
+        
+        if(self.options.entrance_rando.value):
+            set_er_rules(self)
+            warning("ran ER Rules")
+        else:
+            set_rules(self)
         #if(self.using_ut == False):
         #    set_rules(self)
         #else:
@@ -525,6 +734,205 @@ class BFMWorld(UTMxin, World):
         #self.multiworld.register_indirect_condition(self.get_region("Frost Dragon Arena"), self.get_entrance("Frost Dragon Door -> Frost Dragon Arena"))
         #self.multiworld.register_indirect_condition(self.get_region("Queen Ant Arena"), self.get_entrance("Upper Mines Poison Elevators -> Queen Ant Arena"))
         #visualize_regions(self.multiworld.get_region("Menu", self.player), "my_world.puml")
+    
+    def connect_entrances(self) -> None:
+        if(self.options.entrance_rando.value == False):
+            return
+        groups_to_remain_connected: List[str] = []
+        if(self.options.starting_location.value == 1):
+            groups_to_remain_connected.append("CH1")
+        entrance_ids_disconnected: List[Tuple[str,str]] = []
+        for id, connection_data in bfm_portals.items():
+            if(not "Nightmare" in connection_data.region):
+                #try:
+                for connection in connection_data.connections:
+                    if(connection.connection_group != "Ignore" and connection.can_be_disconnected and not connection.connection_group in groups_to_remain_connected):
+                        short_name = hex(connection.destination)[4:] + hex(connection.door)[2:]
+                        #origin_region = self.get_region(connection.door_name)
+                        if(short_name in bfm_portals_short_to_door_names):
+                            if(short_name in ["000", "004", "107"] and id in short_name_substitute):
+                                short_name = short_name_substitute[id]
+                            #if(not (short_name,connection.short_name) in entrance_ids_disconnected):
+                            entrance_ids_disconnected.append((connection.short_name,short_name))
+                            entrance = self.get_entrance(f"{connection.door_name} -> {bfm_portals_short_to_door_names[short_name]}")
+                            if((short_name,connection.short_name) in self.entrance_ids_connected):
+                                #warning("is two way : %s", entrance.name)
+                                #pass
+                                entrance.randomization_type = EntranceType.TWO_WAY
+                            if(self.using_ut == False):
+                                entrance.randomization_group = 1
+                                disconnect_entrance_for_randomization(entrance,1,bfm_portals_short_to_door_names[short_name])
+                            else:
+                                entrance.connected_region.entrances.remove(entrance)
+                                entrance.connected_region = None
+                                entrance.parent_region.exits.remove(entrance)
+                                entrance.parent_region = None
+
+                            #region = self.get_region(bfm_portals_short_to_door_names[short_name])
+                            #origin_region.connect(region)
+                        else:
+                            if(connection.destination in bfm_portals):
+                                if(bfm_portals[connection.destination].region in region_alias):
+                                    child_name = region_alias[bfm_portals[connection.destination].region]
+                                    #region = self.get_region(region_alias[bfm_portals[connection.destination].region])
+                                else:
+                                    child_name = bfm_portals[connection.destination].region
+                                    #region = self.get_region(bfm_portals[connection.destination].region)
+                                #entrance_ids_disconnected.append((connection.short_name,short_name))
+                                entrance = self.get_entrance(f"{connection.door_name} -> {child_name}")
+                                if(self.using_ut == False):
+                                    entrance.randomization_group = 1
+                                    disconnect_entrance_for_randomization(entrance,1,child_name)
+                                else:
+                                    entrance.connected_region.entrances.remove(entrance)
+                                    entrance.connected_region = None
+                                    entrance.parent_region.exits.remove(entrance)
+                                    entrance.parent_region = None
+                                #origin_region.connect(region)
+        #warning("connected : %s", self.entrance_ids_connected)
+        """
+        warning("disconnected : %s", entrance_ids_disconnected)
+        warning("disconnected num : %s", len(entrance_ids_disconnected))
+        warning("connected num : %s", len(self.entrance_ids_connected))
+        warning("if equal : %s", set(self.entrance_ids_connected) - set(entrance_ids_disconnected))
+        for conn in entrance_ids_disconnected:
+            if(not (conn[1], conn[0]) in entrance_ids_disconnected):
+                warning("is oneway? : %s", conn)
+            if(entrance_ids_disconnected.count(conn) != 1):
+                warning("too many or few? %s : count : %s",conn,entrance_ids_disconnected.count(conn))
+        """
+        if(self.options.starting_location.value == 2):
+            entrance = self.get_entrance("End Summon Crystal Cutscene -> Starting Forest")
+            disconnect_entrance_for_randomization(entrance,None,"Starting Forest")
+            #child_region = entrance.connected_region
+            #child_region.entrances.remove(entrance)
+            entrance.connected_region = None
+            entrance.parent_region.exits.remove(entrance)
+            entrance.parent_region = None
+                
+            if(self.using_ut == True):
+                region = self.get_region("Starting Forest")
+                #entrance = self.get_entrance("Starting Forest -> Starting Forest")
+                entrance = region.entrances[1]
+                region.entrances.remove(entrance)
+                #region.exits.remove(entrance)
+                entrance.connected_region = None
+            #warning("summon %s",self.get_region("End Summon Crystal Cutscene").exits)
+            #warning("forest %s",self.get_region("Starting Forest").entrances)
+            origin_region = self.get_region("End Summon Crystal Cutscene")
+            region = self.get_region("Zipline")
+            origin_region.connect(region)
+                
+            if(self.using_ut == False):
+                #warning("zip %s",self.get_region("Zipline").entrances[0])
+                entrance = self.get_region("Zipline").entrances[0]
+                region.entrances.remove(entrance)
+                #region.exits.remove(entrance)
+                entrance.connected_region = None
+                #entrance.parent_region = None
+
+        #visualize_regions(self.multiworld.get_region("Menu", self.player), "er_puml/just_before_bfm_er.puml")
+
+        #visualize_regions(self.multiworld.get_region("Menu", self.player), "just_before_bfm_er.puml")
+        if(self.using_ut == False):
+            import traceback
+            attempts: int = 0
+            #mess_with_rng = 0
+            er_info: ERPlacementState = None
+            max_attempts = 1
+            while(attempts < max_attempts and er_info is None):
+                attempts = attempts + 1
+                try:
+                    er_info: ERPlacementState = randomize_entrances(self,True,{0: [0,1],1: [0,1]})
+                except EntranceRandomizationError as er_error:
+                    warning("Attempt to ER for BFM # %s failed", attempts)
+                    if(attempts >= max_attempts):
+                        warning("Reached max attempts to ER for BFM for player: %s (player #%s)",self.player_name,self.player)
+                        #warning(traceback.format_exc())
+                        warning("Ask Player '%s' to report this issue to the Brave Fencer Musashi Dev and perhaps try tweaking yaml settings before genning again",self.player_name)
+                        raise er_error
+                    #taken from https://github.com/Ars-Ignis/Archipelago/blob/4a94e83ec86977c9c1eb4663133d0a6ea340fd08/worlds/crystalis/regions.py#L678
+                    for region in self.get_regions():
+                        for entrance in region.get_exits():
+                            if (entrance.randomization_group == 1 and entrance.parent_region and entrance.connected_region):
+                                #warning("disconnected : %s -> %s", entrance.parent_region, entrance.connected_region)
+                                if(entrance.connected_region.name == "Restaurant Hidden Exit Behind Counter"):
+                                    warning("Parent of region that shouldn't be disconnected %s",entrance.parent_region.name)
+                                if(entrance.parent_region.name == "Restaurant Hidden Exit Behind Counter"):
+                                    warning("should only be one of these, restaurant connected to %s", entrance.connected_region)
+                                    warning("entrance type %s", entrance.randomization_type)
+                                disconnect_entrance_for_randomization(entrance, entrance.randomization_group, region.name)
+            visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_er.puml")
+            warning("er info pairings : %s",er_info.pairings)
+
+            for pair in er_info.pairings:
+                origin = pair[0].split(" -> ")[0]
+                dest = pair[1].split(" -> ")[0]
+                if(origin in bfm_portals_door_names_to_short):
+                    origin = bfm_portals_door_names_to_short[origin]
+                #elif(origin in region_alias_reverse):
+                #    origin = region_alias_reverse[origin]
+                #    if(origin in bfm_portals_door_names_to_short):
+                #        origin = bfm_portals_door_names_to_short[origin]
+                if(dest in bfm_portals_door_names_to_short):
+                    dest = bfm_portals_door_names_to_short[dest]
+                elif(dest in region_alias_reverse):
+                    dest = region_alias_reverse[dest]
+                    if(dest in bfm_portals_door_names_to_short):
+                        dest = bfm_portals_door_names_to_short[dest]
+                if(dest in ["001","002","003"]):
+                    dest = "004"
+                if(dest in ["005","006","007"]):
+                    dest = "000"
+                if(dest in ["10"]):
+                    dest = "107"
+                if(origin == "9d1"):
+                    origin = "1a1"
+                self.er_pairings[origin] = dest
+                #if(dest in self.er_pairings):
+                #    if(self.er_pairings[dest] != origin or True):
+                #        self.er_pairings[origin] = dest
+                #else:
+                #    self.er_pairings[origin] = dest
+            if(self.options.starting_location.value == 2):
+                self.er_pairings["052"] = "040"
+                self.er_pairings["061"] = "040"
+            warning("short_name_pairs : %s",self.er_pairings)
+        else:
+            warning("pairings list %s",self.er_pairings)
+            for origin, dest in self.er_pairings.items():
+                if(origin in bfm_portals_short_to_door_names_no_ignore):
+                    long_name_origin = bfm_portals_short_to_door_names_no_ignore[origin]
+                else:
+                    warning("not in list %s",origin)
+                    continue
+                    #num: int = expand_region_id(int(origin,16))
+                    #if(num in bfm_portals):
+                    #    long_name_origin = bfm_portals[num].region
+                if(long_name_origin in region_alias):
+                    long_name_origin = region_alias[long_name_origin]
+                if(dest in ["000", "004"]):
+                    long_name_region = "Castle Outside"
+                elif(dest == "107"):
+                    long_name_region = "Grillin Village"
+                elif(dest in bfm_portals_short_to_door_names_no_ignore):
+                    long_name_region = bfm_portals_short_to_door_names_no_ignore[dest]
+                else:
+                    warning("not in list %s",dest)
+                    continue
+                    #num: int = expand_region_id(int(dest,16))
+                    #if(num in bfm_portals):
+                    #    long_name_region = bfm_portals[num].region
+                if(long_name_region in region_alias):
+                    long_name_region = region_alias[long_name_region]
+                    #else:
+                    #    warning("no name found for %s, %s",dest,num)
+                origin_region = self.get_region(long_name_origin)
+                region = self.get_region(long_name_region)
+                origin_region.connect(region, name = long_name_origin)
+            visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_UT_er.puml")
+
+        #warning("er info placements : %s",er_info.placements)
     # Taken from Tunic APWorld https://github.com/ArchipelagoMW/Archipelago/blob/main/worlds/tunic/__init__.py#L713
     # for the universal tracker, doesn't get called in standard gen
     # docs: https://github.com/FarisTheAncient/Archipelago/blob/tracker/worlds/tracker/docs/re-gen-passthrough.md

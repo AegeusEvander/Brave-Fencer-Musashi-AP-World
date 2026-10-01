@@ -21,7 +21,7 @@ from .store_info import bakery_locations, store_table, restaurant_pointers, rest
 from .stats import body_xp, mind_xp, lumina_xp, fusion_xp, body_stat, mind_stat, lumina_stat, fusion_stat, level_memory_ids
 from .jp_encoding import jp_encoding
 from .quest_items import quest_item_locations, well_water_id, gate_angles, time_hook
-from .portals import bfm_portals, BFMConnection
+from .portals import bfm_portals, BFMConnection, bfm_portals_connection_info
 from .trap import trap_names_long_queue, trap_names_short_queue, regions_with_water, regions_indoors, assimilation_value, item_swap_whitelist, trap_conversion, trap_send_conversion, trap_weight
 from .fusion import fusion_lookup, usable_skills
 from .progression_state import calc_completed_progression_state, calc_progression_state, progression_state_table
@@ -436,6 +436,7 @@ class BFMClient(BizHawkClient):
     #time_available = [0x200] + ([0x0] * 6)
     time_available = [0x0] * 7
     number_of_time_slots_unlocked = 168
+    er_pairings: Dict[str,str] = {}
     Commands_Dict = {
         "death_link": "cmd_deathlink",
         "trap_link": "cmd_trap_link",
@@ -473,7 +474,7 @@ class BFMClient(BizHawkClient):
                 )]))[0]
                 if bytes_actual != bytes_expected:
                     bytes_actual = (await bizhawk.read(ctx.bizhawk_ctx, [(
-                        0x072e02, len(bytes_expected), MAIN_RAM
+                        0x072dfe, len(bytes_expected), MAIN_RAM
                     )]))[0]
                     if bytes_actual != bytes_expected:
                         #SLUS_007.26;1 in ASCII
@@ -618,6 +619,26 @@ class BFMClient(BizHawkClient):
             from CommonClient import logger
             #logger.info("data dump %s", game_state)
             #received_list: List[int] = [received_item[0] - ((ctx.slot_data["set_lang"] - 1) * jp_id_offset) for received_item in ctx.items_received]
+            if(len(self.er_pairings) == 0 and len(ctx.slot_data["er_pairings"]) > 0):
+                self.er_pairings = ctx.slot_data["er_pairings"] #| {v: k for k, v in ctx.slot_data["er_pairings"].items()}
+                for id in ["10", "52", "77", "94"]:
+                    for door in range(17):
+                        short_name = id + hex(door)[2:]
+                        if(short_name in self.er_pairings):
+                            self.er_pairings["10" + hex(door)[2:]] = self.er_pairings[short_name]
+                            self.er_pairings["52" + hex(door)[2:]] = self.er_pairings[short_name]
+                            self.er_pairings["77" + hex(door)[2:]] = self.er_pairings[short_name]
+                            self.er_pairings["94" + hex(door)[2:]] = self.er_pairings[short_name]
+                for id in ["11", "53", "78", "95"]:
+                    for door in range(6):
+                        short_name = id + hex(door)[2:]
+                        if(short_name in self.er_pairings):
+                            self.er_pairings["11" + hex(door)[2:]] = self.er_pairings[short_name]
+                            self.er_pairings["53" + hex(door)[2:]] = self.er_pairings[short_name]
+                            self.er_pairings["78" + hex(door)[2:]] = self.er_pairings[short_name]
+                            self.er_pairings["95" + hex(door)[2:]] = self.er_pairings[short_name]
+                logger.info("er pairings : %s",self.er_pairings)
+
             received_list: List[int] = [received_item[0] - ((received_item[0] > jp_id_offset) * jp_id_offset) for received_item in ctx.items_received]
 
 
@@ -658,6 +679,18 @@ class BFMClient(BizHawkClient):
                     for connection in connection_data.connections:
                         #logger.info("con %s", connection)
                         dest = connection.destination
+                        #logger.info("checking if %s is in table", connection.short_name)
+                        connection_info = []
+                        if(connection.short_name in self.er_pairings and connection.memory > 0):
+                            connection_info = bfm_portals_connection_info[self.er_pairings[connection.short_name]]
+                            dest = int.from_bytes(connection_info[:2], "little")
+                            if(dest == 0x1095):
+                                if(connection_info[2] == 0x6):
+                                    if(0x492 in self.completed_progression or not 0x047e in self.completed_progression or progression_flags[17][6] & 0b1000 != 0b1000):
+                                        connection_info[2] = 0x5
+                            ##logger.info("connection_info : %s", connection_info)
+                            #logger.info("dest : %s : %s", hex(dest), bfm_portals[dest].region)
+                            fix_town_id = fix_town_id + [(connection.memory + (self.jp_version * connection_data.jp_offset), connection_info, MAIN_RAM)]
                         if(dest in bfm_portals):
                             calc_progression, hint_text = calc_progression_state(ctx, dest, self.progression_state, game_state, self.completed_progression, received_list, self.time_available)
                             if(curr_location in [0x3069, 0x3075] or connection_data.is_cutscene == True): #Chapter 4 town on fire, queen ant, thirstquencher cutscenes
@@ -698,23 +731,24 @@ class BFMClient(BizHawkClient):
                                 else:
                                     dest = 0x1094
                             if(dest in [0x1011, 0x1053, 0x1078, 0x1095]): #upper town
-                                if(calc_progression == 0):
-                                    if(self.progression_state < 0xc8):
+                                if(connection_info[2:3] != 6): #squish ant
+                                    if(calc_progression == 0):
+                                        if(self.progression_state < 0xc8):
+                                            dest = 0x1011
+                                        elif(self.progression_state < 0x258):
+                                            dest = 0x1053
+                                        elif(self.progression_state < 0x398):
+                                            dest = 0x1078
+                                        else:
+                                            dest = 0x1095
+                                    elif(calc_progression < 0xc8):
                                         dest = 0x1011
-                                    elif(self.progression_state < 0x258):
+                                    elif(calc_progression < 0x258):
                                         dest = 0x1053
-                                    elif(self.progression_state < 0x398):
+                                    elif(calc_progression < 0x398):
                                         dest = 0x1078
                                     else:
                                         dest = 0x1095
-                                elif(calc_progression < 0xc8):
-                                    dest = 0x1011
-                                elif(calc_progression < 0x258):
-                                    dest = 0x1053
-                                elif(calc_progression < 0x398):
-                                    dest = 0x1078
-                                else:
-                                    dest = 0x1095
                             if(dest == 0x3034 and curr_location in [0x201a, 0x205b, 0x2080, 0x209d] and not (game_state[17][14] & 0b100000 == 0b100000 or game_state[17][14] & 0b1000000 == 0b1000000)): #basement lobby
                                 dest = 0x3000
                             if(dest == 0x3043 and curr_location in [0x1010, 0x1052, 0x1077, 0x1094]):#town to Mine
@@ -728,6 +762,9 @@ class BFMClient(BizHawkClient):
                             #    dest = 0x2056
                             #if(dest in [0x207c, 0x2099] and self.num_bosses_killed <2): #grocery chapter 4, 5/6
                             #    dest = 0x2057
+                            if(dest == 0x305c and len(connection_info) > 2 and calc_progression == 0x2f0): #yet to talk to gingerelle
+                                if(connection_info[2] in [3,4,5]): #balcony level
+                                    calc_progression = 0x02f8
                             if(dest in [0x2080, 0x209d] and not (game_state[17][14] & 0b100000 == 0b100000 or game_state[17][14] & 0b1000000 == 0b1000000)): #restaurant chapter 4, 5/6
                                 dest = 0x201a
                             if(dest != connection.destination or dest in [0x3034, 0x3043, 0x304e] or (curr_location in [0x1011, 0x1053, 0x1078, 0x1095] and dest in [0x1010, 0x1052, 0x1077, 0x1094])):
@@ -786,6 +823,8 @@ class BFMClient(BizHawkClient):
                     fix_town_id = fix_town_id + [(0x86ad6, self.hair_transition[0].to_bytes(2, "little"), "GPURAM")] #scalp hair color
                     fix_town_id = fix_town_id + [(0x86ad8, self.hair_transition[1].to_bytes(2, "little"), "GPURAM")] #scalp hair color
                     fix_town_id = fix_town_id + [(0x86ada, self.hair_transition[2].to_bytes(2, "little"), "GPURAM")] #scalp hair color
+                if(self.progression_state < 0xa and not curr_location in [0x3005, 0x3006, 0x3008, 0x3009, 0x300a, 0x300b, 0x300d, 0x300e, 0x3000, 0x3001, 0x3002, 0x3004]):
+                    fix_town_id = fix_town_id + [(0x078e80 + (self.jp_version * -0xea0), [0xa], MAIN_RAM)]
                 await bizhawk.write(
                     ctx.bizhawk_ctx,
                     [(0x075400 + (self.jp_version * -0xe70), [2] + destinations + [0], MAIN_RAM),
@@ -2531,6 +2570,11 @@ class BFMClient(BizHawkClient):
                                     ctx.bizhawk_ctx,
                                     [(0x18090c + (self.jp_version * 0x200), [0x40, 0x6], MAIN_RAM)]
                                 )
+                    if(curr_location == 0x300b): #spiral tower Roof
+                        await bizhawk.write(
+                            ctx.bizhawk_ctx,
+                            [(0x078ec0 + (self.jp_version * -0xea0), [0], MAIN_RAM)]
+                        )
                     if(curr_location == 0x1011): #chapter 2 upper town
                         if(self.progression_state == 0x14):
                             self.try_to_update_connections = True

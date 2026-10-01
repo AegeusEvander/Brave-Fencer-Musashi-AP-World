@@ -351,6 +351,11 @@ def setup_options_from_slot_data(world: "BFMWorld") -> None:
             world.options.time_sanity.value = world.passthrough["time_sanity"]
             world.options.time_sanity_settings.value = world.passthrough["time_sanity_settings"]
             world.options.early_skullpion.value = world.passthrough["early_skullpion"]
+            world.options.rumparoni_logic.value = world.passthrough["rumparoni_logic"]
+            world.options.double_jump_logic.value = world.passthrough["double_jump_logic"]
+            world.options.starting_location.value = world.passthrough["starting_location"]
+            world.er_pairings = world.passthrough["er_pairings"]
+            world.options.entrance_rando.value = len(world.passthrough["er_pairings"]) > 0
         else:
             world.using_ut = False
     else:

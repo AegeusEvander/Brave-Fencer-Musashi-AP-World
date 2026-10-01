@@ -21,9 +21,9 @@ while IFS= read -r -d $'\0' file; do
 done < <(find . -maxdepth 1 -type f ! -name "$script_name" -print0)
 
 # Sign each file with GPG
-for file in "${files[@]}"; do
-    gpg --output "$temp_dir/bfm/$(basename "$file").sig" --detach-sign --digest-algo SHA256 "$file"
-done
+#for file in "${files[@]}"; do
+#    gpg --output "$temp_dir/bfm/$(basename "$file").sig" --detach-sign --digest-algo SHA256 "$file"
+#done
 
 cp "${files[@]}" "$temp_dir/bfm"
 
@@ -48,8 +48,8 @@ cd "$HOME/Documents/ArchipelagoSource/"
 python3 -m venv venv
 source venv/bin/activate
 cd "Archipelago/"
-python3 -m pip install --upgrade pip
-python3 ModuleUpdate.py --yes --force
+#python3 -m pip install --upgrade pip
+#python3 ModuleUpdate.py --yes --force
 python3 Launcher.py "Build APWorlds" -- "Brave Fencer Musashi" --skip_open_folder
 
 cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.7/Archipelago/custom_worlds"
@@ -59,4 +59,4 @@ cd "$folder"
 echo "Files signed with GPG and packaged into an APWorld."
 echo "Don't forget to increment the version!"
 
-#$HOME/Documents/Archipelago6.7/Archipelago/ArchipelagoLauncher "Universal Tracker" -- --connect archipelago://AegeusMusashi:None@localhost:38281 
+#$HOME/Documents/Archipelago6.7/Archipelago/ArchipelagoLauncher "Universal Tracker" -- --connect archipelago://test:None@localhost:38281 
