@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 from BaseClasses import CollectionState, Entrance, Location, Region
 from NetUtils import JSONMessagePart
 from Options import Option
+from logging import warning
 
 if TYPE_CHECKING:
     from . import BFMWorld
@@ -304,25 +305,37 @@ def location_icon_coords(index: int | None, coords: dict[str, Any]) -> tuple[int
     """
 
 class UTMxin(World):
-    tracker_world: ClassVar = {
-        "map_page_folder": "tracker",
-        "map_page_maps": "maps/maps.json",
-        #"map_page_maps": ["maps/maps.json"],
-        "map_page_locations": "locations/locations.json",
-        #"map_page_locations": ["locations/locations.json"],
-        "map_page_setting_key": "{player}_{team}_bfm_area",
-        "map_page_index": map_page_index,
-        #"location_setting_key": "{player}_{team}_bfm_coords",
-        #"location_icon_coords": location_icon_coords,
-        #"external_pack_key": "ut_pack_path",
-        "map_page_groups": tracker_map_groups,
-    }
+    #from CommonClient import logger
+    import traceback
+    try:
+        from worlds.tracker import ItemLayoutSection
+
+        tracker_world: ClassVar = {
+            "map_page_folder": "tracker",
+            "map_page_maps": "maps/maps.json",
+            #"map_page_maps": ["maps/maps.json"],
+            "map_page_locations": "locations/locations.json",
+            #"map_page_locations": ["locations/locations.json"],
+            "map_page_setting_key": "{player}_{team}_bfm_area",
+            "map_page_index": map_page_index,
+            #"location_setting_key": "{player}_{team}_bfm_coords",
+            #"location_icon_coords": location_icon_coords,
+            #"external_pack_key": "ut_pack_path",
+            "map_page_groups": tracker_map_groups,
+            "item_page_items": "items/items.json",
+            "item_page_item_layouts": ItemLayoutSection(name="All items", items="Everything", cols=1)
+        }
+
+    except:
+        warning("%s", traceback.format_exc())
+        warning("Universal Tracker maybe out of date, try updating")
 
 
 def setup_options_from_slot_data(world: "BFMWorld") -> None:
     if hasattr(world.multiworld, "re_gen_passthrough"):
         if "Brave Fencer Musashi" in world.multiworld.re_gen_passthrough:
             world.using_ut = True
+            world.defer_entrances = getattr(world.multiworld, "enforce_deferred_connections", "default") != "off"
             world.passthrough = world.multiworld.re_gen_passthrough["Brave Fencer Musashi"]
             world.options.set_lang.value = world.passthrough["set_lang"]
             world.options.playthrough_method.value = world.passthrough["playthrough_method"]

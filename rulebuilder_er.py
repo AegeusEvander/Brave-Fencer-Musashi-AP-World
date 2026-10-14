@@ -5,7 +5,7 @@ from BaseClasses import CollectionState
 from .locations import location_name_groups, location_table, standard_location_name_to_id, days_of_week
 from .items import item_table
 from rule_builder.options import OptionFilter
-from rule_builder.rules import Has, HasAny, HasAll, Rule, True_, False_, HasAnyCount, HasFromList # CanReachRegion,
+from rule_builder.rules import Has, HasAny, HasAll, Rule, True_, False_, HasAnyCount, HasFromList, CanReachRegion
 from .options import QuestItemSanity, PlaythroughMethod, ScrollSanity, WindScrollLogic, GrocerySanity, GrocerySanityHealLogic, BakerySanity, SkyScrollLogic, StartingMaxHP, CoreSanity, LuminaRandomized, ForceSodaFountainToBeLast, SetGoal, TimeSanity, TimeSanitySettings, RumparoniLogic, TechSanity, DoubleJumpLogic, StartingLocation
 if TYPE_CHECKING:
     from . import BFMWorld
@@ -484,7 +484,7 @@ def set_er_rules(world: "BFMWorld") -> None:
     world.set_rule(world.get_location(check_location_name("Minku - Twinpeak End of Stream", loc_lang)), (has_water_scroll | sky_scroll_simple) & can_catch_minku)
     world.set_rule(world.get_location(check_location_name("Minku - Steamwood Forest", loc_lang)), can_catch_minku)
     world.set_rule(world.get_location(check_location_name("Minku - Somnolent Forest", loc_lang)), (has_water_scroll | sky_scroll_simple) & can_catch_minku)
-    world.set_rule(world.get_location(check_location_name("Minku - Grillin Village Above Gondola", loc_lang)), can_catch_minku)
+    world.set_rule(world.get_location(check_location_name("Minku - Grillin Village Above Gondola", loc_lang)), (has_bracelet | CanReachRegion("Upper Village Upper Open Vent")) & can_catch_minku)
     world.set_rule(world.get_location(check_location_name("Minku - Grillin Reservoir", loc_lang)), ((has_water_scroll & has_water_boss_core) | sky_scroll_simple) & can_catch_minku)  
     world.set_rule(world.get_location(check_location_name("Minku - Grillin Village Near Twinpeak", loc_lang)), can_catch_minku)
     world.set_rule(world.get_location(check_location_name("Minku - Somnolent Forest Hidden Path", loc_lang)), can_catch_minku)

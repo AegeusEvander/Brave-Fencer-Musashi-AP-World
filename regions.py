@@ -296,7 +296,7 @@ bfm_er_static_regions: dict[int, dict[str, tuple[str]]] = {
         "Calendar Maze Earth Scroll Puzzle Room East Behind Wall": ("Calendar Maze Earth Scroll Puzzle Room Sun Door Background",),
         "Calendar Maze Reset Room (From a Foreground Door)": ("Reset Fire Door (Blank Door Along Back Wall)",),
         "Calendar Maze Reset Room (From a Background Door)": ("Reset Fire Door (No Blank Door Along Back Wall)",),
-        "Calendar Maze Small Room Wind Scroll Door": ("Calendar Maze Small Room Wind Scroll Door Background","Calendar Maze Small Room Doorway To Wind Scroll Jump Foreground"),
+        "Calendar Maze Small Room Wind Scroll Door": ("Calendar Maze Small Room Doorway To Wind Scroll Jump Foreground",),
     },
     0x3085: {
         "Calendar Maze Sky Scroll Over Spikes and Retracting Panel": ("Calendar Maze Sky Scroll Over Spikes and Retracting Panel Sun Door Foreground","Calendar Maze Sky Scroll Over Spikes and Retracting Panel Fake Sky Door Background"),
@@ -361,6 +361,8 @@ bfm_er_static_one_way_connections: dict[str, str] = {
     "Frozen Palace Lobby Left Balcony Door": "Frozen Palace Lobby",
     "Frozen Palace Lobby Right Balcony Door": "Frozen Palace Lobby",
     "Squish Ant": "Upper Village",
+    "Calendar Maze Small Room Wind Scroll Door Background": "Calendar Maze Small Room Wind Scroll Door",
+    "Grillin Reservoir Submerged Tunnel": "Grillin Reservoir Eastern Mine Exit",
 }
 
 

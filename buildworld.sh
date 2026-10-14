@@ -52,7 +52,7 @@ cd "Archipelago/"
 #python3 ModuleUpdate.py --yes --force
 python3 Launcher.py "Build APWorlds" -- "Brave Fencer Musashi" --skip_open_folder
 
-cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.7/Archipelago/custom_worlds"
+cp -f "build/apworlds/bfm.apworld" "$HOME/Documents/Archipelago6.8/Archipelago/custom_worlds"
 
 cd "$folder"
 

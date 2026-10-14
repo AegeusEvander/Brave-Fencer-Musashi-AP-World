@@ -49,7 +49,7 @@ progression_state_table: Dict[int, str] = {
     0x01e0: "Return the bell to the village",
     0x0258: "Relic Keeper Defeated",
     0x0276: "Fix the Village Well",
-    0x0280: "The mayor's wife asks you to fix the Gondola Gizmo",
+    0x0280: "The mayor's wife asks you to fix the Gondola with the Gizmo",
     0x028a: "Carpenters describe the Gondola Gizmo",
     0x0294: "Deliver the Gizmo Gondola",
     0x029e: "A fire starts in the village",
@@ -96,7 +96,7 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
         if(old_progression_state in [0x0294, 0x29e] and ctx.slot_data["skip_minigame_town_on_fire"] == False): #0x029e: "A fire starts in the village",
             return 0, ""
         if(not 0x2b2 in completed_progression_states and 0x294 in completed_progression_states and ctx.slot_data["skip_minigame_town_on_fire"] == False): #02a8= Put out fire
-            return 0x29e, "" #"A fire starts in the village",
+            return 0x294, "" #"A fire starts in the village",
         if(0x47e in completed_progression_states and not 0x488 in completed_progression_states):
             return 0x47e, "" #0x047e: "See the mutant ant at the mountain entrance",
         if(((0x0294 in completed_progression_states and ctx.slot_data["playthrough_method"] == 2) or (0x3c0 in completed_progression_states and ctx.slot_data["playthrough_method"] == 1)) and old_progression_state < 0x3c0 ):
@@ -197,7 +197,7 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x32, "" #0x0032: "Feed Jon",
     if(loc_id == 0x3024): #"Skullpion Arena", 
         if(not 0xc8 in completed_progression_states and old_progression_state != 0xa0): #0x00c8: "Acquire your first crest",
-            if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list and item_name_to_id["Earth Scroll"] in received_list):
+            if(item_name_to_id["CarpentA"] in received_list and item_name_to_id["MercenC"] in received_list and item_name_to_id["SoldierA"] in received_list and item_name_to_id["KnightB"] in received_list and (item_name_to_id["Earth Scroll"] in received_list or (progression_flags[26][0] & 0b1000000 == 0b1000000 and ctx.slot_data["scroll_sanity"] == False))):
                 return 0xa0, "" #0x00a0: "Allies open the gate to Hell's Valley",
         if(is_er):
             #if(0xc8 in completed_progression_states and (standard_location_name_to_id["Minku - Skullpion Arena"] in ctx.checked_locations or standard_location_name_to_id["Minku - Skullpion Arena"] + jp_id_offset in ctx.checked_locations)):
@@ -232,6 +232,10 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
     if(loc_id == 0x3029): #"Twinpeak Second Peak", 
         if(old_progression_state in [0x104, 0x10e]): #0x0104: "Meet Hotelo on Twinpeak Mountain and go after Aqualin",
             return 0, "" #don't interupt aqualin minigame
+        elif(int.from_bytes(progression_flags[35], byteorder='little')>0):
+            if(0x010e in completed_progression_states):
+                return 0x10e, "" #0x010e: "Get Aqualin",
+            return 0x104, "" #don't interupt aqualin minigame "Meet Hotelo on Twinpeak Mountain and go after Aqualin",
         if(not 0x46 in completed_progression_states and old_progression_state <= 0x46):
             return 0x5a, "" #0x005a: "Find Bracelet",
         if(ctx.slot_data["quest_item_sanity"] == True):
@@ -258,6 +262,10 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
     if(loc_id == 0x302c): #"Twinpeak Waterfall Cave 2", 
         #from CommonClient import logger
         #logger.info("Looking at rules for waterfall Cave 2")
+        if(int.from_bytes(progression_flags[35], byteorder='little')>0):
+            if(0x010e in completed_progression_states):
+                return 0x10e, "" #0x010e: "Get Aqualin",
+            return 0x104, "" #don't interupt aqualin minigame "Meet Hotelo on Twinpeak Mountain and go after Aqualin",
         if(not 0x118 in completed_progression_states and 0xf0 in completed_progression_states and not old_progression_state in [0xf0, 0xfa, 0x104, 0x10e, 0x118]):
             #logger.info("Past first check for aqualin minigame")
             if(((ctx.slot_data["quest_item_sanity"] == True and item_name_to_id["Aqualin"] in received_list) or ctx.slot_data["quest_item_sanity"] == False) and (progression_flags[26][0] & 0b1000000 == 0b1000000 or (progression_flags[26][1] & 0b1000100 == 0b1000100 and ctx.slot_data["sky_scroll_logic"] == 3))): #aqualin and earth scroll or double jump and sky
@@ -277,6 +285,9 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             return 0x1e0, "" #0x01e0: "Return the bell to the village",
         #if(is_er): #only works once for some reason
         #    return 0x1e0, "" #0x01e0: "Return the bell to the village",
+    if(loc_id == 0x3043): #"Lower Mine Entrance", 
+        if(progression_flags[18][1] == 0x31 or progression_flags[18][0] == 0x43): #bell should be in tunnel
+            return 0x01d1, "" #"Interacted with the church bell (does not require talking to Father White)",
     if(loc_id == 0x3047): #"Misteria Underground Lake", 
         if(not 0xe6 in completed_progression_states and old_progression_state != 0xdc):
             return 0xdc, "" #0x00dc: "Acquire Mine's Key",
@@ -292,8 +303,8 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
             if(0x1ae in completed_progression_states and 0x12c in completed_progression_states and 0x136 in completed_progression_states):
                 if((progression_flags[17][13] & 0b1000000 == 0b1000000) and (ctx.slot_data["scroll_sanity"] == False or (item_name_to_id["Water Scroll"] in received_list or (item_name_to_id["Sky Scroll"] in received_list and ctx.slot_data["sky_scroll_logic"] > 1)))):
                     return 0x1ae, "" #0x01ae: "The Father asks you to retrieve Church Bell",
-            if(old_progression_state <= 0x276 or old_progression_state >= 0x190):
-                return 0xc8, "" #0x00c8: "Acquire your first crest",
+            #if(old_progression_state <= 0x276 or old_progression_state >= 0x190):
+        return 0xc8, "" #0x00c8: "Acquire your first crest",
         #check if progression state affects Rope to climb
 	#0x3051: "Chapter 3 Church Vambee Fight",
     if(loc_id == 0x305c): #"Frozen Palace Lobby",
@@ -686,7 +697,10 @@ def calc_progression_state(ctx: "BizHawkClientContext", loc_id: int, old_progres
 	#0x205b: "Chapter 3 Restaurant", #check if tim was saved
 	#0x2080: "Chapter 4 Restaurant", 
     #0x209d: "Chapter 5/6 Restaurant"
-
+    if(loc_id <= 0x3075 and old_progression_state > 0x4b0):
+        return 0x04b0, "" # "Defeat Queen Ant",
+    if(is_er and (old_progression_state < 0xa or loc_id == 0x300e)):
+        return 0x000a, "" # "zipline down gondola",
     return 0, ""
 
 def calc_completed_progression_state(ctx: "BizHawkClientContext", progression_flags: List[List[bytes]]) -> Set[int]:

@@ -50,7 +50,7 @@ location_table: Dict[str, BFMLocationData] = {
     "Minku - Grillin Village Near Twinpeak": BFMLocationData("Upper Grillin Village","Upper Village",location_group = "Minku", jp_name = "ミンクー - アミヤクイ村"),
     "Minku - Somnolent Forest Hidden Path": BFMLocationData("Somnolent Forest","Somnolent Forest",location_group = "Minku", jp_name = "ミンクー - すいまの森"),
     "Minku - Twinpeak Around the Bend": BFMLocationData("Twinpeak Around the Bend","Twinpeak Around the Bend",location_group = "Minku", jp_name = "ミンクー - ふたご山"),
-    "Minku - Grillin Village Above Gondola": BFMLocationData("Upper Grillin Village","Upper Village Upper Open Vent",location_group = "Minku", jp_name = "ミンクー - ゴンドラの上"),
+    "Minku - Grillin Village Above Gondola": BFMLocationData("Upper Grillin Village","Upper Village",location_group = "Minku", jp_name = "ミンクー - ゴンドラの上"),
     "Minku - Skullpion Arena": BFMLocationData("Skullpion Arena","Skullpion Arena Entrance",location_group = "Minku", jp_name = "ミンクー - ヘルズバレー"),
     "Minku - Steamwood Forest": BFMLocationData("Steamwood Forest","Steamwood Forest top of Wind Crest Cliff",location_group = "Minku", jp_name = "ミンクー - スチームウッドの森"),
     "Minku - Somnolent Forest": BFMLocationData("Somnolent Forest","Somnolent Forest",location_group = "Minku", jp_name = "ミンクー - すいまの森の川"),

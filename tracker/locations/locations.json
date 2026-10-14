@@ -3615,7 +3615,7 @@
                 "name": "Take Gondola to Castle",
                 "sections": [
                     {
-                        "name": "Take Gondola to Upper Village"
+                        "name": "Take Gondola to Castle"
                     }
                 ],
                 "map_locations": [
@@ -9702,10 +9702,10 @@
                 ]
             },
             {
-                "name": "Frozen Palace Lobby North East Doorway",
+                "name": "Frozen Palace Lobby East Doorway",
                 "sections": [
                     {
-                        "name": "Frozen Palace Lobby North East Doorway"
+                        "name": "Frozen Palace Lobby East Doorway"
                     }
                 ],
                 "map_locations": [

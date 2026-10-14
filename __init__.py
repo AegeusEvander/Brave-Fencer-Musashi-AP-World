@@ -95,14 +95,19 @@ class BFMWorld(UTMxin, World):
 
     #taken from Tunic for UT
     using_ut: bool = False  # so we can check if we're using UT only once
-    passthrough: Dict[str, Any]
+    defer_entrances: bool = False
+    found_entrances_datastorage_key: List[str] = ["{player}_{team}_bfm_conn"]
+    #ut_entrances: Dict[int, Tuple[Entrance,]]
+    #passthrough: Dict[str, Any]
     ut_can_gen_without_yaml = True  # class var that tells it to ignore the player yaml
     #tracker_world: ClassVar = ut_stuff.tracker_world
 
     entrance_ids_connected: List[Tuple[str,str]] = []
-    er_pairings: Dict[str,str] = {}
+    er_pairings: List[Tuple[str, str]] = []
+    #Dict[str,str] = {}
 
     def generate_early(self) -> None:
+        self.er_pairings = []
         tracker.setup_options_from_slot_data(self)
         if(getattr(self.multiworld, "generation_is_fake", False)):
             warning("Fake GEN")
@@ -332,7 +337,7 @@ class BFMWorld(UTMxin, World):
                     #except KeyError:
                     #    warning("Missing %s", connection_data.region)
                     #    warning("Missing %s", region_name)
-            warning("connected : %s", self.entrance_ids_connected)
+            #warning("connected : %s", self.entrance_ids_connected)
             for origin_region_name, region_name in bfm_er_static_one_way_connections.items():
                 origin_region = self.get_region(origin_region_name)
                 region = self.get_region(region_name)
@@ -396,7 +401,7 @@ class BFMWorld(UTMxin, World):
         elif(self.options.goal.value == 9): #defeat x crest guardian
             self.multiworld.completion_condition[self.player] = lambda state: state.has("Boss killed", self.player, self.options.guardian_goal.value) or (state.has("Boss killed", self.player, self.options.guardian_goal.value - 1) and state.has("ToD killed", self.player))
             
-        visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_with_locations.puml")
+        #visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_with_locations.puml")
             #self.multiworld.completion_condition[self.player] = lambda state: has_all_scrolls(state, self) and has_earth_boss_core(state, self) and has_wind_boss_core(state, self) and has_ex_drink(state, self) and state.has_all({"Lumina", "Bracelet"}, self.player)
         #self.multiworld.completion_condition[self.player] = lambda state: state.has_all({"Guard", "Seer", "Hawker", "Maid", "MusicianB", "SoldierA", "MercenC", "CarpentA", "KnightB", "Shepherd", "Bailiff", "Taster", "CarpentB", "Weaver", "SoldierB", "KnightA", "CookA", "Acrobat", "MercenB", "Janitor", "Artisan", "CarpentC", "MusicianC", "Knitter", "Chef", "MercenA", "Chief", "CookB", "Conductor", "Butcher", "KnightC", "Doctor", "KnightD", "Alchemist", "Librarian"}, self.player)
         #self.multiworld.completion_condition[self.player] = lambda state: saved_everyone(state, self.world)
@@ -607,7 +612,11 @@ class BFMWorld(UTMxin, World):
                 trap_weights = {"Random Ability Trap": 50}
             trap_values = [trap_weights[k] for k in trap_names]
             max_trap_weight = sum(trap_values)
-            if len(trap_values) > 1:
+            if(max_trap_weight == 0):
+                trap_names = ["Random Ability Trap"]
+                trap_weights = {"Random Ability Trap": 50}
+                trap_values = [trap_weights[k] for k in trap_names]
+            if len(trap_values) > 1 and max_trap_weight > 1:
                 trap_ranges = trap_values
                 for i in range(1, len(trap_ranges)):
                     trap_ranges[i] = trap_ranges[i] + trap_ranges[i - 1] 
@@ -715,7 +724,7 @@ class BFMWorld(UTMxin, World):
         
         if(self.options.entrance_rando.value):
             set_er_rules(self)
-            warning("ran ER Rules")
+            #warning("ran ER Rules")
         else:
             set_rules(self)
         #if(self.using_ut == False):
@@ -839,7 +848,7 @@ class BFMWorld(UTMxin, World):
             attempts: int = 0
             #mess_with_rng = 0
             er_info: ERPlacementState = None
-            max_attempts = 1
+            max_attempts = 150
             while(attempts < max_attempts and er_info is None):
                 attempts = attempts + 1
                 try:
@@ -855,16 +864,18 @@ class BFMWorld(UTMxin, World):
                     for region in self.get_regions():
                         for entrance in region.get_exits():
                             if (entrance.randomization_group == 1 and entrance.parent_region and entrance.connected_region):
+                                disconnect_entrance_for_randomization(entrance, entrance.randomization_group, entrance.connected_region.name)
                                 #warning("disconnected : %s -> %s", entrance.parent_region, entrance.connected_region)
-                                if(entrance.connected_region.name == "Restaurant Hidden Exit Behind Counter"):
-                                    warning("Parent of region that shouldn't be disconnected %s",entrance.parent_region.name)
-                                if(entrance.parent_region.name == "Restaurant Hidden Exit Behind Counter"):
-                                    warning("should only be one of these, restaurant connected to %s", entrance.connected_region)
-                                    warning("entrance type %s", entrance.randomization_type)
-                                disconnect_entrance_for_randomization(entrance, entrance.randomization_group, region.name)
-            visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_er.puml")
+                                #if(entrance.connected_region.name == "Restaurant Hidden Exit Behind Counter"):
+                                #warning("Parent of region %s connected to %s",region.name,entrance.connected_region)
+                                #if(entrance.parent_region.name == "Restaurant Hidden Exit Behind Counter"):
+                                #warning("connected to %s", entrance.connected_region)
+                                #warning("entrance type %s", entrance.randomization_type)
+            #visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_er.puml")
             warning("er info pairings : %s",er_info.pairings)
+            #warning("Lookup table %s",bfm_portals_door_names_to_short)
 
+            self.er_pairings = []
             for pair in er_info.pairings:
                 origin = pair[0].split(" -> ")[0]
                 dest = pair[1].split(" -> ")[0]
@@ -880,27 +891,31 @@ class BFMWorld(UTMxin, World):
                     dest = region_alias_reverse[dest]
                     if(dest in bfm_portals_door_names_to_short):
                         dest = bfm_portals_door_names_to_short[dest]
-                if(dest in ["001","002","003"]):
-                    dest = "004"
-                if(dest in ["005","006","007"]):
-                    dest = "000"
+                #if(dest in ["001","002","003"]):
+                #    dest = "004"
+                #if(dest in ["005","006","007"]):
+                #    dest = "000"
                 if(dest in ["10"]):
                     dest = "107"
                 if(origin == "9d1"):
                     origin = "1a1"
-                self.er_pairings[origin] = dest
+                #self.er_pairings[origin] = dest
+                self.er_pairings.append((origin, dest))
                 #if(dest in self.er_pairings):
                 #    if(self.er_pairings[dest] != origin or True):
                 #        self.er_pairings[origin] = dest
                 #else:
                 #    self.er_pairings[origin] = dest
             if(self.options.starting_location.value == 2):
-                self.er_pairings["052"] = "040"
-                self.er_pairings["061"] = "040"
+                #self.er_pairings["052"] = "040"
+                #self.er_pairings["061"] = "040"
+                self.er_pairings.append(("052", "040"))
+                self.er_pairings.append(("061", "040"))
             warning("short_name_pairs : %s",self.er_pairings)
         else:
             warning("pairings list %s",self.er_pairings)
-            for origin, dest in self.er_pairings.items():
+            #for origin, dest in self.er_pairings.items():
+            for origin, dest in self.er_pairings:
                 if(origin in bfm_portals_short_to_door_names_no_ignore):
                     long_name_origin = bfm_portals_short_to_door_names_no_ignore[origin]
                 else:
@@ -911,9 +926,9 @@ class BFMWorld(UTMxin, World):
                     #    long_name_origin = bfm_portals[num].region
                 if(long_name_origin in region_alias):
                     long_name_origin = region_alias[long_name_origin]
-                if(dest in ["000", "004"]):
-                    long_name_region = "Castle Outside"
-                elif(dest == "107"):
+                #if(dest in ["000", "004"]):
+                #    long_name_region = "Castle Outside"
+                if(dest == "107"):
                     long_name_region = "Grillin Village"
                 elif(dest in bfm_portals_short_to_door_names_no_ignore):
                     long_name_region = bfm_portals_short_to_door_names_no_ignore[dest]
@@ -930,7 +945,9 @@ class BFMWorld(UTMxin, World):
                 origin_region = self.get_region(long_name_origin)
                 region = self.get_region(long_name_region)
                 origin_region.connect(region, name = long_name_origin)
-            visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_UT_er.puml")
+                if(self.defer_entrances):
+                    self.get_entrance(long_name_origin).connected_region = None
+            #visualize_regions(self.multiworld.get_region("Menu", self.player), "bfm_UT_er.puml")
 
         #warning("er info placements : %s",er_info.placements)
     # Taken from Tunic APWorld https://github.com/ArchipelagoMW/Archipelago/blob/main/worlds/tunic/__init__.py#L713
@@ -941,3 +958,33 @@ class BFMWorld(UTMxin, World):
         # returning slot_data so it regens, giving it back in multiworld.re_gen_passthrough
         return slot_data
         
+    def reconnect_found_entrances(self, key: str, value: Any) -> None:
+        if not value:
+            return
+        else:
+            for i in range(len(self.er_pairings)):
+                if (value >> i) & 1 == 1:
+                    origin,dest = self.er_pairings[i]
+                    if(origin in bfm_portals_short_to_door_names_no_ignore):
+                        long_name_origin = bfm_portals_short_to_door_names_no_ignore[origin]
+                    else:
+                        #warning("not in list %s",origin)
+                        continue
+                    if(long_name_origin in region_alias):
+                        long_name_origin = region_alias[long_name_origin]
+                    if(dest == "107"):
+                        long_name_region = "Grillin Village"
+                    elif(dest in bfm_portals_short_to_door_names_no_ignore):
+                        long_name_region = bfm_portals_short_to_door_names_no_ignore[dest]
+                    else:
+                        #warning("not in list %s",dest)
+                        continue
+                    if(long_name_region in region_alias):
+                        long_name_region = region_alias[long_name_region]
+                        #else:
+                        #    warning("no name found for %s, %s",dest,num)
+                    entrance = self.get_entrance(long_name_origin)
+                    region = self.get_region(long_name_region)
+                    if(entrance.connected_region is None):
+                        entrance.connected_region = region
+                    #self.disconnected_entrances[i][0].connect(self.disconnected_entrances[i][1])

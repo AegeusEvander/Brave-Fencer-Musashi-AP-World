@@ -43,7 +43,7 @@ bfm_portals: dict[int, BFMConnectionData] = {
 		)),
 	0x3004: BFMConnectionData("Castle Gondola", 0x1d4, (
 			BFMConnection(0x18202c, 0x1011, 0x5, "040", "Zipline", can_be_disconnected = False),
-			#BFMConnection(0x182008, 0x1095, 0x5, "041", "Take Gondola to Upper Village"),
+			BFMConnection(0x182008, 0x1095, 0x5, "041", "Take Gondola to Upper Village", connection_group = "Ignore"),
 			BFMConnection(0x182074, 0x1095, 0x6, "041", "Take Gondola to Upper Village"),
 			BFMConnection(0x182050, 0x3000, 0x0, "043", "Take Gondola to Castle"),
 			#BFMConnection(0x1820a8, 0x1011, 0x0, ""),
@@ -948,5 +948,5 @@ bfm_portals_door_names_to_short: dict[str, str] = {v: k for k, v in bfm_portals_
 
 bfm_portals_connection_info: dict[str, List[int]] = {(hex(connection.destination)[4:] + hex(connection.door)[2:]): [connection.destination & 0xff, connection.destination >> 8, connection.door, connection.other] for id, portal in bfm_portals.items() for connection in portal.connections} | {(hex(id)[4:]): [id & 0xff, id >> 8, 0, 0] for id, portal in bfm_portals.items()}
 #ids_to_ignore_during_generation: tuple(int) = (0x)
-bfm_portals_short_to_door_names_no_ignore: dict[str, str] = {connection.short_name: connection.door_name for id, portal in bfm_portals.items() for connection in portal.connections if (connection.connection_group != "Ignore" or "Village" in portal.region)} | {hex(id)[4:]: portal.region for id, portal in bfm_portals.items()}
-del bfm_portals_short_to_door_names_no_ignore["040"]
+bfm_portals_short_to_door_names_no_ignore: dict[str, str] = {connection.short_name: connection.door_name for id, portal in bfm_portals.items() for connection in portal.connections if ((connection.connection_group != "Ignore" or "Village" in portal.region) and connection.short_name != "040")} | {hex(id)[4:]: portal.region for id, portal in bfm_portals.items()}
+#del bfm_portals_short_to_door_names_no_ignore["040"]
