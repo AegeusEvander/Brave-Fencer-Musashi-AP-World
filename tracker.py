@@ -1,9 +1,14 @@
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from BaseClasses import CollectionState, Entrance, Location, Region
 from NetUtils import JSONMessagePart
 from Options import Option
 from logging import warning
+#from worlds import add_apworld_spec, world_sources
+#from worlds.Files import APWorldContainer
+
+#tracker_world = next(filter(lambda source: source.path.endswith("tracker.apworld"), world_sources))
+#add_apworld_spec(tracker_world, APWorldContainer(tracker_world.resolved_path))
 
 if TYPE_CHECKING:
     from . import BFMWorld
@@ -303,32 +308,72 @@ def location_icon_coords(index: int | None, coords: dict[str, Any]) -> tuple[int
     return x, y, f
     
     """
+class ItemLayoutSection:
+    name: str
+    items: list[str]
+    orientation: Literal["tb", "lr"]
+    cols: int
+    rows: int
+    item_size: tuple[int, int]
+    item_width: int
+    item_height: int
+
+    def __init__(self, name: str, items: str | list[str],
+                 orientation: Literal["tb", "lr"] = "lr",
+                 cols: int = 5, rows: int = -1,
+                 item_size: tuple[int, int] = (48,48)):
+        self.name = name
+        if isinstance(items, str):
+            self.items = [ items ]
+        else:
+            self.items = items
+        self.orientation = orientation
+        self.cols = cols
+        self.rows = rows
+        self.item_size = item_size
+        self.item_width = item_size[0]
+        self.item_height = item_size[1]
 
 class UTMxin(World):
     #from CommonClient import logger
-    import traceback
-    try:
-        from worlds.tracker import ItemLayoutSection
+    #import traceback
+    #try:
+        #from worlds.tracker import UT_VERSION_TUPLE
+        #warning("%s", UT_VERSION_TUPLE)
+        #from worlds.tracker import ItemLayoutSection
 
-        tracker_world: ClassVar = {
-            "map_page_folder": "tracker",
-            "map_page_maps": "maps/maps.json",
-            #"map_page_maps": ["maps/maps.json"],
-            "map_page_locations": "locations/locations.json",
-            #"map_page_locations": ["locations/locations.json"],
-            "map_page_setting_key": "{player}_{team}_bfm_area",
-            "map_page_index": map_page_index,
-            #"location_setting_key": "{player}_{team}_bfm_coords",
-            #"location_icon_coords": location_icon_coords,
-            #"external_pack_key": "ut_pack_path",
-            "map_page_groups": tracker_map_groups,
-            "item_page_items": "items/items.json",
-            "item_page_item_layouts": ItemLayoutSection(name="All items", items="Everything", cols=1)
-        }
+    tracker_world: ClassVar = {
+        "map_page_folder": "tracker",
+        "map_page_maps": "maps/maps.json",
+        #"map_page_maps": ["maps/maps.json"],
+        "map_page_locations": "locations/locations.json",
+        #"map_page_locations": ["locations/locations.json"],
+        "map_page_setting_key": "{player}_{team}_bfm_area",
+        "map_page_index": map_page_index,
+        #"location_setting_key": "{player}_{team}_bfm_coords",
+        #"location_icon_coords": location_icon_coords,
+        #"external_pack_key": "ut_pack_path",
+        "map_page_groups": tracker_map_groups,
+        "item_page_items": "items/items.json",
+        #"item_page_item_layouts": [ItemLayoutSection(name="All items", items="Everything", cols=1)],
+        "map_page_item_layouts_right": [
+            ItemLayoutSection(name="Lumina", items="Lumina", orientation="lr", cols=2, item_size=(40,40)),
+            #ItemLayoutSection(name="Scrolls (まき)", items="Scroll", orientation="lr", cols=2, item_size=(40,40)),
+            ItemLayoutSection(name="Scrolls", items="Scroll", orientation="lr", cols=2, item_size=(40,40)),
+            ItemLayoutSection(name="Cores", items="Core", orientation="lr", cols=2, item_size=(40,40)),
+            ItemLayoutSection(name="Healing", items="Grocery", orientation="lr", cols=2, item_size=(40,40)),
+            ItemLayoutSection(name="Chests", items="Chest Reward", orientation="lr", cols=2, item_size=(40,40)),
+            #ItemLayoutSection(name="Scrolls", items=["Earth Scroll", "Water Scroll", "Fire Scroll"], orientation="lr", cols=2, item_size=(40,40)),
+        ],
+        "map_page_item_layouts_left": [
+            ItemLayoutSection(name="Quest Items", items="Quest", orientation="lr", cols=2, item_size=(40,40)),
+            #ItemLayoutSection(name="Scrolls", items=["Earth Scroll", "Water Scroll", "Fire Scroll"], orientation="lr", cols=2, item_size=(40,40)),
+        ],
+    }
 
-    except:
-        warning("%s", traceback.format_exc())
-        warning("Universal Tracker maybe out of date, try updating")
+    #except:
+    #    warning("%s", traceback.format_exc())
+    #    warning("Universal Tracker maybe out of date, try updating")
 
 
 def setup_options_from_slot_data(world: "BFMWorld") -> None:

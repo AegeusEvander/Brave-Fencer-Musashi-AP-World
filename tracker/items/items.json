@@ -1,6 +1,158 @@
 [
     {
         "name": "Lumina",
-        "type": "toggle"
+        "type": "toggle",
+        "img": "/images/items/lumina.png"
+    },
+    {
+        "name": "Earth Scroll",
+        "type": "toggle",
+        "img": "/images/items/earth_scroll.png"
+    },
+    {
+        "name": "Water Scroll",
+        "type": "toggle",
+        "img": "/images/items/water_scroll.png"
+    },
+    {
+        "name": "Fire Scroll",
+        "type": "toggle",
+        "img": "/images/items/fire_scroll.png"
+    },
+    {
+        "name": "Wind Scroll",
+        "type": "toggle",
+        "img": "/images/items/wind_scroll.png"
+    },
+    {
+        "name": "Sky Scroll",
+        "type": "toggle",
+        "img": "/images/items/sky_scroll.png"
+    },
+    {
+        "name": "Earth Boss Core",
+        "type": "toggle",
+        "img": "/images/items/earth_boss_core.png"
+    },
+    {
+        "name": "Water Boss Core",
+        "type": "toggle",
+        "img": "/images/items/water_boss_core.png"
+    },
+    {
+        "name": "Fire Boss Core",
+        "type": "toggle",
+        "img": "/images/items/fire_boss_core.png"
+    },
+    {
+        "name": "Wind Boss Core",
+        "type": "toggle",
+        "img": "/images/items/wind_boss_core.png"
+    },
+    {
+        "name": "Progressive Drink",
+        "type": "progressive",
+        "stages": [
+            {
+                "name": "Drink 1",
+                "img": "/images/items/progressive_drink.png"
+            },
+            {
+                "name": "Drink 2",
+                "img": "/images/items/progressive_drink_2.png"
+            }
+        ]
+    },
+    {
+        "name": "W-Gel",
+        "type": "toggle",
+        "img": "/images/items/w_gel.png"
+    },
+    {
+        "name": "Bracelet",
+        "type": "toggle",
+        "img": "/images/items/bracelet.png"
+    },
+    {
+        "name": "Red Shoes",
+        "type": "toggle",
+        "img": "/images/items/red_shoes.png"
+    },
+    {
+        "name": "Ugly Belt",
+        "type": "toggle",
+        "img": "/images/items/ugly_belt.png"
+    },
+    {
+        "name": "Log",
+        "type": "progressive",
+        "stages": [
+            {
+                "name": "Log 1",
+                "img": "/images/items/log_1.png"
+            },
+            {
+                "name": "Log 2",
+                "img": "/images/items/log_2.png"
+            },
+            {
+                "name": "Log 3",
+                "img": "/images/items/log_3.png"
+            },
+            {
+                "name": "Log 4",
+                "img": "/images/items/log_4.png"
+            }
+        ]
+    },
+    {
+        "name": "Gondola Gizmo",
+        "type": "toggle",
+        "img": "/images/items/gondola_gizmo.png"
+    },
+    {
+        "name": "Rock Salt",
+        "type": "toggle",
+        "img": "/images/items/rocksalt.png"
+    },
+    {
+        "name": "Profits",
+        "type": "toggle",
+        "img": "/images/items/profits.png"
+    },
+    {
+        "name": "Handle #0",
+        "type": "toggle",
+        "img": "/images/items/handle_0.png"
+    },
+    {
+        "name": "Handle #1",
+        "type": "toggle",
+        "img": "/images/items/handle_1.png"
+    },
+    {
+        "name": "Handle #4",
+        "type": "toggle",
+        "img": "/images/items/handle_4.png"
+    },
+    {
+        "name": "Handle #8",
+        "type": "toggle",
+        "img": "/images/items/handle_8.png"
+    },
+    {
+        "name": "Angel Statue",
+        "type": "toggle",
+        "img": "/images/items/angel_statue.png"
+    },
+    {
+        "name": "Key",
+        "type": "toggle",
+        "img": "/images/items/key.png"
+    },
+    {
+        "name": "Jon's Key",
+        "type": "toggle",
+        "img": "/images/items/jons_key.png"
     }
 ]
